@@ -4,10 +4,59 @@
 # unenum
 
 **Universal ADT utilities for TypeScript.**
+</div>
+
+```ts
+!*/
+import { type Enum, Result, builder, is, match } from "unenum";
+
+// 1. define
+
+export type Variant = Enum<{
+	Valid: { id: string };
+	Invalid: true;
+}>;
+
+export const Variant = builder({} as Variant);
+
+// 2. return types and values
+
+export function getVariant(): Result<Variant, "OutOfRangeError" | "ZeroError"> {
+	const id = Math.random();
+
+	if (id === 0) {
+		return Result.Error("ZeroError");
+	}
+
+	if (id < 0) {
+		return Result.Ok(Variant.Invalid());
+	}
+
+	return Result.Ok(Variant.Valid({ id: id.toString() }));
+}
+
+// 3. using values
+
+const result = getVariant();
+
+if (is(result, "Error")) {
+	console.log(result.error);
+} else {
+	const variant = result.value;
+	match(variant, {
+		Valid: () => console.log("is valid"),
+		Invalid: () => console.log("is invalid"),
+	});
+}
+/*!
+```
+
+<div align="center">
 
 [Installation](#installation) • [`Enum`](#enum) • [`builder`](#builder) •
 [`is`](#is) • [`match`](#match) • [`Result`](#result) •
 [`Result.from`](#resultfrom) • [`Async`](#async)
+
 </div>
 
 - produces simple and portable discriminated union types.
@@ -51,14 +100,7 @@ yarn add unenum
 
 /*!
 ## `Enum`
-!*/
 
-//>
-import { type Enum } from "unenum";
-//<
-
-/*!
-### Defining an Enum
 - The `_type` property is used as discriminant to distinguish between variants.
 - The underscore-prefixed name somewhat denotes this as a special property not
   intended to collide with general-use user-space named properties.
@@ -205,10 +247,6 @@ export const Colour = builder({} as Colour, {
 }
 //<
 
-//>
-import { builder } from "unenum";
-//<
-
 /*!
 ### `is`
 - Returns `true` and narrows the given Enum value's possible variants if the
@@ -216,8 +254,6 @@ import { builder } from "unenum";
 !*/
 
 //>
-import { is } from "unenum";
-
 {
 	type Value = Enum<{ A: true; B: { value: string } }>;
 	const value = {} as Value;
@@ -254,8 +290,6 @@ import { is_ } from "unenum";
 !*/
 
 //>
-import { match } from "unenum";
-
 {
 	const value = {} as Enum<{ A: true; B: { value: string } }>;
 
@@ -489,10 +523,6 @@ export const File = builder_({} as File, "mime" /* <-- */);
 - Represents either a success "value" (`Result.Ok`) or a failure "error"
   (`Result.Error`).
 !*/
-
-//>
-import { Result } from "unenum";
-//<
 
 /*!
 ### Result without a value or error.
