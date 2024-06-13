@@ -12,17 +12,23 @@ export type Enum<
 			: never;
 }[keyof TVariants];
 
-export { is, is_ } from "./enum.is.js";
-export { match, match_ } from "./enum.match.js";
-export { builder, builder_ } from "./enum.builder.js";
+import { match } from "./enum.match.js";
+import { builder } from "./enum.builder.js";
+
+export const Enum = Object.assign(builder, { match });
+export { EnumMapper } from "./enum.builder.js";
 
 export namespace Enum {
+	export type Infer<TBuilder extends { $Enum: Any }> = TBuilder["$Enum"];
+
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
 		Record<TDiscriminant, string>;
 
 	export type Discriminant = string;
 
 	export namespace Discriminant {
+		export type Any = string;
+
 		export type Default = "_type";
 	}
 

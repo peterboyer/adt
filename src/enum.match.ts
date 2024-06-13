@@ -1,4 +1,5 @@
 import type { Enum } from "./enum.js";
+import { is_ } from "./enum.is.js";
 
 export function match<
 	TEnum extends Enum.Any,
@@ -10,8 +11,36 @@ export function match<
 >(
 	value: TEnum,
 	matcher: TMatcher & { _?: TFallback },
-): ReturnTypeMatcher<TMatcher> | ReturnTypeFallback<TFallback> {
-	return match_(value, "_type", matcher as any);
+): ReturnTypeMatcher<TMatcher> | ReturnTypeFallback<TFallback>;
+export function match<
+	TEnum extends Enum.Any<TDiscriminant>,
+	TEnumMatcher extends EnumMatcher<TEnum, TDiscriminant>,
+	TMatcher extends [TFallback] extends [never]
+		? TEnumMatcher
+		: Partial<TEnumMatcher>,
+	TFallback = never,
+	TDiscriminant extends keyof TEnum & string = keyof TEnum &
+		Enum.Discriminant.Default,
+>(
+	value: TEnum,
+	matcher: TMatcher & { _?: TFallback },
+	discriminant: TDiscriminant,
+): ReturnTypeMatcher<TMatcher> | ReturnTypeFallback<TFallback>;
+export function match<
+	TEnum extends Enum.Any<TDiscriminant>,
+	TKey extends Enum.Keys<TEnum, TDiscriminant>,
+	TDiscriminant extends keyof TEnum & string = keyof TEnum &
+		Enum.Discriminant.Default,
+>(
+	value: TEnum,
+	matcher: TKey | TKey[],
+	discriminant?: TDiscriminant,
+): value is Enum.Pick<TEnum, TKey, TDiscriminant>;
+export function match(value: unknown, matcher: unknown) {
+	if (typeof value === "string") {
+		return is_(value as any, "_type", matcher);
+	}
+	return match_(value as any, "_type", matcher as any);
 }
 
 export function match_<

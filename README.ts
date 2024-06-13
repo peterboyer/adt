@@ -8,16 +8,15 @@
 
 ```ts
 !*/
-import { type Enum, Result, builder, is, match } from "unenum";
+import { Enum, Result } from "unenum";
 
 // 1. define
 
-export type Variant = Enum<{
+export type Variant = Enum.Infer<typeof Variant>;
+export const Variant = Enum<{
 	Valid: { id: string };
 	Invalid: true;
-}>;
-
-export const Variant = builder({} as Variant);
+}>();
 
 // 2. return types and values
 
@@ -39,22 +38,22 @@ export function getVariant(): Result<Variant, "OutOfRangeError" | "ZeroError"> {
 
 const result = getVariant();
 
-if (is(result, "Error")) {
-	console.log(result.error);
+if (Enum.match(result, "Error")) {
+	void result.error;
 } else {
 	const variant = result.value;
-	match(variant, {
-		Valid: () => console.log("is valid"),
-		Invalid: () => console.log("is invalid"),
+	const value = Enum.match(variant, {
+		Valid: () => 1,
+		Invalid: () => false,
 	});
+	void value;
 }
 /*!
 ```
 
 <div align="center">
 
-[Installation](#installation) • [`Enum`](#enum) • [`builder`](#builder) •
-[`is`](#is) • [`match`](#match) • [`Result`](#result) •
+[Installation](#installation) • [`Enum`](#enum) • [`Enum.match`](#match) • [`Result`](#result) •
 [`Result.from`](#resultfrom) • [`Async`](#async)
 
 </div>
@@ -98,22 +97,6 @@ yarn add unenum
 
 !*/
 
-/*!
-## `Enum`
-
-- The `_type` property is used as discriminant to distinguish between variants.
-- The underscore-prefixed name somewhat denotes this as a special property not
-  intended to collide with general-use user-space named properties.
-!*/
-
-//>
-export type User = Enum<{
-	Anonymous: true;
-	Authenticated: { userId: string };
-}>;
-
-// | { _type: "Anonymous" }
-// | { _type: "Authenticated", userId: string }
 //<
 
 /*!
@@ -129,7 +112,14 @@ as your Enum's type.
 !*/
 
 //>
-export const User = builder({} as User);
+export const User = Enum<{
+	Anonymous: true;
+	Authenticated: { userId: string };
+}>();
+
+export type User = Enum.Infer<typeof User>;
+// | { _type: "Anonymous" }
+// | { _type: "Authenticated", userId: string }
 
 {
 	const user: User = User.Anonymous();
@@ -166,7 +156,7 @@ export const User = builder({} as User);
 
 //>
 (function (user: User): string {
-	if (is(user, "Authenticated")) {
+	if (Enum.match(user, "Authenticated")) {
 		return `Logged in as ${user.userId}.`;
 	}
 	return "Not logged in.";
@@ -195,7 +185,7 @@ export const User = builder({} as User);
 
 //>
 (function (user: User): string {
-	return match(user, {
+	return Enum.match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
 		Anonymous: "Not logged in.",
 	});
@@ -208,7 +198,7 @@ export const User = builder({} as User);
 
 //>
 (function (user: User): string {
-	return match(user, {
+	return Enum.match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
 		_: "Unhandled case.",
 	});
@@ -224,15 +214,21 @@ export const User = builder({} as User);
 !*/
 
 //>
-type Colour = Enum<{
-	Transparent: true;
-	Named: { name: string };
-	RGB: Record<"r" | "g" | "b", number>;
-}>;
 
-export const Colour = builder({} as Colour, {
-	RGB: (r: number, g: number, b: number) => ({ r, g, b }),
-});
+import { EnumMapper } from "unenum";
+
+export const Colour = EnumMapper(
+	Enum<{
+		Transparent: true;
+		Named: { name: string };
+		RGB: Record<"r" | "g" | "b", number>;
+	}>(),
+	{
+		RGB: (r: number, g: number, b: number) => ({ r, g, b }),
+	},
+);
+
+type Colour = Enum.Infer<typeof Colour>;
 
 {
 	const color: Colour = Colour.RGB(4, 2, 0);
@@ -247,35 +243,27 @@ export const Colour = builder({} as Colour, {
 }
 //<
 
-/*!
-### `is`
-- Returns `true` and narrows the given Enum value's possible variants if the
-  value matches any of the specified variants by key.
-!*/
-
 //>
 {
 	type Value = Enum<{ A: true; B: { value: string } }>;
 	const value = {} as Value;
 
-	void (() => is(value, "A"));
-	void (() => is(value, "B"));
-	void (() => is(value, ["A"]));
-	void (() => is(value, ["A", "B"]));
+	void (() => Enum.match(value, "A"));
+	void (() => Enum.match(value, "B"));
+	void (() => Enum.match(value, ["A"]));
+	void (() => Enum.match(value, ["A", "B"]));
 }
 //<
 
 //>
-import { is_ } from "unenum";
-
 {
 	type Value = Enum<{ A: true; B: { value: string } }, "custom">;
 	const value = {} as Value;
 
-	void (() => is_(value, "custom", "A"));
-	void (() => is_(value, "custom", "B"));
-	void (() => is_(value, "custom", ["A"]));
-	void (() => is_(value, "custom", ["A", "B"]));
+	void (() => Enum.match(value, "A", "custom"));
+	void (() => Enum.match(value, "B", "custom"));
+	void (() => Enum.match(value, ["A"], "custom"));
+	void (() => Enum.match(value, ["A", "B"], "custom"));
 }
 //<
 
@@ -293,29 +281,27 @@ import { is_ } from "unenum";
 {
 	const value = {} as Enum<{ A: true; B: { value: string } }>;
 
-	void (() => match(value, { _: "Fallback" }));
-	void (() => match(value, { _: () => "Fallback" }));
-	void (() => match(value, { A: "A", _: "Fallback" }));
-	void (() => match(value, { A: () => "A", _: "Fallback" }));
-	void (() => match(value, { A: "A", B: "B" }));
-	void (() => match(value, { A: "A", B: () => "B" }));
-	void (() => match(value, { A: () => "A", B: () => "B" }));
-	void (() => match(value, { A: () => "A", B: () => "B", _: "Fallback" }));
-	void (() => match(value, { A: undefined, B: ({ value }) => value }));
-	void (() => match(value, { B: ({ value }) => value, _: "Fallback" }));
-	void (() => match(value, { A: true, B: false, _: undefined }));
+	void (() => Enum.match(value, { _: "Fallback" }));
+	void (() => Enum.match(value, { _: () => "Fallback" }));
+	void (() => Enum.match(value, { A: "A", _: "Fallback" }));
+	void (() => Enum.match(value, { A: () => "A", _: "Fallback" }));
+	void (() => Enum.match(value, { A: "A", B: "B" }));
+	void (() => Enum.match(value, { A: "A", B: () => "B" }));
+	void (() => Enum.match(value, { A: () => "A", B: () => "B" }));
+	void (() => Enum.match(value, { A: () => "A", B: () => "B", _: "Fallback" }));
+	void (() => Enum.match(value, { A: undefined, B: ({ value }) => value }));
+	void (() => Enum.match(value, { B: ({ value }) => value, _: "Fallback" }));
+	void (() => Enum.match(value, { A: true, B: false, _: undefined }));
 }
 //<
 
 //>
-import { match_ } from "unenum";
-
 {
 	const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
 
-	void (() => match_(value, "custom", { _: "Fallback" }));
-	void (() => match_(value, "custom", { A: "A", B: "B" }));
-	void (() => match_(value, "custom", { A: "A", _: "Fallback" }));
+	void (() => Enum.match(value, { _: "Fallback" }, "custom"));
+	void (() => Enum.match(value, { A: "A", B: "B" }, "custom"));
+	void (() => Enum.match(value, { A: "A", _: "Fallback" }, "custom"));
 	// ...
 }
 //<
@@ -416,17 +402,6 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 #### Defining
 !*/
 
-//>
-export type File = Enum<
-	{
-		"text/plain": { data: string };
-		"image/jpeg": { data: Buffer; compression?: number };
-		"application/json": { data: unknown };
-	},
-	"mime" /* <-- */
->;
-//<
-
 /*!
 #### Instantiating
 !*/
@@ -437,9 +412,15 @@ export type File = Enum<
 !*/
 
 //>
-import { builder_ } from "unenum";
-
-export const File = builder_({} as File, "mime" /* <-- */);
+export type File = Enum.Infer<typeof File>;
+export const File = EnumCustom(
+	Enum<{
+		"text/plain": { data: string };
+		"image/jpeg": { data: Buffer; compression?: number };
+		"application/json": { data: unknown };
+	}>(),
+	"custom",
+);
 
 {
 	const file: File = File["text/plain"]({ data: "..." });
@@ -477,10 +458,10 @@ export const File = builder_({} as File, "mime" /* <-- */);
 
 //>
 (function (file: File): string {
-	if (is_(file, "mime" /* <-- */, "text/plain")) {
+	if (Enum.match(file, "text/plain")) {
 		return `Text`;
 	}
-	if (is_(file, "mime" /* <-- */, "image/jpeg")) {
+	if (Enum.match(file, "image/jpeg")) {
 		return "Image";
 	}
 	return "Unsupported";
@@ -510,7 +491,7 @@ export const File = builder_({} as File, "mime" /* <-- */);
 
 //>
 (function (file: File): string {
-	return match_(file, "mime" /* <-- */, {
+	return Enum.match(file, {
 		"text/plain": () => "Text",
 		"image/jpeg": () => "Image",
 		_: () => "Unsupported",
@@ -565,7 +546,7 @@ variant is needed without any value.
 (async function (): Promise<User | undefined> {
 	const $user = await (async () => ({}) as Promise<Result<User>>)();
 	// handle error
-	if (is($user, "Error")) {
+	if (Enum.match($user, "Error")) {
 		return undefined;
 	}
 	// continue with value
@@ -581,7 +562,7 @@ variant is needed without any value.
 //>
 (async function (): Promise<User | undefined> {
 	const $user = await (async () => ({}) as Promise<Result<User>>)();
-	return match($user, {
+	return Enum.match($user, {
 		Ok: ({ value: user }) => user,
 		Error: undefined,
 	});
@@ -632,7 +613,7 @@ const getValueOrThrow = (): string => {
 	const result = Result.from(() => getValueOrThrow());
 	// Result<string, unknown>
 
-	if (is(result, "Error")) {
+	if (Enum.match(result, "Error")) {
 		// handle error
 		console.error(result.error);
 		return;
@@ -716,12 +697,12 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component(): string {
 	const $user = (() => ({}) as Async<Result<User, "E">>)();
-	if (is($user, "Pending")) {
+	if (Enum.match($user, "Pending")) {
 		return `<Loading />`;
 	}
 
 	// handle error
-	if (is($user, "Error")) {
+	if (Enum.match($user, "Error")) {
 		const { error } = $user;
 		return `<Error error=${error} />`;
 	}
@@ -739,7 +720,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component() {
 	const $user = (() => ({}) as Async<Result<User, unknown>>)();
-	return match($user, {
+	return Enum.match($user, {
 		Pending: () => `<Loading />`,
 		Error: ({ error }) => `<Error error=${error} />`,
 		Ok: ({ value: user }) => `<Profile user=${user} />`,
@@ -754,7 +735,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component() {
 	const $user = (() => ({}) as Async<Result<User, "E">>)();
-	if (is($user, "Pending")) {
+	if (Enum.match($user, "Pending")) {
 		return `<Loading />`;
 	}
 

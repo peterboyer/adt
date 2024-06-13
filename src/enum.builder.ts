@@ -2,11 +2,43 @@ import type { Enum } from "./enum.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
-export function builder<TEnum extends Enum.Any, TMapper extends Mapper<TEnum>>(
-	_value: TEnum,
-	mapper?: TMapper,
-): Builder<TMapper, TEnum, Enum.Discriminant.Default> {
-	return builder_(_value, "_type", mapper);
+// export function EnumEngine<TDiscriminant extends Enum.Discriminant.Any>(
+//   discriminant: TDiscriminant,
+// ): {
+//   Enum:
+// } {
+//   function Enum() {}
+
+//   return;
+// }
+
+export function builder<TVariants extends Enum.Variants>(): Builder<
+	Mapper<Enum<TVariants>>,
+	Enum<TVariants>,
+	Enum.Discriminant.Default
+> {
+	return builder_({} as Enum<TVariants>, "_type");
+}
+
+export function EnumMapper<
+	TEnum extends Enum.Any,
+	TMapper extends Mapper<TEnum>,
+>(
+	_builder: Builder<Mapper<TEnum>, TEnum>,
+	mapper: TMapper,
+): Builder<TMapper, TEnum> {
+	return builder_({} as TEnum, "_type", mapper);
+}
+
+export function EnumCustom<
+	TEnum extends Enum.Any<TDiscriminant>,
+	TMapper extends Mapper<TEnum>,
+	TDiscriminant extends keyof TEnum & string,
+>(
+	builder: Builder<TMapper, TEnum>,
+	discriminant: TDiscriminant,
+): Builder<TMapper, TEnum, TDiscriminant> {
+	return builder_({} as TEnum, discriminant);
 }
 
 export function builder_<
@@ -31,7 +63,7 @@ export function builder_<
 	});
 }
 
-type Mapper<
+export type Mapper<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default,
@@ -49,7 +81,7 @@ type Mapper<
 	>
 >;
 
-type Builder<
+export type Builder<
 	TMapper,
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
@@ -66,7 +98,7 @@ type Builder<
 				}
 			: never
 	>
->;
+> & { $Enum: TEnum };
 
 type EnumVariantConstructor<
 	TEnum extends Enum.Any<TDiscriminant>,
