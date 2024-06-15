@@ -12,83 +12,50 @@ import { Enum, Result } from "unenum";
 
 // 1. define
 
-export type Variant = typeof $Variant;
-export const [Variant, $Variant] = Enum<{
-	Valid: { id: string };
-	Invalid: true;
-}>();
-
-{
-	const value = Variant.Valid({ id: "abc" });
-	void value;
-}
-
-export type VariantMapped = typeof $VariantMapped;
-export const [VariantMapped, $VariantMapped] = Enum<{
-	Valid: { id: string };
-	Invalid: true;
-}>().map({
-	Valid: (id: string) => ({ id }),
+export type AuthState = typeof _AuthState;
+export const [AuthState, _AuthState] = Enum.new<{
+	Authenticated: { userId: string };
+	Anonymous: true;
+}>().alias({
+	Authenticated: (userId: string) => ({ userId }),
 });
-
-{
-	const value = VariantMapped.Valid("abc");
-	void value;
-}
-
-export type VariantCustom = typeof $VariantCustom;
-export const [VariantCustom, $VariantCustom] = Enum.on("custom")<{
-	Valid: { id: string };
-	Invalid: true;
-}>();
-
-{
-	const value = VariantCustom.Valid({ id: "abc" });
-	void value;
-}
-
-export type VariantCustomMapped = typeof $VariantCustomMapped;
-export const [VariantCustomMapped, $VariantCustomMapped] = Enum.on("custom")<{
-	Valid: { id: string };
-	Invalid: true;
-}>().map({
-	Valid: (id: string) => ({ id }),
-});
-
-{
-	const value = VariantCustomMapped.Valid("abc");
-	void value;
-}
 
 // 2. return types and values
 
-export function getVariant(): Result<Variant, "OutOfRangeError" | "ZeroError"> {
-	const id = Math.random();
-
-	if (id === 0) {
-		return Result.Error("ZeroError");
+export async function queryAuthState(): Promise<
+	Result<AuthState, "FetchError">
+> {
+	const $queryIdentityEndpoint = await Result.from(() => fetch("/whoami"));
+	if (Enum.match($queryIdentityEndpoint, "Error")) {
+		return Result.Error("FetchError", $queryIdentityEndpoint.error);
 	}
 
-	if (id < 0) {
-		return Result.Ok(Variant.Invalid());
+	if ($queryIdentityEndpoint.value.status !== 200) {
+		return Result.Ok(AuthState.Anonymous());
 	}
 
-	return Result.Ok(Variant.Valid({ id: id.toString() }));
+	const payload = (await $queryIdentityEndpoint.value.json()) as unknown;
+	const payload_unsafe = payload as { id: string };
+	const userId = payload_unsafe.id;
+	return Result.Ok(AuthState.Authenticated(userId));
 }
 
 // 3. using values
 
-const result = getVariant();
-
-if (Enum.match(result, "Error")) {
-	void result.error;
+const $queryAuthState = await queryAuthState();
+if (Enum.match($queryAuthState, "Error")) {
+	console.error(
+		"Failed to query auth state from network...",
+		$queryAuthState.error,
+	);
 } else {
-	const variant = result.value;
-	const value = Enum.match(variant, {
-		Valid: () => 1,
-		Invalid: () => false,
-	});
-	void value;
+	console.info(
+		"Querying auth state from network.",
+		Enum.switch($queryAuthState.value, {
+			Anonymous: () => "anonymous",
+			Authenticated: ({ userId }) => `authenticated as user: ${userId}`,
+		}),
+	);
 }
 /*!
 ```
