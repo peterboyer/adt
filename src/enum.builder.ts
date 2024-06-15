@@ -39,19 +39,16 @@ Engine.on = <TDiscriminant extends Enum.Discriminant.Any>(
 		const type = {} as Enum<TVariants, TDiscriminant>;
 
 		const Map = <
-			TMapper extends Mapper<
-				Enum<TVariants, Enum.Discriminant.Default>,
-				Enum.Discriminant.Default
-			>,
+			TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
 		>(
 			mapper: TMapper,
 		) => {
 			const builder = Builder(
-				{} as Enum<TVariants, Enum.Discriminant.Default>,
-				"_type",
+				{} as Enum<TVariants, TDiscriminant>,
+				discriminant,
 				mapper,
 			);
-			const type = {} as Enum<TVariants>;
+			const type = {} as Enum<TVariants, TDiscriminant>;
 
 			return [builder, type] as const;
 		};
