@@ -15,13 +15,13 @@ type OkReturnType<T> = NeverFallback<Extract<T, { _type: "Ok" }>, Result.Ok>;
 export function Error<T = Result.Error>(
 	...args: ErrorArgs<T>
 ): ErrorReturnType<T> {
-	return { _type: "Error", error: args[0] } as any;
+	return { _type: "Error", error: args[0], cause: args[1] } as any;
 }
 
 type ErrorArgs<T> = [Extract<T, { _type: "Error" }>] extends [never]
 	? []
 	: Extract<T, { _type: "Error" }> extends { error: infer U }
-		? [error: U]
+		? [error: U, cause?: unknown]
 		: [];
 
 type ErrorReturnType<T> = NeverFallback<

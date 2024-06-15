@@ -15,13 +15,13 @@ export const Result = {
 
 export namespace Result {
 	export type Ok<TValue = never> = Enum<{
-		Ok: [TValue] extends [never]
+		Ok: [TValue] extends [never | undefined]
 			? { value?: never; error?: never }
 			: { value: TValue; error?: never };
 	}>;
 	export type Error<TError = never> = Enum<{
-		Error: [TError] extends [never]
+		Error: [TError] extends [never | undefined]
 			? { value?: never; error?: never }
-			: { value?: never; error: TError };
+			: { value?: never; error: TError; cause?: unknown };
 	}>;
 }
