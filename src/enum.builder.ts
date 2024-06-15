@@ -2,68 +2,105 @@ import type { Enum } from "./enum.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
-// export function EnumEngine<TDiscriminant extends Enum.Discriminant.Any>(
-//   discriminant: TDiscriminant,
-// ): {
-//   Enum:
-// } {
-//   function Enum() {}
+export const Engine = <TVariants extends Enum.Variants>() => {
+	const builder = Builder(
+		{} as Enum<TVariants, Enum.Discriminant.Default>,
+		"_type",
+	);
+	const type = {} as Enum<TVariants>;
 
-//   return;
-// }
+	const Map = <
+		TMapper extends Mapper<
+			Enum<TVariants, Enum.Discriminant.Default>,
+			Enum.Discriminant.Default
+		>,
+	>(
+		mapper: TMapper,
+	) => {
+		const builder = Builder(
+			{} as Enum<TVariants, Enum.Discriminant.Default>,
+			"_type",
+			mapper,
+		);
+		const type = {} as Enum<TVariants>;
 
-export function builder<TVariants extends Enum.Variants>(): Builder<
-	Mapper<Enum<TVariants>>,
-	Enum<TVariants>,
-	Enum.Discriminant.Default
-> {
-	return builder_({} as Enum<TVariants>, "_type");
-}
+		return [builder, type] as const;
+	};
 
-export function EnumMapper<
-	TEnum extends Enum.Any,
-	TMapper extends Mapper<TEnum>,
->(
-	_builder: Builder<Mapper<TEnum>, TEnum>,
-	mapper: TMapper,
-): Builder<TMapper, TEnum> {
-	return builder_({} as TEnum, "_type", mapper);
-}
+	return Object.assign([builder, type] as const, { map: Map });
+};
 
-export function EnumCustom<
-	TEnum extends Enum.Any<TDiscriminant>,
-	TMapper extends Mapper<TEnum>,
-	TDiscriminant extends keyof TEnum & string,
->(
-	builder: Builder<TMapper, TEnum>,
+Engine.on = <TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
-): Builder<TMapper, TEnum, TDiscriminant> {
-	return builder_({} as TEnum, discriminant);
-}
+) => {
+	const Engine = <TVariants extends Enum.Variants>() => {
+		const builder = Builder({} as Enum<TVariants, TDiscriminant>, discriminant);
+		const type = {} as Enum<TVariants, TDiscriminant>;
 
-export function builder_<
+		const Map = <
+			TMapper extends Mapper<
+				Enum<TVariants, Enum.Discriminant.Default>,
+				Enum.Discriminant.Default
+			>,
+		>(
+			mapper: TMapper,
+		) => {
+			const builder = Builder(
+				{} as Enum<TVariants, Enum.Discriminant.Default>,
+				"_type",
+				mapper,
+			);
+			const type = {} as Enum<TVariants>;
+
+			return [builder, type] as const;
+		};
+
+		return Object.assign([builder, type] as const, { map: Map });
+	};
+
+	return Engine;
+};
+
+type Builder<
 	TEnum extends Enum.Any<TDiscriminant>,
+	TDiscriminant extends keyof TEnum & string,
+	TMapper,
+> = Identity<
+	Intersect<
+		TEnum extends unknown
+			? {
+					[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
+						? TMapper[Key] extends (...args: any[]) => any
+							? (...args: Parameters<TMapper[Key]>) => TEnum
+							: EnumVariantConstructor<TEnum, TDiscriminant>
+						: EnumVariantConstructor<TEnum, TDiscriminant>;
+				}
+			: never
+	>
+>;
+
+function Builder<
+	TEnum extends Enum.Any<TDiscriminant>,
+	TDiscriminant extends keyof TEnum & string,
 	TMapper extends Mapper<TEnum, TDiscriminant>,
-	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default,
 >(
 	_value: TEnum,
 	discriminant: TDiscriminant,
 	mapper?: TMapper,
-): Builder<TMapper, TEnum, TDiscriminant> {
+): Builder<TEnum, TDiscriminant, TMapper> {
 	return new Proxy({} as any, {
 		get: (_, key: string) => {
 			type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
 			const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
 			return (...args: any[]) => {
 				const data = dataFn ? dataFn(...args) : args[0];
-				return { [discriminant ?? "_type"]: key, ...data };
+				return { [discriminant]: key, ...data };
 			};
 		},
 	});
 }
 
-export type Mapper<
+type Mapper<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default,
@@ -80,25 +117,6 @@ export type Mapper<
 		>
 	>
 >;
-
-export type Builder<
-	TMapper,
-	TEnum extends Enum.Any<TDiscriminant>,
-	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default,
-> = Identity<
-	Intersect<
-		TEnum extends unknown
-			? {
-					[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
-						? TMapper[Key] extends (...args: any[]) => any
-							? (...args: Parameters<TMapper[Key]>) => TEnum
-							: EnumVariantConstructor<TEnum, TDiscriminant>
-						: EnumVariantConstructor<TEnum, TDiscriminant>;
-				}
-			: never
-	>
-> & { $Enum: TEnum };
 
 type EnumVariantConstructor<
 	TEnum extends Enum.Any<TDiscriminant>,

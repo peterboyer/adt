@@ -70,7 +70,7 @@ export function match_<
 	return keyMatch as any;
 }
 
-type EnumMatcher<
+export type EnumMatcher<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default,
@@ -87,7 +87,7 @@ type EnumMatcher<
 			[Key in keyof Enum.Root<TEnum, TDiscriminant>]: unknown;
 	  };
 
-type ReturnTypeMatcher<TMatcher extends Record<string, unknown>> =
+export type ReturnTypeMatcher<TMatcher extends Record<string, unknown>> =
 	undefined extends TMatcher[Exclude<keyof TMatcher, "_">]
 		? never
 		: {
@@ -96,6 +96,8 @@ type ReturnTypeMatcher<TMatcher extends Record<string, unknown>> =
 					: TMatcher[Key];
 			}[keyof TMatcher];
 
-type ReturnTypeFallback<TFallback> = TFallback extends (...args: any[]) => any
+export type ReturnTypeFallback<TFallback> = TFallback extends (
+	...args: any[]
+) => any
 	? ReturnType<TFallback>
 	: TFallback;

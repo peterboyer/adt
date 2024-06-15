@@ -10,11 +10,53 @@ import { Enum, Result } from "unenum";
 
 // 1. define
 
-export type Variant = Enum.Infer<typeof Variant>;
-export const Variant = Enum<{
+export type Variant = typeof $Variant;
+export const [Variant, $Variant] = Enum<{
   Valid: { id: string };
   Invalid: true;
 }>();
+
+{
+  const value = Variant.Valid({ id: "abc" });
+  void value;
+}
+
+export type VariantMapped = typeof $VariantMapped;
+export const [VariantMapped, $VariantMapped] = Enum<{
+  Valid: { id: string };
+  Invalid: true;
+}>().map({
+  Valid: (id: string) => ({ id }),
+});
+
+{
+  const value = VariantMapped.Valid("abc");
+  void value;
+}
+
+export type VariantCustom = typeof $VariantCustom;
+export const [VariantCustom, $VariantCustom] = Enum.on("custom")<{
+  Valid: { id: string };
+  Invalid: true;
+}>();
+
+{
+  const value = VariantCustom.Valid({ id: "abc" });
+  void value;
+}
+
+export type VariantCustomMapped = typeof $VariantCustomMapped;
+export const [VariantCustomMapped, $VariantCustomMapped] = Enum.on("custom")<{
+  Valid: { id: string };
+  Invalid: true;
+}>().map({
+  Valid: (id: string) => ({ id }),
+});
+
+{
+  const value = VariantCustomMapped.Valid("abc");
+  void value;
+}
 
 // 2. return types and values
 
@@ -193,31 +235,25 @@ export type User = Enum.Infer<typeof User>;
 
 ```ts
 
-import { EnumMapper } from "unenum";
-
-export const Colour = EnumMapper(
-  Enum<{
-    Transparent: true;
-    Named: { name: string };
-    RGB: Record<"r" | "g" | "b", number>;
-  }>(),
-  {
-    RGB: (r: number, g: number, b: number) => ({ r, g, b }),
-  },
-);
-
-type Colour = Enum.Infer<typeof Colour>;
+export type Color = typeof $Color;
+export const [Color, $Color] = Enum<{
+  Transparent: true;
+  Named: { name: string };
+  RGB: Record<"r" | "g" | "b", number>;
+}>().map({
+  RGB: (r: number, g: number, b: number) => ({ r, g, b }),
+});
 
 {
-  const color: Colour = Colour.RGB(4, 2, 0);
+  const color: Color = Color.RGB(4, 2, 0);
   void color;
 
   // variant with no properties
-  void ((): Colour => Colour.Transparent());
+  void ((): Color => Color.Transparent());
   // variant with properties
-  void ((): Colour => Colour.Named({ name: "Red" }));
+  void ((): Color => Color.Named({ name: "Red" }));
   // variant with mapper function
-  void ((): Colour => Colour.RGB(0, 0, 0));
+  void ((): Color => Color.RGB(0, 0, 0));
 }
 ```
 
@@ -366,37 +402,39 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 - Use `builder_` which requires the discriminant to be passed as an argument.
 
 ```ts
-export type File = Enum.Infer<typeof File>;
-export const File = EnumCustom(
-  Enum<{
+
+{
+  type File = typeof $File;
+  const [File, $File] = Enum.on("mime")<{
     "text/plain": { data: string };
     "image/jpeg": { data: Buffer; compression?: number };
     "application/json": { data: unknown };
-  }>(),
-  "custom",
-);
+  }>();
 
-{
-  const file: File = File["text/plain"]({ data: "..." });
-  void file;
+  {
+    const file: File = File["text/plain"]({ data: "..." });
+    void file;
 
-  void (() => File["text/plain"]({ data: "..." }));
-  void (() => File["image/jpeg"]({ data: Buffer.from("...") }));
-  void (() => File["application/json"]({ data: JSON.parse("{}") }));
+    void (() => File["text/plain"]({ data: "..." }));
+    void (() => File["image/jpeg"]({ data: Buffer.from("...") }));
+    void (() => File["application/json"]({ data: JSON.parse("{}") }));
+  }
+
+  {
+    const file: File = { mime: "text/plain", data: "..." };
+    void file;
+
+    void ((): File => ({ mime: "text/plain", data: "..." }));
+    void ((): File => ({ mime: "image/jpeg", data: Buffer.from("...") }));
+    void ((): File => ({ mime: "application/json", data: JSON.parse("{}") }));
+  }
 }
+
 ```
 
 ##### (b) object expression
 
 ```ts
-{
-  const file: File = { mime: "text/plain", data: "..." };
-  void file;
-
-  void ((): File => ({ mime: "text/plain", data: "..." }));
-  void ((): File => ({ mime: "image/jpeg", data: Buffer.from("...") }));
-  void ((): File => ({ mime: "application/json", data: JSON.parse("{}") }));
-}
 ```
 
 #### Using

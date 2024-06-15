@@ -1,5 +1,6 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
+import { Engine } from "./enum.builder.js";
 
 export type Enum<
 	TVariants extends Enum.Variants,
@@ -12,15 +13,9 @@ export type Enum<
 			: never;
 }[keyof TVariants];
 
-import { match } from "./enum.match.js";
-import { builder } from "./enum.builder.js";
-
-export const Enum = Object.assign(builder, { match });
-export { EnumMapper } from "./enum.builder.js";
+export const Enum = Engine;
 
 export namespace Enum {
-	export type Infer<TBuilder extends { $Enum: Any }> = TBuilder["$Enum"];
-
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
 		Record<TDiscriminant, string>;
 
