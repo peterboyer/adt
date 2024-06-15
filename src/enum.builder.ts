@@ -1,4 +1,5 @@
 import type { Enum } from "./enum.js";
+import { match } from "./enum.match.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
@@ -61,11 +62,17 @@ Engine.on = <TDiscriminant extends Enum.Discriminant.Any>(
 	return Engine;
 };
 
-type Builder<
+Engine.match = match;
+
+function Builder<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string,
-	TMapper,
-> = Identity<
+	TMapper extends Mapper<TEnum, TDiscriminant>,
+>(
+	_value: TEnum,
+	discriminant: TDiscriminant,
+	mapper?: TMapper,
+): Identity<
 	Intersect<
 		TEnum extends unknown
 			? {
@@ -77,17 +84,7 @@ type Builder<
 				}
 			: never
 	>
->;
-
-function Builder<
-	TEnum extends Enum.Any<TDiscriminant>,
-	TDiscriminant extends keyof TEnum & string,
-	TMapper extends Mapper<TEnum, TDiscriminant>,
->(
-	_value: TEnum,
-	discriminant: TDiscriminant,
-	mapper?: TMapper,
-): Builder<TEnum, TDiscriminant, TMapper> {
+> {
 	return new Proxy({} as any, {
 		get: (_, key: string) => {
 			type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
