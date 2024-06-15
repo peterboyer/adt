@@ -1,15 +1,9 @@
 import type { Enum } from "./enum.js";
-import { match } from "./enum.match.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
+import { match } from "./enum.match.js";
 
 export const Engine = <TVariants extends Enum.Variants>() => {
-	const builder = Builder(
-		{} as Enum<TVariants, Enum.Discriminant.Default>,
-		"_type",
-	);
-	const type = {} as Enum<TVariants>;
-
 	const Map = <
 		TMapper extends Mapper<
 			Enum<TVariants, Enum.Discriminant.Default>,
@@ -27,6 +21,11 @@ export const Engine = <TVariants extends Enum.Variants>() => {
 
 		return [builder, type] as const;
 	};
+	const builder = Builder(
+		{} as Enum<TVariants, Enum.Discriminant.Default>,
+		"_type",
+	);
+	const type = {} as Enum<TVariants>;
 
 	return Object.assign([builder, type] as const, { map: Map });
 };
@@ -35,9 +34,6 @@ Engine.on = <TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) => {
 	const Engine = <TVariants extends Enum.Variants>() => {
-		const builder = Builder({} as Enum<TVariants, TDiscriminant>, discriminant);
-		const type = {} as Enum<TVariants, TDiscriminant>;
-
 		const Map = <
 			TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
 		>(
@@ -52,6 +48,8 @@ Engine.on = <TDiscriminant extends Enum.Discriminant.Any>(
 
 			return [builder, type] as const;
 		};
+		const builder = Builder({} as Enum<TVariants, TDiscriminant>, discriminant);
+		const type = {} as Enum<TVariants, TDiscriminant>;
 
 		return Object.assign([builder, type] as const, { map: Map });
 	};
