@@ -1,14 +1,13 @@
-import { type Enum, builder, builder_ } from "./enum.js";
+import { Enum } from "./enum.js";
 
-describe("builder", () => {
+describe("Enum", () => {
 	test("Default", () => {
-		type Event = Enum<{
+		type Event = typeof $Event;
+		const [Event, $Event] = Enum<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
-		}>;
-
-		const Event = builder({} as Event);
+		}>();
 
 		{
 			const eventOpen = Event.Open();
@@ -23,13 +22,12 @@ describe("builder", () => {
 	});
 
 	test("Mapped", () => {
-		type Event = Enum<{
+		type Event = typeof $Event;
+		const [Event, $Event] = Enum<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
-		}>;
-
-		const Event = builder({} as Event, {
+		}>().map({
 			Data: (value: unknown) => ({ value }),
 		});
 
@@ -44,20 +42,42 @@ describe("builder", () => {
 			void [eventOpen, eventData, eventClose];
 		}
 	});
-});
 
-describe("builder_", () => {
 	test("Custom", () => {
-		type Event = Enum<
-			{
-				Open: true;
-				Data: { value: unknown };
-				Close: true;
-			},
-			"custom"
-		>;
+		type Event = typeof $Event;
+		const [Event, $Event] = Enum.on("custom")<{
+			Open: true;
+			Data: { value: unknown };
+			Close: true;
+		}>();
 
-		const Event = builder_({} as Event, "custom", {
+		{
+			const eventOpen: Event = { custom: "Open" };
+			const eventData: Event = { custom: "Data", value: "..." };
+			const eventClose: Event = { custom: "Close" };
+
+			void [eventOpen, eventData, eventClose];
+		}
+
+		{
+			const eventOpen = Event.Open();
+			expect(eventOpen).toStrictEqual({ custom: "Open" });
+			const eventData = Event.Data({ value: "..." });
+			expect(eventData).toStrictEqual({ custom: "Data", value: "..." });
+			const eventClose = Event.Close();
+			expect(eventClose).toStrictEqual({ custom: "Close" });
+
+			void [eventOpen, eventData, eventClose];
+		}
+	});
+
+	test("Custom Mapped", () => {
+		type Event = typeof $Event;
+		const [Event, $Event] = Enum.on("custom")<{
+			Open: true;
+			Data: { value: unknown };
+			Close: true;
+		}>().map({
 			Data: (value: unknown) => ({ value }),
 		});
 
