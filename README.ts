@@ -109,22 +109,22 @@ void file; //-
 /*!
 # API
 
-- `Enum`
-	- `Enum.define`
-	- `Enum.match`
-	- `Enum.switch`
-	- `Enum.on`
-- `Result`
-	- `Result.Ok`
-	- `Result.Err`
-	- `Result.from`
+- [`Enum`](#enum)
+	- [`Enum.define`](#enumdefine)
+	- [`Enum.match`](#enummatch)
+	- [`Enum.switch`](#enumswitch)
+	- [`Enum.on`](#enumon)
+- [`Result`](#result)
+	- [`Result.Ok`](#resultok)
+	- [`Result.Error`](#resulterror)
+	- [`Result.from`](#resultfrom)
 - Type Utilities
-	- `Enum.Root`
-	- `Enum.Keys`
-	- `Enum.Pick`
-	- `Enum.Omit`
-	- `Enum.Extend`
-	- `Enum.Merge`
+	- [`Enum.Root`](#enumroot)
+	- [`Enum.Keys`](#enumkeys)
+	- [`Enum.Pick`](#enumpick)
+	- [`Enum.Omit`](#enumomit)
+	- [`Enum.Extend`](#enumextend)
+	- [`Enum.Merge`](#enummerge)
 !*/
 
 /*!
@@ -133,6 +133,9 @@ void file; //-
 ```
 Enum<TVariants, TDiscriminant?>
 ```
+
+- Recommend that you use [`Enum.define`](#enumdefine) instead of
+[`Enum`](#enum) directly.
 !*/
 
 //+ #### Using the default discriminant
@@ -166,6 +169,8 @@ const custom_data: Custom = { kind: "DataVariant", value: "..." };
 void custom_data; //-
 //<
 
+//return
+
 /*!
 ## `Enum.define`
 
@@ -184,6 +189,8 @@ options.mapper = { [variant]: callback }
 - [Usage with a mapper](#with-a-mapper)
 - [Usage with a custom discriminant](#with-a-custom-discriminant)
 !*/
+
+//return
 
 /*!
 ## `Enum.match`
@@ -217,6 +224,8 @@ const getFileFormat = (file: File): "text" | "image" => {
 void getFileFormat; //-
 //<
 
+//return
+
 /*!
 ## `Enum.switch`
 
@@ -225,7 +234,7 @@ Enum.switch(value, { [variant | _]: value | callback }) => inferred
 ```
 !*/
 
-//+ #### handle all cases
+//+ #### Handle all cases
 
 //>
 const formatLightState = (light: Light) =>
@@ -236,7 +245,7 @@ const formatLightState = (light: Light) =>
 void formatLightState; //-
 //<
 
-//+ #### unhandled cases use fallback
+//+ #### Unhandled cases with fallback
 
 //>
 const onFileSelect = (file: File) =>
@@ -247,6 +256,8 @@ const onFileSelect = (file: File) =>
 void onFileSelect; //-
 //<
 
+//return
+
 /*!
 ## `Enum.on`
 
@@ -256,6 +267,14 @@ Enum.on(discriminant) => { define, match, switch }
 
 - Redefines and returns all `Enum.*` methods with a given custom discriminant.
 !*/
+
+/*!
+#### Examples
+
+- [Usage with a custom discriminant](#with-a-custom-discriminant)
+!*/
+
+//return
 
 /*!
 ## `Result`
@@ -290,8 +309,9 @@ export function queryFile(): Result<File, "NotFound"> {
 	const file = File["text/plain"]({ data: "..." });
 	return Result.Ok(file);
 }
-
 //<
+
+//return
 
 /*!
 ## `Result.Ok`
@@ -301,6 +321,8 @@ Result.Ok<TOk?>
 ```
 !*/
 
+//return
+
 /*!
 ## `Result.Error`
 
@@ -308,6 +330,8 @@ Result.Ok<TOk?>
 Result.Error<TError?>
 ```
 !*/
+
+//return
 
 /*!
 ## `Result.from`
@@ -322,8 +346,9 @@ Result.from(callback)
 !*/
 
 //>
-const $fetch = await Result.from(() => fetch("/api/whoami"));
-Enum.switch($fetch, {
+const $fetchData = await Result.from(() => fetch("/api/whoami"));
+
+Enum.switch($fetchData, {
 	Ok: async ({ value: response }) => {
 		const body = (await response.json()) as unknown;
 		console.log(body);
@@ -334,12 +359,16 @@ Enum.switch($fetch, {
 });
 //<
 
-//+ # API (Type Utilities)
+//return
+
+//+ # Enum Type Utilities
 
 //>
 // example
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 //<
+
+//+ <br/>
 
 /*!
 ## `Enum.Root`
@@ -351,6 +380,8 @@ export type Root = Enum.Root<Signal>;
 // -> { Red: true, Yellow: true; Green: true }
 //<
 
+//return
+
 /*!
 ## `Enum.Keys`
 - Infers all keys of an Enum's variants.
@@ -360,6 +391,8 @@ export type Root = Enum.Root<Signal>;
 export type Keys = Enum.Keys<Signal>;
 // -> "Red" | "Yellow" | "Green"
 //<
+
+//return
 
 /*!
 ## `Enum.Pick`
@@ -374,6 +407,8 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 // -> *Red | *Yellow
 //<
 
+//return
+
 /*!
 ## `Enum.Omit`
 - Omit subset of an Enum's variants by key.
@@ -387,6 +422,8 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 // -> *Green
 //<
 
+//return
+
 /*!
 ## `Enum.Extend`
 - Add new variants and merge new properties for existing variants for an Enum.
@@ -397,6 +434,8 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 // -> *Red | *Yellow | *Green | *Flashing
 //<
 
+//return
+
 /*!
 ## `Enum.Merge`
 - Merge all variants and properties of all given Enums.
@@ -406,3 +445,5 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // -> *Left | *Right
 //<
+
+//return

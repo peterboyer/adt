@@ -103,28 +103,31 @@ const file: File = { mime: "text/plain", data: "..." };
 
 # API
 
-- `Enum`
-  - `Enum.define`
-  - `Enum.match`
-  - `Enum.switch`
-  - `Enum.on`
-- `Result`
-  - `Result.Ok`
-  - `Result.Err`
-  - `Result.from`
+- [`Enum`](#enum)
+  - [`Enum.define`](#enumdefine)
+  - [`Enum.match`](#enummatch)
+  - [`Enum.switch`](#enumswitch)
+  - [`Enum.on`](#enumon)
+- [`Result`](#result)
+  - [`Result.Ok`](#resultok)
+  - [`Result.Error`](#resulterror)
+  - [`Result.from`](#resultfrom)
 - Type Utilities
-  - `Enum.Root`
-  - `Enum.Keys`
-  - `Enum.Pick`
-  - `Enum.Omit`
-  - `Enum.Extend`
-  - `Enum.Merge`
+  - [`Enum.Root`](#enumroot)
+  - [`Enum.Keys`](#enumkeys)
+  - [`Enum.Pick`](#enumpick)
+  - [`Enum.Omit`](#enumomit)
+  - [`Enum.Extend`](#enumextend)
+  - [`Enum.Merge`](#enummerge)
 
 ## `Enum`
 
 ```
 Enum<TVariants, TDiscriminant?>
 ```
+
+- Recommend that you use [`Enum.define`](#enumdefine) instead of
+[`Enum`](#enum) directly.
 
  #### Using the default discriminant
 
@@ -153,6 +156,8 @@ const custom_unit: Custom = { kind: "UnitVariant" };
 const custom_data: Custom = { kind: "DataVariant", value: "..." };
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.define`
 
 ```
@@ -167,6 +172,8 @@ options.mapper = { [variant]: callback }
 - [Usage](#usage)
 - [Usage with a mapper](#with-a-mapper)
 - [Usage with a custom discriminant](#with-a-custom-discriminant)
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.match`
 
@@ -196,13 +203,15 @@ const getFileFormat = (file: File): "text" | "image" => {
 };
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.switch`
 
 ```
 Enum.switch(value, { [variant | _]: value | callback }) => inferred
 ```
 
- #### handle all cases
+ #### Handle all cases
 
 ```ts
 const formatLightState = (light: Light) =>
@@ -212,7 +221,7 @@ const formatLightState = (light: Light) =>
   });
 ```
 
- #### unhandled cases use fallback
+ #### Unhandled cases with fallback
 
 ```ts
 const onFileSelect = (file: File) =>
@@ -222,6 +231,8 @@ const onFileSelect = (file: File) =>
   });
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.on`
 
 ```
@@ -229,6 +240,12 @@ Enum.on(discriminant) => { define, match, switch }
 ```
 
 - Redefines and returns all `Enum.*` methods with a given custom discriminant.
+
+#### Examples
+
+- [Usage with a custom discriminant](#with-a-custom-discriminant)
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Result`
 
@@ -261,8 +278,9 @@ export function queryFile(): Result<File, "NotFound"> {
   const file = File["text/plain"]({ data: "..." });
   return Result.Ok(file);
 }
-
 ```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Result.Ok`
 
@@ -270,11 +288,15 @@ export function queryFile(): Result<File, "NotFound"> {
 Result.Ok<TOk?>
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Result.Error`
 
 ```
 Result.Error<TError?>
 ```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Result.from`
 
@@ -287,8 +309,9 @@ Result.from(callback)
   - otherwise a `Result.Error` with the thrown error (if any).
 
 ```ts
-const $fetch = await Result.from(() => fetch("/api/whoami"));
-Enum.switch($fetch, {
+const $fetchData = await Result.from(() => fetch("/api/whoami"));
+
+Enum.switch($fetchData, {
   Ok: async ({ value: response }) => {
     const body = (await response.json()) as unknown;
     console.log(body);
@@ -299,12 +322,16 @@ Enum.switch($fetch, {
 });
 ```
 
- # API (Type Utilities)
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+ # Enum Type Utilities
 
 ```ts
 // example
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 ```
+
+ <br/>
 
 ## `Enum.Root`
 - Infers a key/value mapping of an Enum's variants.
@@ -314,6 +341,8 @@ export type Root = Enum.Root<Signal>;
 // -> { Red: true, Yellow: true; Green: true }
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.Keys`
 - Infers all keys of an Enum's variants.
 
@@ -321,6 +350,8 @@ export type Root = Enum.Root<Signal>;
 export type Keys = Enum.Keys<Signal>;
 // -> "Red" | "Yellow" | "Green"
 ```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Pick`
 - Pick subset of an Enum's variants by key.
@@ -333,6 +364,8 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 // -> *Red | *Yellow
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.Omit`
 - Omit subset of an Enum's variants by key.
 
@@ -344,6 +377,8 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 // -> *Green
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.Extend`
 - Add new variants and merge new properties for existing variants for an Enum.
 
@@ -352,6 +387,8 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 // -> *Red | *Yellow | *Green | *Flashing
 ```
 
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.Merge`
 - Merge all variants and properties of all given Enums.
 
@@ -359,3 +396,5 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // -> *Left | *Right
 ```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
