@@ -6,12 +6,12 @@
 </div>
 
 ```ts
-import { Enum, Result } from "unenum";
+import { Enum, Enum_match, Enum_switch, Result } from "unenum";
 
 // 1. define
 
 export type AuthState = typeof _AuthState;
-export const [AuthState, _AuthState] = Enum.new(
+export const [AuthState, _AuthState] = Enum(
   {} as {
     Authenticated: { userId: string };
     Anonymous: true;
@@ -29,7 +29,7 @@ export async function queryAuthState(): Promise<
   Result<AuthState, "FetchError">
 > {
   const $queryIdentityEndpoint = await Result.from(() => fetch("/whoami"));
-  if (Enum.match($queryIdentityEndpoint, "Error")) {
+  if (Enum_match($queryIdentityEndpoint, "Error")) {
     return Result.Error("FetchError", $queryIdentityEndpoint.error);
   }
 
@@ -46,7 +46,7 @@ export async function queryAuthState(): Promise<
 // 3. using values
 
 const $queryAuthState = await queryAuthState();
-if (Enum.match($queryAuthState, "Error")) {
+if (Enum_match($queryAuthState, "Error")) {
   console.error(
     "Failed to query auth state from network...",
     $queryAuthState.error,
@@ -54,7 +54,7 @@ if (Enum.match($queryAuthState, "Error")) {
 } else {
   console.info(
     "Querying auth state from network.",
-    Enum.switch($queryAuthState.value, {
+    Enum_switch($queryAuthState.value, {
       Anonymous: () => "anonymous",
       Authenticated: ({ userId }) => `authenticated as user: ${userId}`,
     }),
