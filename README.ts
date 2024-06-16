@@ -54,9 +54,10 @@ if (Enum.match($queryAuthState, "Error")) {
 		$queryAuthState.error,
 	);
 } else {
+	const authState = $queryAuthState.value;
 	console.info(
 		"Querying auth state from network.",
-		Enum.switch($queryAuthState.value, {
+		Enum.switch(authState, {
 			Anonymous: () => "anonymous",
 			Authenticated: ({ userId }) => `authenticated as user: ${userId}`,
 		}),
