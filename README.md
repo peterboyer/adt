@@ -6,61 +6,37 @@
 </div>
 
 ```ts
-import { Enum, Result } from "unenum";
+import { Enum } from "unenum";
 
-// 1. define
+// define
 
-export type AuthState = typeof _AuthState;
-export const [AuthState, _AuthState] = Enum.new(
+export type Message = typeof MessageType;
+export const [Message, MessageType] = Enum.define(
   {} as {
-    Authenticated: { userId: string };
-    Anonymous: true;
+    Quit: true;
+    Move: { x: number; y: number };
+    Write: { value: string };
+    ChangeColor: { value: [number, number, number] };
   },
   {
     mapper: {
-      Authenticated: (userId: string) => ({ userId }),
+      Write: (value: string) => ({ value }),
+      ChangeColor: (r: number, g: number, b: number) => ({ value: [r, g, b] }),
     },
   },
 );
 
-// 2. return types and values
+// instantiate
 
-export async function queryAuthState(): Promise<
-  Result<AuthState, "FetchError">
-> {
-  const $queryIdentityEndpoint = await Result.from(() => fetch("/whoami"));
-  if (Enum.match($queryIdentityEndpoint, "Error")) {
-    return Result.Error("FetchError", $queryIdentityEndpoint.error);
-  }
+sendMessage(Message.Quit());
+sendMessage(Message.Move({ x: 4, y: 20 }));
+sendMessage(Message.Write("Hello, world!"));
+sendMessage(Message.ChangeColor(0, 60, 90));
 
-  if ($queryIdentityEndpoint.value.status !== 200) {
-    return Result.Ok(AuthState.Anonymous());
-  }
-
-  const payload = (await $queryIdentityEndpoint.value.json()) as unknown;
-  const payload_unsafe = payload as { id: string };
-  const userId = payload_unsafe.id;
-  return Result.Ok(AuthState.Authenticated(userId));
+function sendMessage(message: Message) {
+  console.log("send", message);
 }
 
-// 3. using values
-
-const $queryAuthState = await queryAuthState();
-if (Enum.match($queryAuthState, "Error")) {
-  console.error(
-    "Failed to query auth state from network...",
-    $queryAuthState.error,
-  );
-} else {
-  const authState = $queryAuthState.value;
-  console.info(
-    "Querying auth state from network.",
-    Enum.switch(authState, {
-      Anonymous: () => "anonymous",
-      Authenticated: ({ userId }) => `authenticated as user: ${userId}`,
-    }),
-  );
-}
 ```
 
 <div align="center">

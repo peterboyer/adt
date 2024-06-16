@@ -25,7 +25,7 @@ const _new = <
 };
 
 export const Engine = {
-	new: _new,
+	define: _new,
 	match: match$$$,
 	switch: match,
 };
