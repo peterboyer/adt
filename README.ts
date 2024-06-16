@@ -32,7 +32,7 @@ Light.On({ intensity: 100 });
 Light.Off();
 
 // or manually instantiated with type ...
-const light: Light = { _type: "On", intensity: 0 };
+const light: Light = { _type: "On", intensity: 100 };
 void light; //-
 //<
 
@@ -69,10 +69,10 @@ export const [Location, $Location] = Enum.define(
 
 //>
 Location.Unknown();
-Location.Known(-33.85211649, 151.2107812);
+Location.Known(-33.852, 151.21);
 
 // or manually instantiated with type ...
-const location: Location = { _type: "Known", lat: 0, lng: 0 };
+const location: Location = { _type: "Known", lat: -33.852, lng: 151.21 };
 void location; //-
 //<
 
@@ -95,7 +95,7 @@ const [File, $File] = Enum.on("mime").define(
 //<
 
 //>
-File["text/plain"]({ data: "Hello, World!" });
+File["text/plain"]({ data: "..." });
 File["image/jpeg"]({ data: Buffer.from([]) });
 File["application/json"]({ data: { items: [1, 2, 3] } });
 
