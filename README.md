@@ -11,12 +11,17 @@ import { Enum, Result } from "unenum";
 // 1. define
 
 export type AuthState = typeof _AuthState;
-export const [AuthState, _AuthState] = Enum.new<{
-  Authenticated: { userId: string };
-  Anonymous: true;
-}>().alias({
-  Authenticated: (userId: string) => ({ userId }),
-});
+export const [AuthState, _AuthState] = Enum.new(
+  {} as {
+    Authenticated: { userId: string };
+    Anonymous: true;
+  },
+  {
+    mapper: {
+      Authenticated: (userId: string) => ({ userId }),
+    },
+  },
+);
 
 // 2. return types and values
 

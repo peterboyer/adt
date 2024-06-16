@@ -3,56 +3,25 @@ import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 import { match, match$$$ } from "./enum.match.js";
 
-const _new = <TVariants extends Enum.Variants>() => {
-	const mapperFn = <
-		TMapper extends Mapper<
-			Enum<TVariants, Enum.Discriminant.Default>,
-			Enum.Discriminant.Default
-		>,
-	>(
-		mapper: TMapper,
-	) => {
-		const builder = Builder(
-			{} as Enum<TVariants, Enum.Discriminant.Default>,
-			"_type",
-			mapper,
-		);
-		const type = {} as Enum<TVariants>;
-
-		return [builder, type] as const;
-	};
-	const discriminantFn = <TDiscriminant extends Enum.Discriminant.Any>(
-		discriminant: TDiscriminant,
-	) => {
-		const mapperFn = <
-			TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
-		>(
-			mapper: TMapper,
-		) => {
-			const builder = Builder(
-				{} as Enum<TVariants, TDiscriminant>,
-				discriminant,
-				mapper,
-			);
-			const type = {} as Enum<TVariants, TDiscriminant>;
-
-			return [builder, type] as const;
-		};
-		const builder = Builder({} as Enum<TVariants, TDiscriminant>, discriminant);
-		const type = {} as Enum<TVariants, TDiscriminant>;
-
-		return Object.assign([builder, type] as const, { mapper: mapperFn });
-	};
+const _new = <
+	TVariants extends Enum.Variants,
+	TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
+	TDiscriminant extends Enum.Discriminant.Any = Enum.Discriminant.Default,
+>(
+	_variants: TVariants,
+	options?: {
+		discriminant?: TDiscriminant;
+		mapper?: TMapper;
+	},
+) => {
 	const builder = Builder(
-		{} as Enum<TVariants, Enum.Discriminant.Default>,
-		"_type",
+		{} as Enum<TVariants, TDiscriminant>,
+		options?.discriminant ?? ("_type" as TDiscriminant),
+		options?.mapper,
 	);
-	const type = {} as Enum<TVariants>;
+	const type = {} as Enum<TVariants, TDiscriminant>;
 
-	return Object.assign([builder, type] as const, {
-		discriminant: discriminantFn,
-		mapper: mapperFn,
-	});
+	return [builder, type] as const;
 };
 
 export const Engine = {

@@ -3,11 +3,13 @@ import { Enum } from "./enum.js";
 describe("Enum", () => {
 	test("Default", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new<{
-			Open: true;
-			Data: { value: unknown };
-			Close: true;
-		}>();
+		const [Event, $Event] = Enum.new(
+			{} as {
+				Open: true;
+				Data: { value: unknown };
+				Close: true;
+			},
+		);
 
 		{
 			const eventOpen = Event.Open();
@@ -21,15 +23,20 @@ describe("Enum", () => {
 		}
 	});
 
-	test("Mapped", () => {
+	test("with options.mapper", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new<{
-			Open: true;
-			Data: { value: unknown };
-			Close: true;
-		}>().mapper({
-			Data: (value: unknown) => ({ value }),
-		});
+		const [Event, $Event] = Enum.new(
+			{} as {
+				Open: true;
+				Data: { value: unknown };
+				Close: true;
+			},
+			{
+				mapper: {
+					Data: (value: unknown) => ({ value }),
+				},
+			},
+		);
 
 		{
 			const eventOpen = Event.Open();
@@ -43,13 +50,18 @@ describe("Enum", () => {
 		}
 	});
 
-	test("Custom", () => {
+	test("with options.discriminant", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new<{
-			Open: true;
-			Data: { value: unknown };
-			Close: true;
-		}>().discriminant("custom");
+		const [Event, $Event] = Enum.new(
+			{} as {
+				Open: true;
+				Data: { value: unknown };
+				Close: true;
+			},
+			{
+				discriminant: "custom",
+			},
+		);
 
 		{
 			const eventOpen: Event = { custom: "Open" };
@@ -71,17 +83,21 @@ describe("Enum", () => {
 		}
 	});
 
-	test("Custom Mapped", () => {
+	test("options.discriminant + options.mapper", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new<{
-			Open: true;
-			Data: { value: unknown };
-			Close: true;
-		}>()
-			.discriminant("custom")
-			.mapper({
-				Data: (value: unknown) => ({ value }),
-			});
+		const [Event, $Event] = Enum.new(
+			{} as {
+				Open: true;
+				Data: { value: unknown };
+				Close: true;
+			},
+			{
+				discriminant: "custom",
+				mapper: {
+					Data: (value: unknown) => ({ value }),
+				},
+			},
+		);
 
 		{
 			const eventOpen: Event = { custom: "Open" };
