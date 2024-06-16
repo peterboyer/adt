@@ -285,6 +285,8 @@ export function queryFile(): Result<File, "NotFound"> {
   const file = File["text/plain"]({ data: "..." });
   return Result.Ok(file);
 }
+
+const fileOrUndefined = queryFile().value;
 ```
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
