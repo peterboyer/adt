@@ -1,6 +1,25 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
-import { Engine } from "./enum.builder.js";
+import { Define } from "./enum.define.js";
+import { Match } from "./enum.match.js";
+import { Switch } from "./enum.switch.js";
+
+export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
+
+export const Enum = {
+	define: Define(DiscriminantDefault),
+	match: Match(DiscriminantDefault),
+	switch: Switch(DiscriminantDefault),
+	on: function <TDiscriminant extends Enum.Discriminant.Any>(
+		discriminant: TDiscriminant,
+	) {
+		return {
+			define: Define(discriminant),
+			match: Match(discriminant),
+			switch: Switch(discriminant),
+		};
+	},
+};
 
 export type Enum<
 	TVariants extends Enum.Variants,
@@ -12,8 +31,6 @@ export type Enum<
 			? Enum.Variants.Data<TKey & string, TVariants[TKey], TDiscriminant>
 			: never;
 }[keyof TVariants];
-
-export const Enum = Engine;
 
 export namespace Enum {
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =

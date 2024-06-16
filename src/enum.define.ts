@@ -1,34 +1,23 @@
 import type { Enum } from "./enum.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
-import { match, match$$$ } from "./enum.match.js";
 
-const _new = <
-	TVariants extends Enum.Variants,
-	TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
-	TDiscriminant extends Enum.Discriminant.Any = Enum.Discriminant.Default,
->(
-	_variants: TVariants,
-	options?: {
-		discriminant?: TDiscriminant;
-		mapper?: TMapper;
-	},
-) => {
-	const builder = Builder(
-		{} as Enum<TVariants, TDiscriminant>,
-		options?.discriminant ?? ("_type" as TDiscriminant),
-		options?.mapper,
-	);
-	const type = {} as Enum<TVariants, TDiscriminant>;
-
-	return [builder, type] as const;
-};
-
-export const Engine = {
-	define: _new,
-	match: match$$$,
-	switch: match,
-};
+export function Define<TDiscriminant extends Enum.Discriminant.Any>(
+	discriminant: TDiscriminant,
+) {
+	return function <
+		TVariants extends Enum.Variants,
+		TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
+	>(_variants: TVariants, mapper?: TMapper) {
+		const builder = Builder(
+			{} as Enum<TVariants, TDiscriminant>,
+			discriminant,
+			mapper,
+		);
+		const type = {} as Enum<TVariants, TDiscriminant>;
+		return [builder, type] as const;
+	};
+}
 
 function Builder<
 	TEnum extends Enum.Any<TDiscriminant>,
