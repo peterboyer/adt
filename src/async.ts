@@ -20,6 +20,7 @@ export namespace Async {
 	export type Pending<TValue = never> = Enum<{
 		Pending: [TValue] extends [never] ? true : { value?: never };
 	}>;
+
 	export type Ready<TValue = never> = Enum<{
 		Ready: [TValue] extends [never] ? true : { value: TValue };
 	}>;

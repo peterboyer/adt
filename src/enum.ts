@@ -3,6 +3,7 @@ import type { Intersect } from "./shared/intersect.js";
 import { Define } from "./enum.define.js";
 import { Match } from "./enum.match.js";
 import { Switch } from "./enum.switch.js";
+import { On } from "./enum.on.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
 
@@ -10,15 +11,7 @@ export const Enum = {
 	define: Define(DiscriminantDefault),
 	match: Match(DiscriminantDefault),
 	switch: Switch(DiscriminantDefault),
-	on: function <TDiscriminant extends Enum.Discriminant.Any>(
-		discriminant: TDiscriminant,
-	) {
-		return {
-			define: Define(discriminant),
-			match: Match(discriminant),
-			switch: Switch(discriminant),
-		};
-	},
+	on: On,
 };
 
 export type Enum<

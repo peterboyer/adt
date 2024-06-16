@@ -19,6 +19,7 @@ export namespace Result {
 			? { value?: never; error?: never }
 			: { value: TValue; error?: never };
 	}>;
+
 	export type Error<TError = never> = Enum<{
 		Error: [TError] extends [never | undefined]
 			? { value?: never; error?: never }
