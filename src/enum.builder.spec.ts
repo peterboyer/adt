@@ -3,7 +3,7 @@ import { Enum } from "./enum.js";
 describe("Enum", () => {
 	test("Default", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum<{
+		const [Event, $Event] = Enum.new<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
@@ -23,11 +23,11 @@ describe("Enum", () => {
 
 	test("Mapped", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum<{
+		const [Event, $Event] = Enum.new<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
-		}>().map({
+		}>().mapper({
 			Data: (value: unknown) => ({ value }),
 		});
 
@@ -45,11 +45,11 @@ describe("Enum", () => {
 
 	test("Custom", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.on("custom")<{
+		const [Event, $Event] = Enum.new<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
-		}>();
+		}>().discriminant("custom");
 
 		{
 			const eventOpen: Event = { custom: "Open" };
@@ -73,13 +73,15 @@ describe("Enum", () => {
 
 	test("Custom Mapped", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.on("custom")<{
+		const [Event, $Event] = Enum.new<{
 			Open: true;
 			Data: { value: unknown };
 			Close: true;
-		}>().map({
-			Data: (value: unknown) => ({ value }),
-		});
+		}>()
+			.discriminant("custom")
+			.mapper({
+				Data: (value: unknown) => ({ value }),
+			});
 
 		{
 			const eventOpen: Event = { custom: "Open" };

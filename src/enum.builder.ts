@@ -4,7 +4,7 @@ import type { Intersect } from "./shared/intersect.js";
 import { match, match$$$ } from "./enum.match.js";
 
 const _new = <TVariants extends Enum.Variants>() => {
-	const Map = <
+	const mapperFn = <
 		TMapper extends Mapper<
 			Enum<TVariants, Enum.Discriminant.Default>,
 			Enum.Discriminant.Default
@@ -21,20 +21,10 @@ const _new = <TVariants extends Enum.Variants>() => {
 
 		return [builder, type] as const;
 	};
-	const builder = Builder(
-		{} as Enum<TVariants, Enum.Discriminant.Default>,
-		"_type",
-	);
-	const type = {} as Enum<TVariants>;
-
-	return Object.assign([builder, type] as const, { alias: Map });
-};
-
-_new.on = <TDiscriminant extends Enum.Discriminant.Any>(
-	discriminant: TDiscriminant,
-) => {
-	const Engine = <TVariants extends Enum.Variants>() => {
-		const Map = <
+	const discriminantFn = <TDiscriminant extends Enum.Discriminant.Any>(
+		discriminant: TDiscriminant,
+	) => {
+		const mapperFn = <
 			TMapper extends Mapper<Enum<TVariants, TDiscriminant>, TDiscriminant>,
 		>(
 			mapper: TMapper,
@@ -51,10 +41,18 @@ _new.on = <TDiscriminant extends Enum.Discriminant.Any>(
 		const builder = Builder({} as Enum<TVariants, TDiscriminant>, discriminant);
 		const type = {} as Enum<TVariants, TDiscriminant>;
 
-		return Object.assign([builder, type] as const, { map: Map });
+		return Object.assign([builder, type] as const, { mapper: mapperFn });
 	};
+	const builder = Builder(
+		{} as Enum<TVariants, Enum.Discriminant.Default>,
+		"_type",
+	);
+	const type = {} as Enum<TVariants>;
 
-	return Engine;
+	return Object.assign([builder, type] as const, {
+		discriminant: discriminantFn,
+		mapper: mapperFn,
+	});
 };
 
 export const Engine = {
