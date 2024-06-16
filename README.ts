@@ -134,8 +134,12 @@ void file; //-
 Enum<TVariants, TDiscriminant?>
 ```
 
-- Recommend that you use [`Enum.define`](#enumdefine) instead of
+> [!NOTE]
+> Recommend that you use [`Enum.define`](#enumdefine) instead of
 [`Enum`](#enum) directly.
+
+- Creates a discriminated union `type` from a key-value map of variants.
+- Use `true` for unit variants that don't have any data properties (not `{}`).
 !*/
 
 //+ #### Using the default discriminant
@@ -230,7 +234,10 @@ void getFileFormat; //-
 ## `Enum.switch`
 
 ```
-Enum.switch(value, { [variant | _]: value | callback }) => inferred
+Enum.switch(value, matcher) => inferred
+
+matcher[variant]: value | callback
+matcher._: value | callback
 ```
 !*/
 
@@ -288,7 +295,7 @@ Result<TOk?, TError?>
 import { Result } from "unenum";
 //<
 
-//+ #### Result without any values.
+//+ #### Result without any values
 
 //>
 export function getResult(): Result {
@@ -299,7 +306,7 @@ export function getResult(): Result {
 }
 //<
 
-//+ #### Result with Ok and Error values.
+//+ #### Result with Ok and Error values
 
 //>
 export function queryFile(): Result<File, "NotFound"> {
@@ -317,6 +324,7 @@ export function queryFile(): Result<File, "NotFound"> {
 ## `Result.Ok`
 
 ```
+Result.Ok(value | value?) => Result.Ok<inferred>
 Result.Ok<TOk?>
 ```
 !*/
@@ -327,6 +335,7 @@ Result.Ok<TOk?>
 ## `Result.Error`
 
 ```
+Result.Error(error | error?) => Result.Error<inferred>
 Result.Error<TError?>
 ```
 !*/
@@ -361,7 +370,7 @@ Enum.switch($fetchData, {
 
 //return
 
-//+ # Enum Type Utilities
+//+ # `Enum` Type Utilities
 
 //>
 // example

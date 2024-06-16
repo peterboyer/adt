@@ -1,4 +1,4 @@
- # Install
+# Install
 
 ```shell
 npm install unenum
@@ -9,7 +9,7 @@ npm install unenum
 - `typescript@>=5.0.0`
 - `tsconfig.json > "compilerOptions" > { "strict": true }`
 
- # Usage
+# Usage
 
 ```ts
 import { Enum } from "unenum";
@@ -46,10 +46,10 @@ export function Light_formatState(light: Light): string {
 }
 ```
 
- ## with a mapper
+## with a mapper
 
- <details>
- <summary>Example</summary>
+<details>
+<summary>Example</summary>
 
 ```ts
 export type Location = typeof $Location;
@@ -72,12 +72,12 @@ Location.Known(-33.85211649, 151.2107812);
 const location: Location = { _type: "Known", lat: 0, lng: 0 };
 ```
 
- </details>
+</details>
 
- ## with a custom discriminant
+## with a custom discriminant
 
- <details>
- <summary>Example</summary>
+<details>
+<summary>Example</summary>
 
 ```ts
 type File = typeof $File;
@@ -99,7 +99,7 @@ File["application/json"]({ data: { items: [1, 2, 3] } });
 const file: File = { mime: "text/plain", data: "..." };
 ```
 
- </details>
+</details>
 
 # API
 
@@ -126,10 +126,14 @@ const file: File = { mime: "text/plain", data: "..." };
 Enum<TVariants, TDiscriminant?>
 ```
 
-- Recommend that you use [`Enum.define`](#enumdefine) instead of
+> [!NOTE]
+> Recommend that you use [`Enum.define`](#enumdefine) instead of
 [`Enum`](#enum) directly.
 
- #### Using the default discriminant
+- Creates a discriminated union `type` from a key-value map of variants.
+- Use `true` for unit variants that don't have any data properties (not `{}`).
+
+#### Using the default discriminant
 
 ```ts
 export type Default = Enum<{
@@ -141,7 +145,7 @@ const example_unit: Default = { _type: "UnitVariant" };
 const example_data: Default = { _type: "DataVariant", value: "..." };
 ```
 
- #### Using a custom discriminant
+#### Using a custom discriminant
 
 ```ts
 export type Custom = Enum<
@@ -181,7 +185,7 @@ options.mapper = { [variant]: callback }
 Enum.match(value, variant | variants[]) => boolean
 ```
 
- #### Match with one variant
+#### Match with one variant
 
 ```ts
 const getLightIntensity = (light: Light): number | undefined => {
@@ -192,7 +196,7 @@ const getLightIntensity = (light: Light): number | undefined => {
 };
 ```
 
- #### Match with many variants
+#### Match with many variants
 
 ```ts
 const getFileFormat = (file: File): "text" | "image" => {
@@ -208,10 +212,13 @@ const getFileFormat = (file: File): "text" | "image" => {
 ## `Enum.switch`
 
 ```
-Enum.switch(value, { [variant | _]: value | callback }) => inferred
+Enum.switch(value, matcher) => inferred
+
+matcher[variant]: value | callback
+matcher._: value | callback
 ```
 
- #### Handle all cases
+#### Handle all cases
 
 ```ts
 const formatLightState = (light: Light) =>
@@ -221,7 +228,7 @@ const formatLightState = (light: Light) =>
   });
 ```
 
- #### Unhandled cases with fallback
+#### Unhandled cases with fallback
 
 ```ts
 const onFileSelect = (file: File) =>
@@ -257,7 +264,7 @@ Result<TOk?, TError?>
 import { Result } from "unenum";
 ```
 
- #### Result without any values.
+#### Result without any values
 
 ```ts
 export function getResult(): Result {
@@ -268,7 +275,7 @@ export function getResult(): Result {
 }
 ```
 
- #### Result with Ok and Error values.
+#### Result with Ok and Error values
 
 ```ts
 export function queryFile(): Result<File, "NotFound"> {
@@ -285,6 +292,7 @@ export function queryFile(): Result<File, "NotFound"> {
 ## `Result.Ok`
 
 ```
+Result.Ok(value | value?) => Result.Ok<inferred>
 Result.Ok<TOk?>
 ```
 
@@ -293,6 +301,7 @@ Result.Ok<TOk?>
 ## `Result.Error`
 
 ```
+Result.Error(error | error?) => Result.Error<inferred>
 Result.Error<TError?>
 ```
 
@@ -324,14 +333,14 @@ Enum.switch($fetchData, {
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
- # Enum Type Utilities
+# `Enum` Type Utilities
 
 ```ts
 // example
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 ```
 
- <br/>
+<br/>
 
 ## `Enum.Root`
 - Infers a key/value mapping of an Enum's variants.
