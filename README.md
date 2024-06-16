@@ -1,179 +1,193 @@
-<div align="center">
-
 # unenum
 
-**Universal ADT utilities for TypeScript.**
-</div>
+- `Enum`
+  - `Enum.define`
+  - `Enum.match`
+  - `Enum.switch`
+  - `Enum.on`
+- `Result`
+  - `Result.Ok`
+  - `Result.Err`
+  - `Result.from`
 
-```ts
-import { Enum } from "unenum";
-
-// define
-
-export type Message = typeof MessageType;
-export const [Message, MessageType] = Enum.define(
-  {} as {
-    Quit: true;
-    Move: { x: number; y: number };
-    Write: { value: string };
-    ChangeColor: { value: [number, number, number] };
-  },
-  {
-    mapper: {
-      Write: (value: string) => ({ value }),
-      ChangeColor: (r: number, g: number, b: number) => ({ value: [r, g, b] }),
-    },
-  },
-);
-
-// instantiate
-
-sendMessage(Message.Quit());
-sendMessage(Message.Move({ x: 4, y: 20 }));
-sendMessage(Message.Write("Hello, world!"));
-sendMessage(Message.ChangeColor(0, 60, 90));
-
-function sendMessage(message: Message) {
-  console.log("send", message);
-}
-
-```
-
-<div align="center">
-
-[Installation](#installation) • [`Enum`](#enum) • [`Enum.match`](#match) • [`Result`](#result) •
-[`Result.from`](#resultfrom) • [`Async`](#async)
-
-</div>
-
-- produces simple and portable discriminated union types.
-- all types can be compiled away, with zero-cost to bundle size.
-- supports custom discriminants for type utilities and runtime helpers.
-- includes `Result` to improve error-handling ergonomics.
-- includes helpers to inspect/pick/omit/merge/extend Enums and variants.
-- includes optional runtime helpers, `is`, `match` and `Result.from`.
-
-Read more:
-- [Tagged union](https://wikipedia.org/wiki/Tagged_union)
-- [Algebraic data type](https://wikipedia.org/wiki/Algebraic_data_type)
-- [Comparison of programming languages (algebraic data type)](https://wikipedia.org/wiki/Comparison_of_programming_languages_(algebraic_data_type))
-
-## Installation
-
-[![Version](https://img.shields.io/npm/v/unenum?label=npm)](https://www.npmjs.com/package/unenum/)
-[![License](https://img.shields.io/npm/l/unenum)](./LICENSE)
+ # Install
 
 ```shell
 npm install unenum
 ```
 
-```shell
-yarn add unenum
-```
-
-### Requirements
+## Requirements
 
 - `typescript@>=5.0.0`
 - `tsconfig.json > "compilerOptions" > { "strict": true }`
 
-## Playground
-- This `README.ts` is a valid TypeScript file!
-
-1. Clone this repo: `git clone git@github.com:peterboyer/unenum.git`.
-2. Install development dependencies: `npm install` or `yarn install`.
-3. Jump in and experiment!
-
-
-```
-
-### Instantiating an Enum
-
-#### (a) builder function
-- [`builder`](#builder) creates an Enum value "constructor" typed with a given
-  Enum type.
-- You may define and export the builder with the same name
-as your Enum's type.
+ # Usage
 
 ```ts
-export const User = Enum<{
-  Anonymous: true;
-  Authenticated: { userId: string };
-}>();
+import { Enum } from "unenum";
+```
 
-export type User = Enum.Infer<typeof User>;
-// | { _type: "Anonymous" }
-// | { _type: "Authenticated", userId: string }
+```ts
+export type Light = typeof $Light;
+export const [Light, $Light] = Enum.define(
+  {} as {
+    On: { intensity: number };
+    Off: true;
+  },
+);
+```
 
-{
-  const user: User = User.Anonymous();
-  void user;
+```ts
+Light.On({ intensity: 100 });
+Light.Off();
 
-  void (() => User.Anonymous());
-  void (() => User.Authenticated({ userId: "..." }));
+// or manually instantiated with type ...
+const light: Light = { _type: "On", intensity: 0 };
+```
+
+```ts
+export function Light_isOn(light: Light): boolean {
+  return Enum.match(light, "On");
 }
-```
 
-#### (b) object expression
-- Alternatively, you may chose to not use a builder.
-
-```ts
-{
-  const user: User = { _type: "Anonymous" };
-  void user;
-
-  void ((): User => ({ _type: "Anonymous" }));
-  void ((): User => ({ _type: "Authenticated", userId: "..." }));
-}
-```
-
-### Using an Enum
-
-#### (a.1) if statements, type-guard helper
-- [`is`](#is) also allows for matching using an array of multiple variants' keys.
-
-```ts
-(function (user: User): string {
-  if (Enum.match(user, "Authenticated")) {
-    return `Logged in as ${user.userId}.`;
-  }
-  return "Not logged in.";
-});
-```
-
-#### (a.2) if statements, property access
-- Alternatively, you may chose to not use a matcher.
-
-```ts
-(function (user: User): string {
-  if (user._type === "Authenticated") {
-    return `Logged in as ${user.userId}.`;
-  }
-  return "Not logged in.";
-});
-```
-
-#### (b.1) match helper, handling all cases
-- [`match`](#match) allows easy type safe mapping of variants and variants'
-  values to another returned value.
-
-```ts
-(function (user: User): string {
-  return Enum.match(user, {
-    Authenticated: ({ userId }) => `Logged in as ${userId}.`,
-    Anonymous: "Not logged in.",
+export function Light_toString(light: Light): string {
+  return Enum.switch(light, {
+    On: ({ intensity }) => `Currently on with intensity: ${intensity}.`,
+    Off: "Currently off.",
   });
-});
+}
+```
+
+ ## with a mapper
+
+```ts
+export type Location = typeof $Location;
+export const [Location, $Location] = Enum.define(
+  {} as {
+    Unknown: true;
+    Known: { lat: number; lng: number };
+  },
+  {
+    Known: (lat: number, lng: number) => ({ lat, lng }),
+  },
+);
+```
+
+```ts
+Location.Unknown();
+Location.Known(-33.85211649, 151.2107812);
+
+// or manually instantiated with type ...
+const location: Location = { _type: "Known", lat: 0, lng: 0 };
+```
+
+ ## with a custom discriminant
+
+```ts
+type File = typeof $File;
+const [File, $File] = Enum.on("mime").define(
+  {} as {
+    "text/plain": { data: string };
+    "image/jpeg": { data: Buffer };
+    "application/json": { data: unknown };
+  },
+);
+```
+
+```ts
+File["text/plain"]({ data: "Hello, World!" });
+File["image/jpeg"]({ data: Buffer.from([]) });
+File["application/json"]({ data: { items: [1, 2, 3] } });
+
+// or manually instantiated with type ...
+const file: File = { mime: "text/plain", data: "..." };
+```
+
+ # API
+
+## `Enum`
+```
+Enum<TVariants, TDiscriminant = "_type">
+```
+
+ ### Examples
+
+```ts
+export type Default = Enum<{
+  UnitVariant: true;
+  DataVariant: { value: string };
+}>;
+
+const example_unit: Default = { _type: "UnitVariant" };
+const example_data: Default = { _type: "DataVariant", value: "..." };
+```
+
+```ts
+export type Custom = Enum<
+  {
+    UnitVariant: true;
+    DataVariant: { value: string };
+  },
+  "kind"
+>;
+
+const custom_unit: Custom = { kind: "UnitVariant" };
+const custom_data: Custom = { kind: "DataVariant", value: "..." };
+```
+
+## `Enum.define`
+```
+Enum.define(variants, options?) => [builder, type]
+
+options.discriminant = string
+options.mapper = { [variant]: callback }
+```
+
+### Examples
+
+- [Usage](#usage)
+- [Usage with a mapper](#with-a-mapper)
+- [Usage with a custom discriminant](#with-a-custom-discriminant)
+
+## `Enum.match`
+```
+Enum.match(value, variant | variants[]) => boolean
+```
+
+ ### Examples
+
+```ts
+const isOn = (light: Light) => Enum.match(light, "On")
+const isTextBased = (file: File) => Enum.on("mime").match(file, ["text/plain"])
+```
+
+## `Enum.switch`
+```
+Enum.switch(value, { [variant | _]: value | callback }) => inferred
+```
+
+ ### Examples
+
+## `Enum.on`
+```
+Enum.on(discriminant) => { define, match, switch }
+```
+
+ ### Examples
+
+```ts
+
 ```
 
 #### (b.2) match helper, with catch-all
 
-```ts
-(function (user: User): string {
+  ```ts
+function (user: User): string {
   return Enum.match(user, {
     Authenticated: ({ userId }) => `Logged in as ${userId}.`,
     _: "Unhandled case.",
   });
-});
+}
 ```
 
 ### `builder`
