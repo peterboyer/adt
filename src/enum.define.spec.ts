@@ -1,9 +1,9 @@
 import { Enum } from "./enum.js";
 
-describe("Enum", () => {
+describe("Enum.define", () => {
 	test("Default", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new(
+		const [Event, $Event] = Enum.define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };
@@ -25,16 +25,14 @@ describe("Enum", () => {
 
 	test("with options.mapper", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new(
+		const [Event, $Event] = Enum.define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };
 				Close: true;
 			},
 			{
-				mapper: {
-					Data: (value: unknown) => ({ value }),
-				},
+				Data: (value: unknown) => ({ value }),
 			},
 		);
 
@@ -52,14 +50,11 @@ describe("Enum", () => {
 
 	test("with options.discriminant", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new(
+		const [Event, $Event] = Enum.on("custom").define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };
 				Close: true;
-			},
-			{
-				discriminant: "custom",
 			},
 		);
 
@@ -85,17 +80,14 @@ describe("Enum", () => {
 
 	test("options.discriminant + options.mapper", () => {
 		type Event = typeof $Event;
-		const [Event, $Event] = Enum.new(
+		const [Event, $Event] = Enum.on("custom").define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };
 				Close: true;
 			},
 			{
-				discriminant: "custom",
-				mapper: {
-					Data: (value: unknown) => ({ value }),
-				},
+				Data: (value: unknown) => ({ value }),
 			},
 		);
 
