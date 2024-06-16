@@ -24,9 +24,11 @@ const _new = <
 	return [builder, type] as const;
 };
 
-export const Engine = _new;
-
-export { match$$$ as Enum_match, match as Enum_switch };
+export const Engine = {
+	new: _new,
+	match: match$$$,
+	switch: match,
+};
 
 function Builder<
 	TEnum extends Enum.Any<TDiscriminant>,

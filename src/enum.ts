@@ -1,7 +1,6 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 import { Engine } from "./enum.builder.js";
-export { Enum_match, Enum_switch } from "./enum.builder.js";
 
 export type Enum<
 	TVariants extends Enum.Variants,
