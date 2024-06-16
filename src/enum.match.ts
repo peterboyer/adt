@@ -26,20 +26,7 @@ export function match<
 	matcher: TMatcher & { _?: TFallback },
 	discriminant: TDiscriminant,
 ): ReturnTypeMatcher<TMatcher> | ReturnTypeFallback<TFallback>;
-export function match<
-	TEnum extends Enum.Any<TDiscriminant>,
-	TKey extends Enum.Keys<TEnum, TDiscriminant>,
-	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default,
->(
-	value: TEnum,
-	matcher: TKey | TKey[],
-	discriminant?: TDiscriminant,
-): value is Enum.Pick<TEnum, TKey, TDiscriminant>;
 export function match(value: unknown, matcher: unknown) {
-	if (typeof value === "string") {
-		return is_(value as any, "_type", matcher);
-	}
 	return match_(value as any, "_type", matcher as any);
 }
 
@@ -54,10 +41,7 @@ export function match$$$<
 	discriminant?: TDiscriminant,
 ): value is Enum.Pick<TEnum, TKey, TDiscriminant>;
 export function match$$$(value: unknown, matcher: unknown) {
-	if (typeof value === "string") {
-		return is_(value as any, "_type", matcher);
-	}
-	return match_(value as any, "_type", matcher as any);
+	return is_(value as any, "_type", matcher);
 }
 
 export function match_<
