@@ -11,12 +11,12 @@ export const Result = {
 	Ok,
 	Error,
 	from,
-	unwrap: <TResult extends Result<unknown, unknown>>(
+	unwrap: <TResult extends { _type: string; value?: unknown }>(
 		result: TResult,
-	): TResult extends { _type: "Ok" } ? TResult["value"] : undefined => {
+	): TResult extends Result.Ok<unknown> ? TResult["value"] : undefined => {
 		return (result._type === "Ok" ? result.value : undefined) as any;
 	},
-	unwrapError: <TResult extends Result<unknown, unknown>>(
+	unwrapError: <TResult extends { _type: string; error?: unknown }>(
 		result: TResult,
 	): TResult extends { _type: "Error" } ? TResult["error"] : undefined => {
 		return (result._type === "Error" ? result.error : undefined) as any;
