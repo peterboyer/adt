@@ -1,4 +1,4 @@
-import { branch } from "./testing.js";
+import { branch, type Equal, type Expect } from "./testing.js";
 import { Result } from "./result.js";
 
 describe("Result", () => {
@@ -22,6 +22,43 @@ describe("Result", () => {
 			_type: "Error",
 			error: "...",
 		});
+	});
+
+	test("unwrap", () => {
+		{
+			const $result = Result.Ok("foo");
+			expect(Result.unwrap($result)).toEqual("foo");
+			expect(Result.unwrapError($result)).toBeUndefined();
+		}
+		{
+			const $result = Result.Error("foo");
+			expect(Result.unwrap($result)).toBeUndefined();
+			expect(Result.unwrapError($result)).toEqual("foo");
+		}
+
+		{
+			const $result = {} as Result<string | undefined, "FooError">;
+			const value = Result.unwrap($result);
+			!0 as Expect<Equal<typeof value, string | undefined>>;
+		}
+
+		{
+			const $result = {} as Result.Ok<string>;
+			const value = Result.unwrap($result);
+			!0 as Expect<Equal<typeof value, string>>;
+		}
+
+		{
+			const $result = {} as Result<string, "FooError">;
+			const error = Result.unwrapError($result);
+			!0 as Expect<Equal<typeof error, "FooError" | undefined>>;
+		}
+
+		{
+			const $result = {} as Result.Error<"FooError">;
+			const error = Result.unwrapError($result);
+			!0 as Expect<Equal<typeof error, "FooError">>;
+		}
 	});
 
 	void function getFoo(): Result<string, "ParseError"> {
