@@ -7,7 +7,7 @@ describe("Result", () => {
 			_type: "Ok",
 			value: undefined,
 		});
-		expect(Result.Ok("...") as Result<string>).toStrictEqual({
+		expect(Result.Ok("...")).toStrictEqual({
 			_type: "Ok",
 			value: "...",
 		});
@@ -18,7 +18,7 @@ describe("Result", () => {
 			_type: "Error",
 			error: undefined,
 		});
-		expect(Result.Error("...") as Result<never, string>).toStrictEqual({
+		expect(Result.Error("...")).toStrictEqual({
 			_type: "Error",
 			error: "...",
 		});
@@ -73,6 +73,15 @@ describe("Result", () => {
 	void function getResult(): Result {
 		if (branch()) {
 			return Result.Error();
+		}
+		if (branch()) {
+			return Result.Error(undefined);
+		}
+		if (branch()) {
+			return Result.Error(undefined, {});
+		}
+		if (branch()) {
+			return Result.Ok(undefined);
 		}
 		return Result.Ok();
 	};
