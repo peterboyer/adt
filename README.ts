@@ -117,6 +117,8 @@ void file; //-
 - [`Result`](#result)
 	- [`Result.Ok`](#resultok)
 	- [`Result.Error`](#resulterror)
+	- [`Result.unwrap`](#resultunwrap)
+	- [`Result.unwrapError`](#resultunwraperror)
 	- [`Result.from`](#resultfrom)
 - Type Utilities
 	- [`Enum.Root`](#enumroot)
@@ -173,7 +175,7 @@ const custom_data: Custom = { kind: "DataVariant", value: "..." };
 void custom_data; //-
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.define`
@@ -194,7 +196,7 @@ options.mapper = { [variant]: callback }
 - [Usage with a custom discriminant](#with-a-custom-discriminant)
 !*/
 
-//return
+//backtotop
 
 /*!
 ## `Enum.match`
@@ -228,7 +230,7 @@ const getFileFormat = (file: File): "text" | "image" => {
 void getFileFormat; //-
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.switch`
@@ -263,7 +265,7 @@ const onFileSelect = (file: File) =>
 void onFileSelect; //-
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.on`
@@ -281,7 +283,7 @@ Enum.on(discriminant) => { define, match, switch }
 - [Usage with a custom discriminant](#with-a-custom-discriminant)
 !*/
 
-//return
+//backtotop
 
 /*!
 ## `Result`
@@ -316,12 +318,9 @@ export function queryFile(): Result<File, "NotFound"> {
 	const file = File["text/plain"]({ data: "..." });
 	return Result.Ok(file);
 }
-
-const fileOrUndefined = queryFile().value;
-void fileOrUndefined; //-
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Result.Ok`
@@ -332,7 +331,7 @@ Result.Ok<TOk?>
 ```
 !*/
 
-//return
+//backtotop
 
 /*!
 ## `Result.Error`
@@ -343,7 +342,43 @@ Result.Error<TError?>
 ```
 !*/
 
-//return
+//backtotop
+
+/*!
+## `Result.unwrap`
+
+```
+Result.unwrap(result) => value | undefined
+```
+
+- Helper for accessing the result's value if Ok, or `undefined`.
+!*/
+
+//>
+const valueResult = {} as Result<string>;
+const valueOrUndefined = Result.unwrap(valueResult);
+void valueOrUndefined; //-
+//<
+
+//backtotop
+
+/*!
+## `Result.unwrapError`
+
+```
+Result.unwrapError(result) => error | undefined
+```
+
+- Helper for accessing the result's error if Error, or `undefined`.
+!*/
+
+//>
+const errorResult = {} as Result<undefined, "FetchError">;
+const errorOrUndefined = Result.unwrapError(errorResult);
+void errorOrUndefined; //-
+//<
+
+//backtotop
 
 /*!
 ## `Result.from`
@@ -356,6 +391,8 @@ Result.from(callback)
 	- returns a `Result.Ok` with the callback's result,
 	- otherwise a `Result.Error` with the thrown error (if any).
 !*/
+
+//+ #### Wrapping a function that could throw
 
 //>
 const $fetchData = await Result.from(() => fetch("/api/whoami"));
@@ -371,7 +408,7 @@ Enum.switch($fetchData, {
 });
 //<
 
-//return
+//backtotop
 
 //+ # `Enum` Type Utilities
 
@@ -384,7 +421,14 @@ type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 
 /*!
 ## `Enum.Root`
+
+```
+Enum.Root<TEnum, TDiscriminant?>
+```
+
 - Infers a key/value mapping of an Enum's variants.
+
+#### Examples
 !*/
 
 //>
@@ -392,11 +436,18 @@ export type Root = Enum.Root<Signal>;
 // -> { Red: true, Yellow: true; Green: true }
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.Keys`
+
+```
+Enum.Keys<TEnum, TDiscriminant?>
+```
+
 - Infers all keys of an Enum's variants.
+
+#### Examples
 !*/
 
 //>
@@ -404,11 +455,18 @@ export type Keys = Enum.Keys<Signal>;
 // -> "Red" | "Yellow" | "Green"
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.Pick`
+
+```
+Enum.Pick<TEnum, TKeys, TDiscriminant?>
+```
+
 - Pick subset of an Enum's variants by key.
+
+#### Examples
 !*/
 
 //>
@@ -419,11 +477,18 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 // -> *Red | *Yellow
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.Omit`
+
+```
+Enum.Omit<TEnum, TKeys, TDiscriminant?>
+```
+
 - Omit subset of an Enum's variants by key.
+
+#### Examples
 !*/
 
 //>
@@ -434,11 +499,18 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 // -> *Green
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.Extend`
+
+```
+Enum.Extend<TEnum, TVariants, TDiscriminant?>
+```
+
 - Add new variants and merge new properties for existing variants for an Enum.
+
+#### Examples
 !*/
 
 //>
@@ -446,11 +518,18 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 // -> *Red | *Yellow | *Green | *Flashing
 //<
 
-//return
+//backtotop
 
 /*!
 ## `Enum.Merge`
+
+```
+Enum.Merge<TEnums, TDiscriminant?>
+```
+
 - Merge all variants and properties of all given Enums.
+
+#### Examples
 !*/
 
 //>
@@ -458,4 +537,4 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // -> *Left | *Right
 //<
 
-//return
+//backtotop

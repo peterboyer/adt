@@ -111,6 +111,8 @@ const file: File = { mime: "text/plain", data: "..." };
 - [`Result`](#result)
   - [`Result.Ok`](#resultok)
   - [`Result.Error`](#resulterror)
+  - [`Result.unwrap`](#resultunwrap)
+  - [`Result.unwrapError`](#resultunwraperror)
   - [`Result.from`](#resultfrom)
 - Type Utilities
   - [`Enum.Root`](#enumroot)
@@ -285,8 +287,6 @@ export function queryFile(): Result<File, "NotFound"> {
   const file = File["text/plain"]({ data: "..." });
   return Result.Ok(file);
 }
-
-const fileOrUndefined = queryFile().value;
 ```
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
@@ -309,6 +309,36 @@ Result.Error<TError?>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
+## `Result.unwrap`
+
+```
+Result.unwrap(result) => value | undefined
+```
+
+- Helper for accessing the result's value if Ok, or `undefined`.
+
+```ts
+const valueResult = {} as Result<string>;
+const valueOrUndefined = Result.unwrap(valueResult);
+```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Result.unwrapError`
+
+```
+Result.unwrapError(result) => error | undefined
+```
+
+- Helper for accessing the result's error if Error, or `undefined`.
+
+```ts
+const errorResult = {} as Result<undefined, "FetchError">;
+const errorOrUndefined = Result.unwrapError(errorResult);
+```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Result.from`
 
 ```
@@ -318,6 +348,8 @@ Result.from(callback)
 - Executes the callback within a `try`/`catch`:
   - returns a `Result.Ok` with the callback's result,
   - otherwise a `Result.Error` with the thrown error (if any).
+
+#### Wrapping a function that could throw
 
 ```ts
 const $fetchData = await Result.from(() => fetch("/api/whoami"));
@@ -345,7 +377,14 @@ type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 <br/>
 
 ## `Enum.Root`
+
+```
+Enum.Root<TEnum, TDiscriminant?>
+```
+
 - Infers a key/value mapping of an Enum's variants.
+
+#### Examples
 
 ```ts
 export type Root = Enum.Root<Signal>;
@@ -355,7 +394,14 @@ export type Root = Enum.Root<Signal>;
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Keys`
+
+```
+Enum.Keys<TEnum, TDiscriminant?>
+```
+
 - Infers all keys of an Enum's variants.
+
+#### Examples
 
 ```ts
 export type Keys = Enum.Keys<Signal>;
@@ -365,7 +411,14 @@ export type Keys = Enum.Keys<Signal>;
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Pick`
+
+```
+Enum.Pick<TEnum, TKeys, TDiscriminant?>
+```
+
 - Pick subset of an Enum's variants by key.
+
+#### Examples
 
 ```ts
 export type PickRed = Enum.Pick<Signal, "Red">;
@@ -378,7 +431,14 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Omit`
+
+```
+Enum.Omit<TEnum, TKeys, TDiscriminant?>
+```
+
 - Omit subset of an Enum's variants by key.
+
+#### Examples
 
 ```ts
 export type OmitRed = Enum.Omit<Signal, "Red">;
@@ -391,7 +451,14 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Extend`
+
+```
+Enum.Extend<TEnum, TVariants, TDiscriminant?>
+```
+
 - Add new variants and merge new properties for existing variants for an Enum.
+
+#### Examples
 
 ```ts
 export type Extend = Enum.Extend<Signal, { Flashing: true }>;
@@ -401,7 +468,14 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Merge`
+
+```
+Enum.Merge<TEnums, TDiscriminant?>
+```
+
 - Merge all variants and properties of all given Enums.
+
+#### Examples
 
 ```ts
 export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
