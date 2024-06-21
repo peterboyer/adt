@@ -17,10 +17,12 @@ describe("Result", () => {
 		expect(Result.Error()).toStrictEqual({
 			_type: "Error",
 			error: undefined,
+			cause: undefined,
 		});
 		expect(Result.Error("...")).toStrictEqual({
 			_type: "Error",
 			error: "...",
+			cause: undefined,
 		});
 	});
 
