@@ -1,6 +1,6 @@
 {
 	"name": "unenum",
-	"version": "2.0.0",
+	"version": "3.0.0",
 	"description": "Universal ADT utilities for TypeScript.",
 	"license": "MIT",
 	"author": "Peter Boyer <https://github.com/peterboyer>",
