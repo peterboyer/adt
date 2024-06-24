@@ -31,8 +31,8 @@ export namespace Result {
 	}>;
 
 	export type Error<TError = undefined> = Enum<{
-		Error: [TError] extends [undefined]
-			? { error?: undefined; cause?: unknown }
-			: { error: TError; cause?: unknown };
+		Error: ([TError] extends [undefined]
+			? { error?: undefined }
+			: { error: TError }) & { cause?: unknown };
 	}>;
 }
