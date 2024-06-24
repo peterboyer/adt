@@ -3,7 +3,7 @@
 		"@tsconfig/strictest/tsconfig.json",
 		"@tsconfig/esm/tsconfig.json"
 	],
-	"include": ["./src", "./README.ts", "./README.example.ts"],
+	"include": ["./src", "./README.ts"],
 	"compilerOptions": {
 		"noEmit": true,
 		"skipLibCheck": false,
