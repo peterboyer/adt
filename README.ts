@@ -18,13 +18,11 @@ import { Enum } from "unenum";
 //<
 
 //>
-export type Light = typeof $Light;
-export const [Light, $Light] = Enum.define(
-	{} as {
-		On: { intensity: number };
-		Off: true;
-	},
-);
+export type Light = Enum<{
+	On: { intensity: number };
+	Off: true;
+}>;
+export const Light = Enum.define<Light>();
 //<
 
 //>
@@ -55,16 +53,13 @@ export function Light_formatState(light: Light): string {
 //+ <summary>Example</summary>
 
 //>
-export type Location = typeof $Location;
-export const [Location, $Location] = Enum.define(
-	{} as {
-		Unknown: true;
-		Known: { lat: number; lng: number };
-	},
-	{
-		Known: (lat: number, lng: number) => ({ lat, lng }),
-	},
-);
+export type Location = Enum<{
+	Unknown: true;
+	Known: { lat: number; lng: number };
+}>;
+export const Location = Enum.mapped(Enum.define<Location>(), {
+	Known: (lat: number, lng: number) => ({ lat, lng }),
+});
 //<
 
 //>
@@ -84,14 +79,15 @@ void location; //-
 //+ <summary>Example</summary>
 
 //>
-type File = typeof $File;
-const [File, $File] = Enum.on("mime").define(
-	{} as {
+type File = Enum<
+	{
 		"text/plain": { data: string };
 		"image/jpeg": { data: Buffer };
 		"application/json": { data: unknown };
 	},
-);
+	"mime"
+>;
+const File = Enum.on("mime").define<File>();
 //<
 
 //>
