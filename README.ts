@@ -22,7 +22,7 @@ export type Light = Enum<{
 	On: { intensity: number };
 	Off: true;
 }>;
-export const Light = Enum.define<Light>();
+export const Light = Enum.define({} as Light);
 //<
 
 //>
@@ -57,7 +57,7 @@ export type Location = Enum<{
 	Unknown: true;
 	Known: { lat: number; lng: number };
 }>;
-export const Location = Enum.mapped(Enum.define<Location>(), {
+export const Location = Enum.define({} as Location, {
 	Known: (lat: number, lng: number) => ({ lat, lng }),
 });
 //<
@@ -87,7 +87,7 @@ type File = Enum<
 	},
 	"mime"
 >;
-const File = Enum.on("mime").define<File>();
+const File = Enum.on("mime").define({} as File);
 //<
 
 //>

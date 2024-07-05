@@ -5,27 +5,10 @@ import type { Intersect } from "./shared/intersect.js";
 export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
-	return function <TEnum extends Enum.Any<TDiscriminant>>() {
-		return Builder({} as TEnum, discriminant);
-	};
-}
-
-export function Mapped<TDiscriminant extends Enum.Discriminant.Any>(
-	discriminant: TDiscriminant,
-) {
 	return function <
-		TBuilder extends Record<
-			string,
-			(...args: any[]) => Enum.Any<TDiscriminant>
-		>,
-		TEnum extends Enum<
-			{
-				[Key in keyof TBuilder]: ReturnType<TBuilder[Key]>;
-			},
-			TDiscriminant
-		>,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TMapper extends Mapper<TEnum, TDiscriminant>,
-	>(_builder: TBuilder, mapper: TMapper) {
+	>(_enum: TEnum, mapper?: TMapper) {
 		return Builder({} as TEnum, discriminant, mapper);
 	};
 }

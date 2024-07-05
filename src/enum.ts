@@ -1,6 +1,6 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
-import { Define, Mapped } from "./enum.define.js";
+import { Define } from "./enum.define.js";
 import { Match } from "./enum.match.js";
 import { Switch } from "./enum.switch.js";
 import { On } from "./enum.on.js";
@@ -9,7 +9,6 @@ export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
 
 export const Enum = {
 	define: Define(DiscriminantDefault),
-	mapped: Mapped(DiscriminantDefault),
 	match: Match(DiscriminantDefault),
 	switch: Switch(DiscriminantDefault),
 	on: On,
