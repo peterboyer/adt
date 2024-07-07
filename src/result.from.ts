@@ -1,6 +1,6 @@
-import type { Result } from "./result.js";
+import type { Enum } from "./enum.js";
 
-export function from<TReturnType>(
+export function Result<TReturnType>(
 	fn: () => TReturnType,
 ): FromResult<TReturnType> {
 	type TryReturn = FromResult<TReturnType>;
@@ -19,9 +19,9 @@ export function from<TReturnType>(
 }
 
 type FromResult<TReturnType> = [TReturnType] extends [never]
-	? Result // when never
+	? Enum.Result // when never
 	: 0 extends 1 & TReturnType
-		? Result<unknown, unknown> // when any
+		? Enum.Result<unknown, unknown> // when any
 		: [TReturnType] extends [Promise<unknown>]
-			? Promise<Result<Awaited<TReturnType>, unknown>> // when promise
-			: Result<TReturnType, unknown>;
+			? Promise<Enum.Result<Awaited<TReturnType>, unknown>> // when promise
+			: Enum.Result<TReturnType, unknown>;

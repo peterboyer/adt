@@ -6,9 +6,10 @@ export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
 	return function <
-		TEnum extends Enum.Any<TDiscriminant>,
+		TVariants extends Enum.Variants,
 		TMapper extends Mapper<TEnum, TDiscriminant>,
-	>(_enum: TEnum, mapper?: TMapper) {
+		TEnum extends Enum<TVariants, TDiscriminant>,
+	>(_variants: TVariants, mapper?: TMapper) {
 		return Builder({} as TEnum, discriminant, mapper);
 	};
 }

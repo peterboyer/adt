@@ -4,6 +4,9 @@ import { Define } from "./enum.define.js";
 import { Match } from "./enum.match.js";
 import { Switch } from "./enum.switch.js";
 import { On } from "./enum.on.js";
+import { Value, Error, Loading } from "./result.builder.js";
+import { Result } from "./result.from.js";
+import { unwrapValue } from "./result.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
 
@@ -12,6 +15,11 @@ export const Enum = {
 	match: Match(DiscriminantDefault),
 	switch: Switch(DiscriminantDefault),
 	on: On,
+	Value,
+	Error,
+	Loading,
+	Result,
+	unwrapValue,
 };
 
 export type Enum<
@@ -26,6 +34,12 @@ export type Enum<
 }[keyof TVariants];
 
 export namespace Enum {
+	export type infer<
+		TBuilder extends Record<string, (...args: any[]) => unknown>,
+	> = {
+		[Key in keyof TBuilder]: ReturnType<TBuilder[Key]>;
+	}[keyof TBuilder];
+
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
 		Record<TDiscriminant, string>;
 
@@ -126,4 +140,22 @@ export namespace Enum {
 	type TrueAsEmpty<T> = {
 		[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
 	};
+
+	export type Value<TValue = undefined> = Enum<{
+		Value: [TValue] extends [undefined]
+			? { value?: undefined }
+			: { value: TValue };
+	}>;
+
+	export type Error<TError = undefined> = Enum<{
+		Error: ([TError] extends [undefined]
+			? { error?: undefined }
+			: { error: TError }) & { cause?: unknown };
+	}>;
+
+	export type Loading = Enum<{ Loading: true }>;
+
+	export type Result<TValue = undefined, TError = undefined> =
+		| Value<TValue>
+		| Error<TError>;
 }

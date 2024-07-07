@@ -1,19 +1,19 @@
-import type { Result } from "./result.js";
+import type { Enum } from "./enum.js";
 
-export function Ok<T = never, X = never>(
+export function Value<T = never, X = never>(
 	...args: [T] extends [never]
 		? [value?: X]
-		: T extends { _type: "Ok"; value: unknown }
+		: T extends { _type: "Value"; value: unknown }
 			? [value: T["value"]]
-			: T extends { _type: "Ok"; value?: undefined }
+			: T extends { _type: "Value"; value?: undefined }
 				? [value?: undefined]
 				: never
 ): [T] extends [never]
-	? Result.Ok<X>
-	: [T] extends [{ _type: "Ok" }]
+	? Enum.Value<X>
+	: [T] extends [{ _type: "Value" }]
 		? T
 		: never {
-	return { _type: "Ok", value: args[0] } as any;
+	return { _type: "Value", value: args[0] } as any;
 }
 
 export function Error<T = never, X = never>(
@@ -25,9 +25,11 @@ export function Error<T = never, X = never>(
 				? [error?: undefined, cause?: unknown]
 				: never
 ): [T] extends [never]
-	? Result.Error<X>
+	? Enum.Error<X>
 	: [T] extends [{ _type: "Error" }]
 		? T
 		: never {
 	return { _type: "Error", error: args[0], cause: args[1] } as any;
 }
+
+export const Loading = (): Enum.Loading => ({ _type: "Loading" });

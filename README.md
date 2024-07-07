@@ -11,19 +11,27 @@ npm install unenum
 
 # Usage
 
+
 ```ts
 import { Enum } from "unenum";
 ```
 
+
+<details open><summary>(<strong>Example</strong>) Defining.</summary>
+
 ```ts
-export type Light = typeof $Light;
-export const [Light, $Light] = Enum.define(
+export type Light = Enum.infer<typeof Light>;
+export const Light = Enum.define(
   {} as {
     On: { intensity: number };
     Off: true;
   },
 );
 ```
+
+</details>
+
+<details open><summary>(<strong>Example</strong>) Instantiating.</summary>
 
 ```ts
 Light.On({ intensity: 100 });
@@ -33,9 +41,16 @@ Light.Off();
 const light: Light = { _type: "On", intensity: 100 };
 ```
 
+</details>
+
+<details open><summary>(<strong>Example</strong>) Typing, Matching, Switching.</summary>
+
 ```ts
-export function Light_isOn(light: Light): boolean {
-  return Enum.match(light, "On");
+export function Light_getIntensity(light: Light): number | undefined {
+  if (Enum.match(light, "Off")) {
+    return undefined;
+  }
+  return light.intensity;
 }
 
 export function Light_formatState(light: Light): string {
@@ -46,14 +61,13 @@ export function Light_formatState(light: Light): string {
 }
 ```
 
-## with a mapper
+</details>
 
-<details>
-<summary>Example</summary>
+<details><summary>(<strong>Example</strong>) Using a mapper.</summary>
 
 ```ts
-export type Location = typeof $Location;
-export const [Location, $Location] = Enum.define(
+export type Location = Enum.infer<typeof Location>;
+export const Location = Enum.define(
   {} as {
     Unknown: true;
     Known: { lat: number; lng: number };
@@ -63,6 +77,7 @@ export const [Location, $Location] = Enum.define(
   },
 );
 ```
+
 
 ```ts
 Location.Unknown();
@@ -74,14 +89,11 @@ const location: Location = { _type: "Known", lat: -33.852, lng: 151.21 };
 
 </details>
 
-## with a custom discriminant
-
-<details>
-<summary>Example</summary>
+<details><summary>(<strong>Example</strong>) Using a custom discriminant.</summary>
 
 ```ts
-type File = typeof $File;
-const [File, $File] = Enum.on("mime").define(
+type File = Enum.infer<typeof File>;
+const File = Enum.on("mime").define(
   {} as {
     "text/plain": { data: string };
     "image/jpeg": { data: Buffer };
@@ -89,6 +101,8 @@ const [File, $File] = Enum.on("mime").define(
   },
 );
 ```
+
+
 
 ```ts
 File["text/plain"]({ data: "..." });
@@ -105,16 +119,17 @@ const file: File = { mime: "text/plain", data: "..." };
 
 - [`Enum`](#enum)
   - [`Enum.define`](#enumdefine)
+  - [`Enum.infer`](#enuminfer)
   - [`Enum.match`](#enummatch)
   - [`Enum.switch`](#enumswitch)
   - [`Enum.on`](#enumon)
-- [`Result`](#result)
-  - [`Result.Ok`](#resultok)
-  - [`Result.Error`](#resulterror)
-  - [`Result.unwrap`](#resultunwrap)
-  - [`Result.unwrapError`](#resultunwraperror)
-  - [`Result.from`](#resultfrom)
-- Type Utilities
+- Primitives
+  - [`Enum.Value`](#enumvalue)
+  - [`Enum.Error`](#enumerror)
+  - [`Enum.Loading`](#enumloading)
+  - [`Enum.Result`](#enumresult)
+  - [`Enum.unwrapValue`](#enumunwrapvalue)
+- Utilities
   - [`Enum.Root`](#enumroot)
   - [`Enum.Keys`](#enumkeys)
   - [`Enum.Pick`](#enumpick)
@@ -125,17 +140,18 @@ const file: File = { mime: "text/plain", data: "..." };
 ## `Enum`
 
 ```
-Enum<TVariants, TDiscriminant?>
+(type) Enum<TVariants, TDiscriminant?>
 ```
 
-> [!NOTE]
-> Recommend that you use [`Enum.define`](#enumdefine) instead of
-[`Enum`](#enum) directly.
-
 - Creates a discriminated union `type` from a key-value map of variants.
-- Use `true` for unit variants that don't have any data properties (not `{}`).
+- Use `true` for unit variants that don't have any data properties ([not
+`{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
 
-#### Using the default discriminant
+> [!NOTE]
+> It is recommended that you use [`Enum.define`](#enumdefine) with
+[`Enum.infer`](#enuminfer) instead of [`Enum`](#enum) directly for regular use.
+
+<details><summary>(<strong>Example</strong>) Using the default discriminant.</summary>
 
 ```ts
 export type Default = Enum<{
@@ -143,11 +159,13 @@ export type Default = Enum<{
   DataVariant: { value: string };
 }>;
 
-const example_unit: Default = { _type: "UnitVariant" };
-const example_data: Default = { _type: "DataVariant", value: "..." };
+const unit: Default = { _type: "UnitVariant" };
+const data: Default = { _type: "DataVariant", value: "..." };
 ```
 
-#### Using a custom discriminant
+</details>
+
+<details><summary>(<strong>Example</strong>) Using a custom discriminant.</summary>
 
 ```ts
 export type Custom = Enum<
@@ -158,36 +176,41 @@ export type Custom = Enum<
   "kind"
 >;
 
-const custom_unit: Custom = { kind: "UnitVariant" };
-const custom_data: Custom = { kind: "DataVariant", value: "..." };
+const unitCustom: Custom = { kind: "UnitVariant" };
+const dataCustom: Custom = { kind: "DataVariant", value: "..." };
 ```
+
+</details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.define`
 
 ```
-Enum.define(variants, options?) => [builder, type]
-
-options.discriminant = string
-options.mapper = { [variant]: callback }
+(func) Enum.define(variants, options?: { [variant]: callback }) => builder
 ```
 
-#### Examples
+- See [#usage](#usage) for example.
 
-- [Usage](#usage)
-- [Usage with a mapper](#with-a-mapper)
-- [Usage with a custom discriminant](#with-a-custom-discriminant)
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.infer`
+
+```
+(type) Enum.infer<TBuilder>
+```
+
+- See [#usage](#usage) for example.
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.match`
 
 ```
-Enum.match(value, variant | variants[]) => boolean
+(func) Enum.match(value, variant | variants[]) => boolean
 ```
 
-#### Match with one variant
+<details><summary>(<strong>Example</strong>) Match with one variant.</summary>
 
 ```ts
 const getLightIntensity = (light: Light): number | undefined => {
@@ -198,7 +221,9 @@ const getLightIntensity = (light: Light): number | undefined => {
 };
 ```
 
-#### Match with many variants
+</details>
+
+<details><summary>(<strong>Example</strong>) Match with many variants.</summary>
 
 ```ts
 const getFileFormat = (file: File): "text" | "image" => {
@@ -209,18 +234,20 @@ const getFileFormat = (file: File): "text" | "image" => {
 };
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.switch`
 
 ```
-Enum.switch(value, matcher) => inferred
-
-matcher[variant]: value | callback
-matcher._: value | callback
+(func) Enum.switch(
+  value,
+  matcher = { [variant]: value | callback; _?: value | callback }
+) => inferred
 ```
 
-#### Handle all cases
+<details><summary>(<strong>Example</strong>) Handle all cases.</summary>
 
 ```ts
 const formatLightState = (light: Light) =>
@@ -230,7 +257,9 @@ const formatLightState = (light: Light) =>
   });
 ```
 
-#### Unhandled cases with fallback
+</details>
+
+<details><summary>(<strong>Example</strong>) Unhandled cases with fallback.</summary>
 
 ```ts
 const onFileSelect = (file: File) =>
@@ -240,122 +269,87 @@ const onFileSelect = (file: File) =>
   });
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.on`
 
 ```
-Enum.on(discriminant) => { define, match, switch }
+(func) Enum.on(discriminant) => { define, match, switch }
 ```
 
-- Redefines and returns all `Enum.*` methods with a given custom discriminant.
+- Redefines and returns all `Enum.*` runtime methods with a custom discriminant.
 
-#### Examples
+<details><summary>(<strong>Example</strong>) Define and use an Enum with a custom discriminant.</summary>
 
-- [Usage with a custom discriminant](#with-a-custom-discriminant)
+```ts
+type Foo = Enum.infer<typeof Foo>;
+const Foo = Enum.on("kind").define({} as { A: true; B: true });
+
+const value = Foo.A() as Foo;
+Enum.on("kind").match(value, "A");
+Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
+```
+
+</details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Result`
+# Primitives
+
+## `Enum.Result`
 
 ```
-Result<TOk?, TError?>
+(type) Enum.Result<TValue?, TError?>
 ```
+
+- A helper alias for `Enum.Value | Enum.Error`.
+
+<details><summary>(<strong>Example</strong>) Enum.Result without any values.</summary>
 
 ```ts
-import { Result } from "unenum";
-```
-
-#### Result without any values
-
-```ts
-export function getResult(): Result {
+export function getResult(): Enum.Result {
   if (Math.random()) {
-    return Result.Error();
+    return Enum.Error();
   }
-  return Result.Ok();
+  return Enum.Value();
 }
 ```
 
-#### Result with Ok and Error values
+</details>
+
+<details><summary>(<strong>Example</strong>) Enum.Result with Value and Error values.</summary>
 
 ```ts
-export function queryFile(): Result<File, "NotFound"> {
+export function queryFile(): Enum.Result<File, "NotFound"> {
   if (Math.random()) {
-    return Result.Error("NotFound");
+    return Enum.Error("NotFound");
   }
   const file = File["text/plain"]({ data: "..." });
-  return Result.Ok(file);
+  return Enum.Value(file);
 }
 ```
 
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Result.Ok`
-
-```
-Result.Ok(value | value?) => Result.Ok<inferred>
-Result.Ok<TOk?>
-```
+</details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Result.Error`
-
 ```
-Result.Error(error | error?) => Result.Error<inferred>
-Result.Error<TError?>
-```
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Result.unwrap`
-
-```
-Result.unwrap(result) => value | undefined
-```
-
-- Helper for accessing the result's value if Ok, or `undefined`.
-
-```ts
-const valueResult = {} as Result<string>;
-const valueOrUndefined = Result.unwrap(valueResult);
-```
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Result.unwrapError`
-
-```
-Result.unwrapError(result) => error | undefined
-```
-
-- Helper for accessing the result's error if Error, or `undefined`.
-
-```ts
-const errorResult = {} as Result<undefined, "FetchError">;
-const errorOrUndefined = Result.unwrapError(errorResult);
-```
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Result.from`
-
-```
-Result.from(callback)
+(func) Enum.Result(callback)
 ```
 
 - Executes the callback within a `try`/`catch`:
-  - returns a `Result.Ok` with the callback's result,
-  - otherwise a `Result.Error` with the thrown error (if any).
+  - returns a `Enum.Value` with the callback's result,
+  - otherwise a `Enum.Error` with the thrown error (if any).
 
-#### Wrapping a function that could throw
+<details><summary>(<strong>Example</strong>) Wrap a function that may throw.</summary>
 
 ```ts
-const $fetchData = await Result.from(() => fetch("/api/whoami"));
+const $fetchData = await Enum.Result(() => fetch("/api/whoami"));
 
 Enum.switch($fetchData, {
-  Ok: async ({ value: response }) => {
+  Value: async ({ value: response }) => {
     const body = (await response.json()) as unknown;
     console.log(body);
   },
@@ -365,60 +359,99 @@ Enum.switch($fetchData, {
 });
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-# `Enum` Type Utilities
+## `Enum.Value`
+
+```
+(type) Enum.Value<TValue?>
+(func) Enum.Value(inferred) => Enum.Value<inferred>
+```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.Error`
+
+```
+(type) Enum.Error<TError?>
+(func) Enum.Error(inferred) => Enum.Error<inferred>
+```
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.unwrapValue`
+
+```
+(func) Enum.unwrapValue(result) => value | undefined
+```
+
+- Helper to access a `Value` variant's `value`, otherwise returning `undefined`.
+
+> [!NOTE]
+> Prefer using `Enum.match(result, "Error")` to handle errors instead of using
+`Enum.unwrapValue(result)` to check for `undefined`.
+
+<details><summary>(<strong>Example</strong>) Safely wrap throwable function call and unwrap value.</summary>
+
+```ts
+const result = Enum.Result(() => JSON.stringify("..."));
+const valueOrUndefined = Enum.unwrapValue(result);
+```
+
+</details>
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+# Utilities
+
 
 ```ts
 // example
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 ```
 
-<br/>
 
 ## `Enum.Root`
 
 ```
-Enum.Root<TEnum, TDiscriminant?>
+(type) Enum.Root<TEnum, TDiscriminant?>
 ```
 
-- Infers a key/value mapping of an Enum's variants.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Infer a key/value mapping of an Enum's variants.</summary>
 
 ```ts
 export type Root = Enum.Root<Signal>;
 // -> { Red: true, Yellow: true; Green: true }
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Keys`
 
 ```
-Enum.Keys<TEnum, TDiscriminant?>
+(type) Enum.Keys<TEnum, TDiscriminant?>
 ```
-
-- Infers all keys of an Enum's variants.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Infers all keys of an Enum's variants.</summary>
 
 ```ts
 export type Keys = Enum.Keys<Signal>;
 // -> "Red" | "Yellow" | "Green"
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Pick`
 
 ```
-Enum.Pick<TEnum, TKeys, TDiscriminant?>
+(type) Enum.Pick<TEnum, TKeys, TDiscriminant?>
 ```
-
-- Pick subset of an Enum's variants by key.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Pick subset of an Enum's variants by key.</summary>
 
 ```ts
 export type PickRed = Enum.Pick<Signal, "Red">;
@@ -428,17 +461,16 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 // -> *Red | *Yellow
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Omit`
 
 ```
-Enum.Omit<TEnum, TKeys, TDiscriminant?>
+(type) Enum.Omit<TEnum, TKeys, TDiscriminant?>
 ```
-
-- Omit subset of an Enum's variants by key.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Omit subset of an Enum's variants by key.</summary>
 
 ```ts
 export type OmitRed = Enum.Omit<Signal, "Red">;
@@ -448,38 +480,40 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 // -> *Green
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Extend`
 
 ```
-Enum.Extend<TEnum, TVariants, TDiscriminant?>
+(type) Enum.Extend<TEnum, TVariants, TDiscriminant?>
 ```
 
-- Add new variants and merge new properties for existing variants for an Enum.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Add new variants and merge new properties for existing variants for an Enum.</summary>
 
 ```ts
 export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 // -> *Red | *Yellow | *Green | *Flashing
 ```
 
+</details>
+
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
 ## `Enum.Merge`
 
 ```
-Enum.Merge<TEnums, TDiscriminant?>
+(type) Enum.Merge<TEnums, TDiscriminant?>
 ```
 
-- Merge all variants and properties of all given Enums.
-
-#### Examples
+<details><summary>(<strong>Example</strong>) Merge all variants and properties of all given Enums.</summary>
 
 ```ts
 export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // -> *Left | *Right
 ```
+
+</details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
