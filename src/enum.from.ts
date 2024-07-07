@@ -1,7 +1,7 @@
 import type { Enum } from "./enum.js";
 
 export function From<TDiscriminant extends Enum.Discriminant.Any>(
-	_discriminant: TDiscriminant,
+	discriminant: TDiscriminant,
 ) {
 	type ToArgs<TEnum extends Enum.Any<TDiscriminant>> = Enum.Root<
 		TEnum,
@@ -14,19 +14,24 @@ export function From<TDiscriminant extends Enum.Discriminant.Any>(
 			}[keyof Root]
 		: never;
 
-	return function <T = never, X = never>(
+	return function <
+		T = never,
+		X = never,
+		TName extends string = string,
+		TData extends
+			| Enum.Variants.UnitValueAny
+			| Enum.Variants.DataValueAny = true,
+	>(
 		...args: [T] extends [never]
-			? [value?: X]
+			? [name: TName, data?: TData]
 			: T extends Enum.Any<TDiscriminant>
 				? ToArgs<T>
-				: T extends { _type: "Value"; value?: undefined }
-					? [value?: undefined]
-					: never
+				: never
 	): [T] extends [never]
-		? Enum.Value<X>
-		: [T] extends [{ _type: "Value" }]
+		? Enum<{ [Key in TName]: TData }>
+		: [T] extends [{ _type: "Ok" }]
 			? T
 			: never {
-		return { _type: "Value", value: args[0] } as any;
+		return { [discriminant]: args[0], ...args[1] } as any;
 	};
 }

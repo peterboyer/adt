@@ -96,8 +96,8 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Loading, { _type: "Loading" }>>,
 	Expect<
 		Equal<
-			Enum.Loading | Enum.Value<string>,
-			{ _type: "Loading" } | { _type: "Value"; value: string }
+			Enum.Loading | Enum.Ok<string>,
+			{ _type: "Loading" } | { _type: "Ok"; value: string }
 		>
 	>,
 ];

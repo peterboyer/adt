@@ -5,7 +5,7 @@ import { Match } from "./enum.match.js";
 import { Switch } from "./enum.switch.js";
 import { From } from "./enum.from.js";
 import { On } from "./enum.on.js";
-import { Value } from "./enum.value.js";
+import { Ok } from "./enum.ok.js";
 import { Error } from "./enum.error.js";
 import { Result } from "./enum.result.from.js";
 import { unwrapValue } from "./enum.unwrap-value.js";
@@ -19,7 +19,7 @@ export const Enum = {
 	switch: Switch(DiscriminantDefault),
 	from: From(DiscriminantDefault),
 	on: On,
-	Value,
+	Ok,
 	Error,
 	Loading,
 	Result,
@@ -145,10 +145,8 @@ export namespace Enum {
 		[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
 	};
 
-	export type Value<TValue = undefined> = Enum<{
-		Value: [TValue] extends [undefined]
-			? { value?: undefined }
-			: { value: TValue };
+	export type Ok<TOk = undefined> = Enum<{
+		Ok: [TOk] extends [undefined] ? { value?: undefined } : { value: TOk };
 	}>;
 
 	export type Error<TError = undefined> = Enum<{
@@ -159,7 +157,7 @@ export namespace Enum {
 
 	export type Loading = Enum<{ Loading: true }>;
 
-	export type Result<TValue = undefined, TError = undefined> =
-		| Value<TValue>
+	export type Result<TOk = undefined, TError = undefined> =
+		| Ok<TOk>
 		| Error<TError>;
 }

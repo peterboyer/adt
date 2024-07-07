@@ -12,16 +12,16 @@ void function getFoo(): Enum.Result<string, "ParseError"> {
 	}
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Value();
+		return Enum.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error 1 is not assignable to `string`.
-		return Enum.Value(1);
+		return Enum.Ok(1);
 	}
 	if (branch()) {
 		return Enum.Error("ParseError");
 	}
-	return Enum.Value("1");
+	return Enum.Ok("1");
 };
 
 void async function getFooPromise(): Promise<
@@ -37,16 +37,16 @@ void async function getFooPromise(): Promise<
 	}
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Value();
+		return Enum.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error 1 is not assignable to `string`.
-		return Enum.Value(1);
+		return Enum.Ok(1);
 	}
 	if (branch()) {
 		return Enum.Error("ParseError");
 	}
-	return Enum.Value("...");
+	return Enum.Ok("...");
 };
 
 void function getResult(): Enum.Result {
@@ -60,19 +60,19 @@ void function getResult(): Enum.Result {
 		return Enum.Error(undefined, {});
 	}
 	if (branch()) {
-		return Enum.Value(undefined);
+		return Enum.Ok(undefined);
 	}
-	return Enum.Value();
+	return Enum.Ok();
 };
 
 void function getAnything(): string {
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Value();
+		return Enum.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Value("...");
+		return Enum.Ok("...");
 	}
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
@@ -89,21 +89,21 @@ void function getAnything(): string {
 	Expect<
 		Equal<
 			Enum.Result,
-			| { _type: "Value"; value?: undefined }
+			| { _type: "Ok"; value?: undefined }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
 			Enum.Result<unknown>,
-			| { _type: "Value"; value: unknown }
+			| { _type: "Ok"; value: unknown }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
 			Enum.Result<unknown, unknown>,
-			| { _type: "Value"; value: unknown }
+			| { _type: "Ok"; value: unknown }
 			| { _type: "Error"; error: unknown; cause?: unknown }
 		>
 	>,

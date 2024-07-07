@@ -4,7 +4,7 @@ import type { Expect, Equal } from "./testing.js";
 describe("Enum.unwrapValue", () => {
 	test("unwrap", () => {
 		{
-			const result = Enum.Value("foo");
+			const result = Enum.Ok("foo");
 			expect(Enum.unwrapValue(result)).toEqual("foo");
 		}
 		{
@@ -19,7 +19,7 @@ describe("Enum.unwrapValue", () => {
 		}
 
 		{
-			const result = {} as Enum.Value<string>;
+			const result = {} as Enum.Ok<string>;
 			const value = Enum.unwrapValue(result);
 			!0 as Expect<Equal<typeof value, string>>;
 		}

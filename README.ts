@@ -116,7 +116,7 @@ void file; //-
 	- [`Enum.from`](#enumfrom)
 	- [`Enum.on`](#enumon)
 - Primitives
-	- [`Enum.Value`](#enumvalue)
+	- [`Enum.Ok`](#enumok)
 	- [`Enum.Error`](#enumerror)
 	- [`Enum.Result`](#enumresult)
 	- [`Enum.unwrapValue`](#enumunwrapvalue)
@@ -325,14 +325,14 @@ Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
 //+ # Primitives
 
 /*!
-## `Enum.Value`
+## `Enum.Ok`
 
 ```
-(type) Enum.Value<TValue?>
-(func) Enum.Value(inferred) => Enum.Value<inferred>
+(type) Enum.Ok<TOk?>
+(func) Enum.Ok(inferred) => Enum.Ok<inferred>
 ```
 
-- Represents a normal/success value, `{ _type: "Value"; value: "..." }`.
+- Represents a normal/success value, `{ _type: "Ok"; value: "..." }`.
 !*/
 
 //backtotop
@@ -354,10 +354,10 @@ Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
 ## `Enum.Result`
 
 ```
-(type) Enum.Result<TValue?, TError?>
+(type) Enum.Result<TOk?, TError?>
 ```
 
-- A helper alias for `Enum.Value | Enum.Error`.
+- A helper alias for `Enum.Ok | Enum.Error`.
 
 > [!NOTE]
 > This "Errors As Values" pattern allows known error cases to handled in a
@@ -374,12 +374,12 @@ export function getResult(): Enum.Result {
 		return Enum.Error();
 	}
 
-	return Enum.Value();
+	return Enum.Ok();
 }
 //<
 //<<<
 
-//>>> Enum.Result with Value and Error values.
+//>>> Enum.Result with Ok and Error values.
 //>
 const getFile = (): File | undefined => undefined; //-
 export function queryFile(): Enum.Result<File, "NotFound"> {
@@ -389,7 +389,7 @@ export function queryFile(): Enum.Result<File, "NotFound"> {
 		return Enum.Error("NotFound");
 	}
 
-	return Enum.Value(file);
+	return Enum.Ok(file);
 }
 //<
 //<<<
@@ -402,7 +402,7 @@ export function queryFile(): Enum.Result<File, "NotFound"> {
 ```
 
 - Executes the callback within a `try`/`catch`:
-	- returns a `Enum.Value` with the callback's result,
+	- returns a `Enum.Ok` with the callback's result,
 	- otherwise a `Enum.Error` with the thrown error (if any).
 !*/
 
@@ -411,7 +411,7 @@ export function queryFile(): Enum.Result<File, "NotFound"> {
 const fetchResult = await Enum.Result(() => fetch("/api/whoami"));
 
 Enum.switch(fetchResult, {
-	Value: async ({ value: response }) => {
+	Ok: async ({ value: response }) => {
 		const body = (await response.json()) as unknown;
 		console.log(body);
 	},
@@ -431,7 +431,7 @@ Enum.switch(fetchResult, {
 (func) Enum.unwrapValue(result) => value | undefined
 ```
 
-- Helper to extract `value` of the `Value` variant, otherwise returning
+- Helper to extract `value` of the `Ok` variant, otherwise returning
 `undefined` (e.g. in the case of an `Error`).
 - Equivalent to `Enum.match(result, "Ok") ? result.value : undefined`.
 
@@ -481,7 +481,7 @@ function useFetchedListItems():
 		return Enum.Error("NetworkError");
 	}
 
-	return Enum.Value(data.gqlListItems.items);
+	return Enum.Ok(data.gqlListItems.items);
 }
 void useFetchedListItems; //-
 //<
@@ -511,7 +511,7 @@ function Component(): Element {
 				return;
 			}
 
-			setState(Enum.Value({ items: responseResult.value.items }));
+			setState(Enum.Ok({ items: responseResult.value.items }));
 			return;
 		})();
 	}, []);
@@ -519,7 +519,7 @@ function Component(): Element {
 	// exhaustively handle all possible states
 	return Enum.switch(state, {
 		Loading: () => `<Spinner />`,
-		Value: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
+		Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
 		Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
 	});
 }
