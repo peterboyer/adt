@@ -35,27 +35,39 @@ export const Light = Enum.define(
 Light.On({ intensity: 100 });
 Light.Off();
 
+// or instantiated with Enum.value ...
+// prettier-ignore
+{ //-
+const light: Light = Enum.value("On", { intensity: 100 })
+void light; //-
+} //-
+
 // or manually instantiated with type ...
+// prettier-ignore
+{ //-
 const light: Light = { _type: "On", intensity: 100 };
 void light; //-
+} //-
 //<
 //<<<
 
 //>>>+ Typing, Matching, Switching.
 //>
-export function Light_getIntensity(light: Light): number | undefined {
+function getLightIntensity(light: Light): number | undefined {
 	if (Enum.match(light, "Off")) {
 		return undefined;
 	}
 	return light.intensity;
 }
+void getLightIntensity; //-
 
-export function Light_formatState(light: Light): string {
+function formatLightState(light: Light): string {
 	return Enum.switch(light, {
 		On: ({ intensity }) => `Currently on with intensity: ${intensity}.`,
 		Off: "Currently off.",
 	});
 }
+void formatLightState; //-
 //<
 //<<<
 
@@ -142,27 +154,32 @@ void file; //-
 `{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
 
 > [!NOTE]
-> It is recommended that you use [`Enum.define`](#enumdefine) with
-[`Enum.infer`](#enuminfer) instead of [`Enum`](#enum) directly for regular use.
+> Consider using [`Enum.define`](#enumdefine) with [`Enum.infer`](#enuminfer)
+instead of [`Enum`](#enum) directly defining Enums.
 !*/
 
 //>>> Using the default discriminant.
 //>
-export type Default = Enum<{
+// prettier-ignore
+{ //-
+type Foo = Enum<{
 	UnitVariant: true;
 	DataVariant: { value: string };
 }>;
 
-const unit: Default = { _type: "UnitVariant" };
+const unit: Foo = { _type: "UnitVariant" };
 void unit; //-
-const data: Default = { _type: "DataVariant", value: "..." };
+const data: Foo = { _type: "DataVariant", value: "..." };
 void data; //-
+} //-
 //<
 //<<<
 
 //>>> Using a custom discriminant.
 //>
-export type Custom = Enum<
+// prettier-ignore
+{ //-
+type Foo = Enum<
 	{
 		UnitVariant: true;
 		DataVariant: { value: string };
@@ -170,10 +187,11 @@ export type Custom = Enum<
 	"kind"
 >;
 
-const unitCustom: Custom = { kind: "UnitVariant" };
-void unitCustom; //-
-const dataCustom: Custom = { kind: "DataVariant", value: "..." };
-void dataCustom; //-
+const unit: Foo = { kind: "UnitVariant" };
+void unit; //-
+const data: Foo = { kind: "DataVariant", value: "..." };
+void data; //-
+} //-
 //<
 //<<<
 
@@ -213,7 +231,9 @@ void dataCustom; //-
 
 //>>> Match with one variant.
 //>
-const getLightIntensity = (light: Light): number | undefined => {
+// prettier-ignore
+{ //-
+function getLightIntensity(light: Light): number | undefined {
 	if (Enum.match(light, "On")) {
 		return light.intensity;
 	}
@@ -225,13 +245,12 @@ void getLightIntensity; //-
 
 //>>> Match with many variants.
 //>
-const getFileFormat = (file: File): "text" | "image" => {
-	if (Enum.on("mime").match(file, ["text/plain", "application/json"])) {
-		return "text";
-	}
-	return "image";
+function getFileFormat(file: File): boolean {
+	const isText = Enum.on("mime").match(file, ["text/plain", "application/json"])
+	return isText
 };
 void getFileFormat; //-
+} //-
 //<
 //<<<
 
@@ -250,23 +269,28 @@ void getFileFormat; //-
 
 //>>> Handle all cases.
 //>
-const formatLightState = (light: Light) =>
-	Enum.switch(light, {
+// prettier-ignore
+{ //-
+function formatLightState(light: Light) {
+	return Enum.switch(light, {
 		On: ({ intensity }) => `On(${intensity})`,
 		Off: "Off",
 	});
+}
 void formatLightState; //-
 //<
 //<<<
 
 //>>> Unhandled cases with fallback.
 //>
-const onFileSelect = (file: File) =>
-	Enum.on("mime").switch(file, {
+function onFileSelect(file: File) {
+	return Enum.on("mime").switch(file, {
 		"image/jpeg": () => prompt("Name for image:"),
 		_: () => alert("Unsupported filetype."),
 	});
+}
 void onFileSelect; //-
+} //-
 //<
 //<<<
 

@@ -13,4 +13,5 @@ cat ./README.ts \
 | grep -v '/\*!' \
 | grep -v '!\*/' \
 | grep -v '//-' \
+| grep -v '// prettier-ignore' \
 > README.md

@@ -37,6 +37,9 @@ export const Light = Enum.define(
 Light.On({ intensity: 100 });
 Light.Off();
 
+// or instantiated with Enum.value ...
+const light: Light = Enum.value("On", { intensity: 100 })
+
 // or manually instantiated with type ...
 const light: Light = { _type: "On", intensity: 100 };
 ```
@@ -46,14 +49,14 @@ const light: Light = { _type: "On", intensity: 100 };
 <details open><summary>(<strong>Example</strong>) Typing, Matching, Switching.</summary>
 
 ```ts
-export function Light_getIntensity(light: Light): number | undefined {
+function getLightIntensity(light: Light): number | undefined {
   if (Enum.match(light, "Off")) {
     return undefined;
   }
   return light.intensity;
 }
 
-export function Light_formatState(light: Light): string {
+function formatLightState(light: Light): string {
   return Enum.switch(light, {
     On: ({ intensity }) => `Currently on with intensity: ${intensity}.`,
     Off: "Currently off.",
@@ -149,19 +152,19 @@ const file: File = { mime: "text/plain", data: "..." };
 `{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
 
 > [!NOTE]
-> It is recommended that you use [`Enum.define`](#enumdefine) with
-[`Enum.infer`](#enuminfer) instead of [`Enum`](#enum) directly for regular use.
+> Consider using [`Enum.define`](#enumdefine) with [`Enum.infer`](#enuminfer)
+instead of [`Enum`](#enum) directly defining Enums.
 
 <details><summary>(<strong>Example</strong>) Using the default discriminant.</summary>
 
 ```ts
-export type Default = Enum<{
+type Foo = Enum<{
   UnitVariant: true;
   DataVariant: { value: string };
 }>;
 
-const unit: Default = { _type: "UnitVariant" };
-const data: Default = { _type: "DataVariant", value: "..." };
+const unit: Foo = { _type: "UnitVariant" };
+const data: Foo = { _type: "DataVariant", value: "..." };
 ```
 
 </details>
@@ -169,7 +172,7 @@ const data: Default = { _type: "DataVariant", value: "..." };
 <details><summary>(<strong>Example</strong>) Using a custom discriminant.</summary>
 
 ```ts
-export type Custom = Enum<
+type Foo = Enum<
   {
     UnitVariant: true;
     DataVariant: { value: string };
@@ -177,8 +180,8 @@ export type Custom = Enum<
   "kind"
 >;
 
-const unitCustom: Custom = { kind: "UnitVariant" };
-const dataCustom: Custom = { kind: "DataVariant", value: "..." };
+const unit: Foo = { kind: "UnitVariant" };
+const data: Foo = { kind: "DataVariant", value: "..." };
 ```
 
 </details>
@@ -214,7 +217,7 @@ const dataCustom: Custom = { kind: "DataVariant", value: "..." };
 <details><summary>(<strong>Example</strong>) Match with one variant.</summary>
 
 ```ts
-const getLightIntensity = (light: Light): number | undefined => {
+function getLightIntensity(light: Light): number | undefined {
   if (Enum.match(light, "On")) {
     return light.intensity;
   }
@@ -227,11 +230,9 @@ const getLightIntensity = (light: Light): number | undefined => {
 <details><summary>(<strong>Example</strong>) Match with many variants.</summary>
 
 ```ts
-const getFileFormat = (file: File): "text" | "image" => {
-  if (Enum.on("mime").match(file, ["text/plain", "application/json"])) {
-    return "text";
-  }
-  return "image";
+function getFileFormat(file: File): boolean {
+  const isText = Enum.on("mime").match(file, ["text/plain", "application/json"])
+  return isText
 };
 ```
 
@@ -251,11 +252,12 @@ const getFileFormat = (file: File): "text" | "image" => {
 <details><summary>(<strong>Example</strong>) Handle all cases.</summary>
 
 ```ts
-const formatLightState = (light: Light) =>
-  Enum.switch(light, {
+function formatLightState(light: Light) {
+  return Enum.switch(light, {
     On: ({ intensity }) => `On(${intensity})`,
     Off: "Off",
   });
+}
 ```
 
 </details>
@@ -263,11 +265,12 @@ const formatLightState = (light: Light) =>
 <details><summary>(<strong>Example</strong>) Unhandled cases with fallback.</summary>
 
 ```ts
-const onFileSelect = (file: File) =>
-  Enum.on("mime").switch(file, {
+function onFileSelect(file: File) {
+  return Enum.on("mime").switch(file, {
     "image/jpeg": () => prompt("Name for image:"),
     _: () => alert("Unsupported filetype."),
   });
+}
 ```
 
 </details>
