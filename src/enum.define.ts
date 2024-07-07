@@ -5,46 +5,47 @@ import type { Intersect } from "./shared/intersect.js";
 export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
+	const defaultProxy = new Proxy({} as any, {
+		get:
+			(_, key: string) =>
+			(...args: any[]) => ({ [discriminant]: key, ...args[0] }),
+	});
+
 	return function <
 		TVariants extends Enum.Variants,
 		TMapper extends Mapper<TEnum, TDiscriminant>,
 		TEnum extends Enum<TVariants, TDiscriminant>,
-	>(_variants: TVariants, mapper?: TMapper) {
-		return Builder({} as TEnum, discriminant, mapper);
-	};
-}
+	>(
+		_variants: TVariants,
+		mapper?: TMapper,
+	): Identity<
+		Intersect<
+			TEnum extends unknown
+				? {
+						[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
+							? TMapper[Key] extends (...args: any[]) => any
+								? (...args: Parameters<TMapper[Key]>) => TEnum
+								: EnumVariantConstructor<TEnum, TDiscriminant>
+							: EnumVariantConstructor<TEnum, TDiscriminant>;
+					}
+				: never
+		>
+	> {
+		if (!mapper) {
+			return defaultProxy;
+		}
 
-function Builder<
-	TEnum extends Enum.Any<TDiscriminant>,
-	TMapper extends Mapper<TEnum, TDiscriminant>,
-	TDiscriminant extends keyof TEnum & string,
->(
-	_value: TEnum,
-	discriminant: TDiscriminant,
-	mapper?: TMapper,
-): Identity<
-	Intersect<
-		TEnum extends unknown
-			? {
-					[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
-						? TMapper[Key] extends (...args: any[]) => any
-							? (...args: Parameters<TMapper[Key]>) => TEnum
-							: EnumVariantConstructor<TEnum, TDiscriminant>
-						: EnumVariantConstructor<TEnum, TDiscriminant>;
-				}
-			: never
-	>
-> {
-	return new Proxy({} as any, {
-		get: (_, key: string) => {
-			type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
-			const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
-			return (...args: any[]) => {
-				const data = dataFn ? dataFn(...args) : args[0];
-				return { [discriminant]: key, ...data };
-			};
-		},
-	});
+		return new Proxy({} as any, {
+			get: (_, key: string) => {
+				type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
+				const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
+				return (...args: any[]) => {
+					const data = dataFn ? dataFn(...args) : args[0];
+					return { [discriminant]: key, ...data };
+				};
+			},
+		});
+	};
 }
 
 type Mapper<
