@@ -38,7 +38,7 @@ export type Enum<
 }[keyof TVariants];
 
 export namespace Enum {
-	export type infer<
+	export type define<
 		TBuilder extends Record<string, (...args: any[]) => unknown>,
 	> = {
 		[Key in keyof TBuilder]: ReturnType<TBuilder[Key]>;

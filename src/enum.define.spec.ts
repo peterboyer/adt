@@ -2,7 +2,7 @@ import { Enum } from "./enum.js";
 
 describe("Enum.define", () => {
 	test("Default", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.define(
 			{} as {
 				Open: true;
@@ -24,7 +24,7 @@ describe("Enum.define", () => {
 	});
 
 	test("with options.mapper", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.define(
 			{} as {
 				Open: true;
@@ -49,7 +49,7 @@ describe("Enum.define", () => {
 	});
 
 	test("with options.discriminant", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.on("custom").define(
 			{} as {
 				Open: true;
@@ -79,7 +79,7 @@ describe("Enum.define", () => {
 	});
 
 	test("options.discriminant + options.mapper", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.on("custom").define(
 			{} as {
 				Open: true;

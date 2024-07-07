@@ -20,7 +20,7 @@ import { Enum } from "unenum";
 <details open><summary>(<strong>Example</strong>) Defining.</summary>
 
 ```ts
-export type Light = Enum.infer<typeof Light>;
+export type Light = Enum.define<typeof Light>;
 export const Light = Enum.define(
   {} as {
     On: { intensity: number };
@@ -69,7 +69,7 @@ function formatLightState(light: Light): string {
 <details><summary>(<strong>Example</strong>) Using a mapper.</summary>
 
 ```ts
-export type Location = Enum.infer<typeof Location>;
+export type Location = Enum.define<typeof Location>;
 export const Location = Enum.define(
   {} as {
     Unknown: true;
@@ -95,7 +95,7 @@ const location: Location = { _type: "Known", lat: -33.852, lng: 151.21 };
 <details><summary>(<strong>Example</strong>) Using a custom discriminant.</summary>
 
 ```ts
-type File = Enum.infer<typeof File>;
+type File = Enum.define<typeof File>;
 const File = Enum.on("mime").define(
   {} as {
     "text/plain": { data: string };
@@ -122,7 +122,6 @@ const file: File = { mime: "text/plain", data: "..." };
 
 - [`Enum`](#enum)
   - [`Enum.define`](#enumdefine)
-  - [`Enum.infer`](#enuminfer)
   - [`Enum.match`](#enummatch)
   - [`Enum.switch`](#enumswitch)
   - [`Enum.value`](#enumvalue)
@@ -152,8 +151,8 @@ const file: File = { mime: "text/plain", data: "..." };
 `{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
 
 > [!NOTE]
-> Consider using [`Enum.define`](#enumdefine) with [`Enum.infer`](#enuminfer)
-instead of [`Enum`](#enum) directly defining Enums.
+> Consider using [`Enum.define`](#enumdefine) instead of [`Enum`](#enum)
+directly defining Enums.
 
 <details><summary>(<strong>Example</strong>) Using the default discriminant.</summary>
 
@@ -334,7 +333,7 @@ const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? "null";
 <details><summary>(<strong>Example</strong>) Define and use an Enum with a custom discriminant.</summary>
 
 ```ts
-type Foo = Enum.infer<typeof Foo>;
+type Foo = Enum.define<typeof Foo>;
 const Foo = Enum.on("kind").define({} as { A: true; B: true });
 
 const value = Foo.A() as Foo;

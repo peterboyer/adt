@@ -3,7 +3,7 @@ import { Enum } from "./enum.js";
 
 describe("Enum.on", () => {
 	test("Enum.on().define", () => {
-		type Foo = Enum.infer<typeof Foo>;
+		type Foo = Enum.define<typeof Foo>;
 		const Foo = Enum.on("kind").define(
 			{} as {
 				A: true;
@@ -18,7 +18,7 @@ describe("Enum.on", () => {
 	});
 
 	test("Enum.on().define with mapper", () => {
-		type Foo = Enum.infer<typeof Foo>;
+		type Foo = Enum.define<typeof Foo>;
 		const Foo = Enum.on("kind").define(
 			{} as {
 				A: true;
@@ -36,7 +36,7 @@ describe("Enum.on", () => {
 	});
 
 	test("Enum.on().match", () => {
-		type Foo = Enum.infer<typeof Foo>;
+		type Foo = Enum.define<typeof Foo>;
 		const Foo = Enum.on("kind").define(
 			{} as {
 				A: true;
@@ -51,7 +51,7 @@ describe("Enum.on", () => {
 	});
 
 	test("Enum.on().switch", () => {
-		type Foo = Enum.infer<typeof Foo>;
+		type Foo = Enum.define<typeof Foo>;
 		const Foo = Enum.on("kind").define(
 			{} as {
 				A: true;

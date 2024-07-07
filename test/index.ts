@@ -1,6 +1,6 @@
 import { Enum } from "unenum";
 
-type WebEvent = Enum.infer<typeof WebEvent>;
+type WebEvent = Enum.define<typeof WebEvent>;
 const WebEvent = Enum.define(
 	{} as {
 		PageLoad: true;

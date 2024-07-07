@@ -20,7 +20,7 @@ import { branch } from "./src/testing.js"; //-
 
 //>>>+ Defining.
 //>
-export type Light = Enum.infer<typeof Light>;
+export type Light = Enum.define<typeof Light>;
 export const Light = Enum.define(
 	{} as {
 		On: { intensity: number };
@@ -73,7 +73,7 @@ void formatLightState; //-
 
 //>>> Using a mapper.
 //>
-export type Location = Enum.infer<typeof Location>;
+export type Location = Enum.define<typeof Location>;
 export const Location = Enum.define(
 	{} as {
 		Unknown: true;
@@ -103,7 +103,7 @@ void location; //-
 
 //>>> Using a custom discriminant.
 //>
-type File = Enum.infer<typeof File>;
+type File = Enum.define<typeof File>;
 const File = Enum.on("mime").define(
 	{} as {
 		"text/plain": { data: string };
@@ -136,7 +136,6 @@ void file; //-
 
 - [`Enum`](#enum)
 	- [`Enum.define`](#enumdefine)
-	- [`Enum.infer`](#enuminfer)
 	- [`Enum.match`](#enummatch)
 	- [`Enum.switch`](#enumswitch)
 	- [`Enum.value`](#enumvalue)
@@ -168,8 +167,8 @@ void file; //-
 `{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
 
 > [!NOTE]
-> Consider using [`Enum.define`](#enumdefine) with [`Enum.infer`](#enuminfer)
-instead of [`Enum`](#enum) directly defining Enums.
+> Consider using [`Enum.define`](#enumdefine) instead of [`Enum`](#enum)
+directly defining Enums.
 !*/
 
 //>>> Using the default discriminant.
@@ -370,7 +369,7 @@ void valueOrFallback; //-
 
 //>>> Define and use an Enum with a custom discriminant.
 //>
-type Foo = Enum.infer<typeof Foo>;
+type Foo = Enum.define<typeof Foo>;
 const Foo = Enum.on("kind").define({} as { A: true; B: true });
 
 const value = Foo.A() as Foo;
@@ -440,6 +439,7 @@ export function getResult(): Enum.Result {
 
 //>>> Enum.Result with Ok and Error values.
 //>
+const file = {} as File; //-
 const getFile = (): File | undefined => undefined; //-
 export function queryFile(): Enum.Result<File, "NotFound"> {
 	const fileOrUndefined = getFile();

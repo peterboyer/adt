@@ -3,7 +3,7 @@ import { Enum } from "./enum.js";
 
 describe("Enum.match", () => {
 	test("Default", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.define(
 			{} as {
 				Open: true;
@@ -44,7 +44,7 @@ describe("Enum.match", () => {
 	});
 
 	test("Custom", () => {
-		type Event = Enum.infer<typeof Event>;
+		type Event = Enum.define<typeof Event>;
 		const Event = Enum.on("custom").define(
 			{} as {
 				Open: true;
