@@ -122,7 +122,7 @@ const file: File = { mime: "text/plain", data: "..." };
   - [`Enum.infer`](#enuminfer)
   - [`Enum.match`](#enummatch)
   - [`Enum.switch`](#enumswitch)
-  - [`Enum.from`](#enumfrom)
+  - [`Enum.value`](#enumvalue)
   - [`Enum.on`](#enumon)
 - Primitives
   - [`Enum.Ok`](#enumok)
@@ -274,24 +274,24 @@ const onFileSelect = (file: File) =>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.from`
+## `Enum.value`
 
 ```
-(func) Enum.from(variantName, variantProperties?) => inferred
+(func) Enum.value(variantName, variantProperties?) => inferred
 ```
 
 - Useful if you add an additional Enum variant but don't have (or want to
 define) a Enum builder for it.
 
-<details><summary>(<strong>Example</strong>) Create an Enum value instance from any return type.</summary>
+<details><summary>(<strong>Example</strong>) Create an Enum value instance, (if possible) inferred from return type.</summary>
 
 ```ts
 function getOutput():
   | Enum.Loading
   | Enum<{ None: true; Some: { value: unknown } }> {
-  if (branch()) return Enum.from("None");
-  if (branch()) return Enum.from("Some", { value: "..." });
-  if (branch()) return Enum.from("Loading");
+  if (branch()) return Enum.value("None");
+  if (branch()) return Enum.value("Some", { value: "..." });
+  if (branch()) return Enum.value("Loading");
   return Enum.Loading();
 }
 ```

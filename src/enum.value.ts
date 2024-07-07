@@ -1,6 +1,6 @@
 import type { Enum } from "./enum.js";
 
-export function From<TDiscriminant extends Enum.Discriminant.Any>(
+export function Value<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
 	type ToArgs<TEnum extends Enum.Any<TDiscriminant>> = Enum.Root<

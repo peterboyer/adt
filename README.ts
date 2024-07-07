@@ -113,7 +113,7 @@ void file; //-
 	- [`Enum.infer`](#enuminfer)
 	- [`Enum.match`](#enummatch)
 	- [`Enum.switch`](#enumswitch)
-	- [`Enum.from`](#enumfrom)
+	- [`Enum.value`](#enumvalue)
 	- [`Enum.on`](#enumon)
 - Primitives
 	- [`Enum.Ok`](#enumok)
@@ -273,24 +273,24 @@ void onFileSelect; //-
 //backtotop
 
 /*!
-## `Enum.from`
+## `Enum.value`
 
 ```
-(func) Enum.from(variantName, variantProperties?) => inferred
+(func) Enum.value(variantName, variantProperties?) => inferred
 ```
 
 - Useful if you add an additional Enum variant but don't have (or want to
 define) a Enum builder for it.
 !*/
 
-//>>> Create an Enum value instance from any return type.
+//>>> Create an Enum value instance, (if possible) inferred from return type.
 //>
 function getOutput():
 	| Enum.Loading
 	| Enum<{ None: true; Some: { value: unknown } }> {
-	if (branch()) return Enum.from("None");
-	if (branch()) return Enum.from("Some", { value: "..." });
-	if (branch()) return Enum.from("Loading");
+	if (branch()) return Enum.value("None");
+	if (branch()) return Enum.value("Some", { value: "..." });
+	if (branch()) return Enum.value("Loading");
 	return Enum.Loading();
 }
 void getOutput; //-
