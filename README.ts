@@ -15,6 +15,7 @@ npm install unenum
 
 //>
 import { Enum } from "unenum";
+import { branch } from "./src/testing.js"; //-
 //<
 
 //>>>+ Defining.
@@ -112,6 +113,7 @@ void file; //-
 	- [`Enum.infer`](#enuminfer)
 	- [`Enum.match`](#enummatch)
 	- [`Enum.switch`](#enumswitch)
+	- [`Enum.from`](#enumfrom)
 	- [`Enum.on`](#enumon)
 - Primitives
 	- [`Enum.Value`](#enumvalue)
@@ -265,6 +267,33 @@ const onFileSelect = (file: File) =>
 		_: () => alert("Unsupported filetype."),
 	});
 void onFileSelect; //-
+//<
+//<<<
+
+//backtotop
+
+/*!
+## `Enum.from`
+
+```
+(func) Enum.from(variantName, variantProperties?) => inferred
+```
+
+- Useful if you add an additional Enum variant but don't have (or want to
+define) a Enum builder for it.
+!*/
+
+//>>> Create an Enum value instance from any return type.
+//>
+function getOutput():
+	| Enum.Loading
+	| Enum<{ None: true; Some: { value: unknown } }> {
+	if (branch()) return Enum.from("None");
+	if (branch()) return Enum.from("Some", { value: "..." });
+	if (branch()) return Enum.from("Loading");
+	return Enum.Loading();
+}
+void getOutput; //-
 //<
 //<<<
 

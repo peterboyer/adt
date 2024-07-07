@@ -122,6 +122,7 @@ const file: File = { mime: "text/plain", data: "..." };
   - [`Enum.infer`](#enuminfer)
   - [`Enum.match`](#enummatch)
   - [`Enum.switch`](#enumswitch)
+  - [`Enum.from`](#enumfrom)
   - [`Enum.on`](#enumon)
 - Primitives
   - [`Enum.Value`](#enumvalue)
@@ -267,6 +268,32 @@ const onFileSelect = (file: File) =>
     "image/jpeg": () => prompt("Name for image:"),
     _: () => alert("Unsupported filetype."),
   });
+```
+
+</details>
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.from`
+
+```
+(func) Enum.from(variantName, variantProperties?) => inferred
+```
+
+- Useful if you add an additional Enum variant but don't have (or want to
+define) a Enum builder for it.
+
+<details><summary>(<strong>Example</strong>) Create an Enum value instance from any return type.</summary>
+
+```ts
+function getOutput():
+  | Enum.Loading
+  | Enum<{ None: true; Some: { value: unknown } }> {
+  if (branch()) return Enum.from("None");
+  if (branch()) return Enum.from("Some", { value: "..." });
+  if (branch()) return Enum.from("Loading");
+  return Enum.Loading();
+}
 ```
 
 </details>

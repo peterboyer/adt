@@ -1,90 +1,57 @@
-import { branch } from "./testing.js";
+import type { Expect, Equal } from "./testing.js";
 import { Enum } from "./enum.js";
 
 describe("Enum.Result", () => {
-	test("Result", () => {
-		void function getFoo(): Enum.Result<string, "ParseError"> {
-			if (branch()) {
-				// @ts-expect-error Expecting an arg.
-				return Enum.Error();
-			}
-			if (branch()) {
-				// @ts-expect-error "1" is not assignable to "ParseError".
-				return Enum.Error("1");
-			}
-			if (branch()) {
-				// @ts-expect-error Expecting an arg.
-				return Enum.Value();
-			}
-			if (branch()) {
-				// @ts-expect-error 1 is not assignable to `string`.
-				return Enum.Value(1);
-			}
-			if (branch()) {
-				return Enum.Error("ParseError");
-			}
-			return Enum.Value("1");
-		};
+	it("should handle value", () => {
+		const $value = Enum.Result((): string => "foo");
+		({}) as [Expect<Equal<typeof $value, Enum.Result<string, unknown>>>];
+		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
+	});
 
-		void async function getFooPromise(): Promise<
-			Enum.Result<string, "ParseError">
-		> {
-			if (branch()) {
-				// @ts-expect-error Expecting an arg.
-				return Enum.Error();
-			}
-			if (branch()) {
-				// @ts-expect-error "1" is not assignable to "ParseError".
-				return Enum.Error("1");
-			}
-			if (branch()) {
-				// @ts-expect-error Expecting an arg.
-				return Enum.Value();
-			}
-			if (branch()) {
-				// @ts-expect-error 1 is not assignable to `string`.
-				return Enum.Value(1);
-			}
-			if (branch()) {
-				return Enum.Error("ParseError");
-			}
-			return Enum.Value("...");
-		};
+	it("should handle union value", () => {
+		const $value = Enum.Result(() => "foo" as string | undefined);
+		({}) as [
+			Expect<Equal<typeof $value, Enum.Result<string | undefined, unknown>>>,
+		];
+		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
+	});
 
-		void function getResult(): Enum.Result {
-			if (branch()) {
-				return Enum.Error();
-			}
-			if (branch()) {
-				return Enum.Error(undefined);
-			}
-			if (branch()) {
-				return Enum.Error(undefined, {});
-			}
-			if (branch()) {
-				return Enum.Value(undefined);
-			}
-			return Enum.Value();
-		};
+	it("should handle error", () => {
+		const $value = Enum.Result(() => {
+			throw new TypeError("bar");
+		});
+		({}) as [Expect<Equal<typeof $value, Enum.Result>>];
+		expect($value).toMatchObject({ _type: "Error", error: { message: "bar" } });
+	});
 
-		void function getAnything(): string {
-			if (branch()) {
-				// @ts-expect-error Not assignable to return type.
-				return Enum.Value();
-			}
-			if (branch()) {
-				// @ts-expect-error Not assignable to return type.
-				return Enum.Value("...");
-			}
-			if (branch()) {
-				// @ts-expect-error Not assignable to return type.
-				return Enum.Error();
-			}
-			if (branch()) {
-				// @ts-expect-error Not assignable to return type.
-				return Enum.Error("...");
-			}
-			return "...";
-		};
+	it("should handle promise value", async () => {
+		const $value = await Enum.Result(() => (async () => "foo")());
+		({}) as [Expect<Equal<typeof $value, Enum.Result<string, unknown>>>];
+		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
+	});
+
+	it("should handle promise union value", async () => {
+		const $value = await Enum.Result(() =>
+			(async () => "foo" as string | undefined)(),
+		);
+		({}) as [
+			Expect<Equal<typeof $value, Enum.Result<string | undefined, unknown>>>,
+		];
+		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
+	});
+
+	it("should handle promise error", async () => {
+		const $value = await Enum.Result(() =>
+			(async () => {
+				throw new TypeError("bar");
+			})(),
+		);
+		({}) as [Expect<Equal<typeof $value, Enum.Result<never, unknown>>>];
+		expect($value).toMatchObject({ _type: "Error", error: { message: "bar" } });
+	});
+
+	it("should handle any as unknown", () => {
+		const $value = Enum.Result(() => JSON.parse(""));
+		({}) as [Expect<Equal<typeof $value, Enum.Result<unknown, unknown>>>];
 	});
 });
