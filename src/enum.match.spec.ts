@@ -3,8 +3,8 @@ import { Enum } from "./enum.js";
 
 describe("Enum.match", () => {
 	test("Default", () => {
-		type Event = typeof $Event;
-		const [Event, $Event] = Enum.define(
+		type Event = Enum.infer<typeof Event>;
+		const Event = Enum.define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };
@@ -44,8 +44,8 @@ describe("Enum.match", () => {
 	});
 
 	test("Custom", () => {
-		type Event = typeof $Event;
-		const [Event, $Event] = Enum.on("custom").define(
+		type Event = Enum.infer<typeof Event>;
+		const Event = Enum.on("custom").define(
 			{} as {
 				Open: true;
 				Data: { value: unknown };

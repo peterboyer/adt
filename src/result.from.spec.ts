@@ -1,53 +1,57 @@
 import type { Expect, Equal } from "./testing.js";
-import { Result } from "./result.js";
+import { Enum } from "./enum.js";
 
-describe("Result.from", () => {
+describe("Enum.Result", () => {
 	it("should handle value", () => {
-		const $value = Result.from((): string => "foo");
-		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
+		const $value = Enum.Result((): string => "foo");
+		({}) as [Expect<Equal<typeof $value, Enum.Result<string, unknown>>>];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle union value", () => {
-		const $value = Result.from(() => "foo" as string | undefined);
-		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
+		const $value = Enum.Result(() => "foo" as string | undefined);
+		({}) as [
+			Expect<Equal<typeof $value, Enum.Result<string | undefined, unknown>>>,
+		];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle error", () => {
-		const $value = Result.from(() => {
+		const $value = Enum.Result(() => {
 			throw new TypeError("bar");
 		});
-		({}) as [Expect<Equal<typeof $value, Result>>];
+		({}) as [Expect<Equal<typeof $value, Enum.Result>>];
 		expect($value).toMatchObject({ _type: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle promise value", async () => {
-		const $value = await Result.from(() => (async () => "foo")());
-		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
+		const $value = await Enum.Result(() => (async () => "foo")());
+		({}) as [Expect<Equal<typeof $value, Enum.Result<string, unknown>>>];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle promise union value", async () => {
-		const $value = await Result.from(() =>
+		const $value = await Enum.Result(() =>
 			(async () => "foo" as string | undefined)(),
 		);
-		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
+		({}) as [
+			Expect<Equal<typeof $value, Enum.Result<string | undefined, unknown>>>,
+		];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle promise error", async () => {
-		const $value = await Result.from(() =>
+		const $value = await Enum.Result(() =>
 			(async () => {
 				throw new TypeError("bar");
 			})(),
 		);
-		({}) as [Expect<Equal<typeof $value, Result<never, unknown>>>];
+		({}) as [Expect<Equal<typeof $value, Enum.Result<never, unknown>>>];
 		expect($value).toMatchObject({ _type: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle any as unknown", () => {
-		const $value = Result.from(() => JSON.parse(""));
-		({}) as [Expect<Equal<typeof $value, Result<unknown, unknown>>>];
+		const $value = Enum.Result(() => JSON.parse(""));
+		({}) as [Expect<Equal<typeof $value, Enum.Result<unknown, unknown>>>];
 	});
 });

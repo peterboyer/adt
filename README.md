@@ -126,9 +126,9 @@ const file: File = { mime: "text/plain", data: "..." };
 - Primitives
   - [`Enum.Value`](#enumvalue)
   - [`Enum.Error`](#enumerror)
-  - [`Enum.Loading`](#enumloading)
   - [`Enum.Result`](#enumresult)
   - [`Enum.unwrapValue`](#enumunwrapvalue)
+  - [`Enum.Loading`](#enumloading)
 - Utilities
   - [`Enum.Root`](#enumroot)
   - [`Enum.Keys`](#enumkeys)
@@ -298,6 +298,28 @@ Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
 
 # Primitives
 
+## `Enum.Value`
+
+```
+(type) Enum.Value<TValue?>
+(func) Enum.Value(inferred) => Enum.Value<inferred>
+```
+
+- Represents a normal/success value, `{ _type: "Value"; value: "..." }`.
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.Error`
+
+```
+(type) Enum.Error<TError?>
+(func) Enum.Error(inferred, cause?) => Enum.Error<inferred>
+```
+
+- Represents an error/failure value, `{ _type: "Error"; error: "..."; cause?: ... }`.
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
 ## `Enum.Result`
 
 ```
@@ -306,13 +328,21 @@ Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
 
 - A helper alias for `Enum.Value | Enum.Error`.
 
+> [!NOTE]
+> This "Errors As Values" pattern allows known error cases to handled in a
+type-safe way, as opposed to `throw`ing errors and relying on the caller to
+remember to wrap it in `try`/`catch`.
+
 <details><summary>(<strong>Example</strong>) Enum.Result without any values.</summary>
 
 ```ts
 export function getResult(): Enum.Result {
-  if (Math.random()) {
+  const isValid = Math.random();
+
+  if (!isValid) {
     return Enum.Error();
   }
+
   return Enum.Value();
 }
 ```
@@ -323,17 +353,19 @@ export function getResult(): Enum.Result {
 
 ```ts
 export function queryFile(): Enum.Result<File, "NotFound"> {
-  if (Math.random()) {
+  const fileOrUndefined = getFile();
+
+  if (fileOrUndefined) {
     return Enum.Error("NotFound");
   }
-  const file = File["text/plain"]({ data: "..." });
+
   return Enum.Value(file);
 }
 ```
 
 </details>
 
-<div align=right><a href=#api>Back to top ⤴</a></div>
+<br />
 
 ```
 (func) Enum.Result(callback)
@@ -346,9 +378,9 @@ export function queryFile(): Enum.Result<File, "NotFound"> {
 <details><summary>(<strong>Example</strong>) Wrap a function that may throw.</summary>
 
 ```ts
-const $fetchData = await Enum.Result(() => fetch("/api/whoami"));
+const fetchResult = await Enum.Result(() => fetch("/api/whoami"));
 
-Enum.switch($fetchData, {
+Enum.switch(fetchResult, {
   Value: async ({ value: response }) => {
     const body = (await response.json()) as unknown;
     console.log(body);
@@ -363,41 +395,99 @@ Enum.switch($fetchData, {
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Value`
-
-```
-(type) Enum.Value<TValue?>
-(func) Enum.Value(inferred) => Enum.Value<inferred>
-```
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Enum.Error`
-
-```
-(type) Enum.Error<TError?>
-(func) Enum.Error(inferred) => Enum.Error<inferred>
-```
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
 ## `Enum.unwrapValue`
 
 ```
 (func) Enum.unwrapValue(result) => value | undefined
 ```
 
-- Helper to access a `Value` variant's `value`, otherwise returning `undefined`.
+- Helper to extract `value` of the `Value` variant, otherwise returning
+`undefined` (e.g. in the case of an `Error`).
+- Equivalent to `Enum.match(result, "Ok") ? result.value : undefined`.
 
 > [!NOTE]
-> Prefer using `Enum.match(result, "Error")` to handle errors instead of using
-`Enum.unwrapValue(result)` to check for `undefined`.
+> Prefer using `Enum.match(result, "Error"))` with the "Early Return" pattern
+to handle errors by
+[type-narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
+instead of using `Enum.unwrapValue(result)` to check for `undefined`.
 
-<details><summary>(<strong>Example</strong>) Safely wrap throwable function call and unwrap value.</summary>
+<details><summary>(<strong>Example</strong>) Safely wrap throwable function call, then unwrap the value or use a fallback.</summary>
 
 ```ts
 const result = Enum.Result(() => JSON.stringify("..."));
-const valueOrUndefined = Enum.unwrapValue(result);
+const valueOrFallback = Enum.unwrapValue(result) ?? "null";
+```
+
+</details>
+
+<div align=right><a href=#api>Back to top ⤴</a></div>
+
+## `Enum.Loading`
+
+```
+(type) Enum.Loading
+(func) Enum.Loading() => Enum.Loading
+```
+
+- Represents an loading state.
+- Ideal for states' values or stateful functions (like React hooks).
+
+<details><summary>(<strong>Example</strong>) React hook that returns a value, error, or loading state.</summary>
+
+```ts
+function useFetchedListItems():
+  | Enum.Result<string[], "NetworkError">
+  | Enum.Loading {
+  const { data, error, loading } = useQuery(gqlListItems);
+
+  if (loading) {
+    return Enum.Loading();
+  }
+
+  if (error || !data) {
+    return Enum.Error("NetworkError");
+  }
+
+  return Enum.Value(data.gqlListItems.items);
+}
+```
+
+</details>
+
+<details><summary>(<strong>Example</strong>) React state that could be a loaded value, error, or loading state.</summary>
+
+```ts
+function Component(): Element {
+  const [state, setState] = useState<
+    Enum.Result<{ items: string[] }, "NetworkError"> | Enum.Loading
+  >(Enum.Loading());
+
+  // fetch data and exclusively handle success or error states
+  useEffect(() => {
+    (async () => {
+      const responseResult = await Enum.Result(() =>
+        fetch("/items").then(
+          (response) => response.json() as Promise<{ items: string[] }>,
+        ),
+      );
+
+      if (Enum.match(responseResult, "Error")) {
+        setState(Enum.Error("NetworkError"));
+        return;
+      }
+
+      setState(Enum.Value({ items: responseResult.value.items }));
+      return;
+    })();
+  }, []);
+
+  // exhaustively handle all possible states
+  return Enum.switch(state, {
+    Loading: () => `<Spinner />`,
+    Value: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
+    Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
+  });
+}
 ```
 
 </details>

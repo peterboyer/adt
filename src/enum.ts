@@ -4,9 +4,11 @@ import { Define } from "./enum.define.js";
 import { Match } from "./enum.match.js";
 import { Switch } from "./enum.switch.js";
 import { On } from "./enum.on.js";
-import { Value, Error, Loading } from "./result.builder.js";
+import { Value } from "./enum.value.js";
+import { Error } from "./enum.error.js";
 import { Result } from "./result.from.js";
-import { unwrapValue } from "./result.js";
+import { unwrapValue } from "./enum.unwrapValue.js";
+import { Loading } from "./enum.loading.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
 

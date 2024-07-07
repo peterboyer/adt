@@ -92,6 +92,16 @@ type EGeneric<T> = Enum<Generic<T>>;
 	>
 ];
 
+({}) as [
+	Expect<Equal<Enum.Loading, { _type: "Loading" }>>,
+	Expect<
+		Equal<
+			Enum.Loading | Enum.Value<string>,
+			{ _type: "Loading" } | { _type: "Value"; value: string }
+		>
+	>,
+];
+
 {
 	type State = Enum.Extend<
 		Enum<{ Left: { value: string }; Right: { value: string } }>,

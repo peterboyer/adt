@@ -1,25 +1,25 @@
 import type { Expect, Equal } from "./testing.js";
-import type { Result } from "./result.js";
+import type { Enum } from "./enum.js";
 
 ({}) as [
 	Expect<
 		Equal<
-			Result,
-			| { _type: "Ok"; value?: undefined }
+			Enum.Result,
+			| { _type: "Value"; value?: undefined }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
-			Result<unknown>,
-			| { _type: "Ok"; value: unknown }
+			Enum.Result<unknown>,
+			| { _type: "Value"; value: unknown }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
-			Result<unknown, unknown>,
-			| { _type: "Ok"; value: unknown }
+			Enum.Result<unknown, unknown>,
+			| { _type: "Value"; value: unknown }
 			| { _type: "Error"; error: unknown; cause?: unknown }
 		>
 	>,
