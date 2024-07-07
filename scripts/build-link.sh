@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-cd ./test/node_modules
-[[ -e ./unenum ]] && rm -r ./unenum
-ln -s ../../dist unenum
+test_node_modules_dir=./test/node_modules
+if [[ ! -d $test_node_modules_dir ]]; then
+	(cd test && yarn install)
+fi
+
+(
+	cd $test_node_modules_dir \
+	&& rm -r ./unenum || true \
+	&& ln -s ../../dist unenum
+)
