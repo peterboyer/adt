@@ -21,7 +21,7 @@ function getWebEvent(): WebEvent | Enum<{ None: true }> {
 	if ("".toString()) return WebEvent.KeyPress("x");
 	if ("".toString()) return WebEvent.Paste("...");
 	if ("".toString()) return WebEvent.Click({ x: 10, y: 10 });
-	return Enum.auto("None");
+	return Enum.value("None");
 }
 
 function inspect(event: WebEvent): string | undefined {
@@ -42,7 +42,7 @@ function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
 }
 
 function useAsyncResult(): Enum.Result<string, "FooError"> | Enum.Loading {
-	if ("".toString()) return Enum.Value("...");
+	if ("".toString()) return Enum.Ok("...");
 	if ("".toString()) return Enum.Error("FooError");
 	return Enum.Loading();
 }
@@ -51,7 +51,7 @@ function app() {
 	const result = useAsyncResult();
 	Enum.switch(result, {
 		Loading: () => console.log("..."),
-		Value: ({ value }) => console.log(value),
+		Ok: ({ value }) => console.log(value),
 		Error: ({ error }) => console.error(error),
 	});
 

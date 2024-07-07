@@ -88,9 +88,16 @@ export const Location = Enum.define(
 Location.Unknown();
 Location.Known(-33.852, 151.21);
 
-// or manually instantiated with type ...
+// prettier-ignore
+{ //-
+const location: Location = Enum.value("Known", { lat: -33.852, lng: 151.21 })
+void location; //-
+} //-
+// prettier-ignore
+{ //-
 const location: Location = { _type: "Known", lat: -33.852, lng: 151.21 };
 void location; //-
+} //-
 //<
 //<<<
 
@@ -111,9 +118,16 @@ File["text/plain"]({ data: "..." });
 File["image/jpeg"]({ data: Buffer.from([]) });
 File["application/json"]({ data: { items: [1, 2, 3] } });
 
-// or manually instantiated with type ...
+// prettier-ignore
+{ //-
+const file: File = Enum.on("mime").value("text/plain", { data: "..." });
+void file; //-
+} //-
+// prettier-ignore
+{ //-
 const file: File = { mime: "text/plain", data: "..." };
 void file; //-
+} //-
 //<
 //<<<
 
@@ -126,12 +140,12 @@ void file; //-
 	- [`Enum.match`](#enummatch)
 	- [`Enum.switch`](#enumswitch)
 	- [`Enum.value`](#enumvalue)
+	- [`Enum.unwrap`](#enumunwrap)
 	- [`Enum.on`](#enumon)
 - Primitives
 	- [`Enum.Ok`](#enumok)
 	- [`Enum.Error`](#enumerror)
 	- [`Enum.Result`](#enumresult)
-	- [`Enum.unwrapValue`](#enumunwrapvalue)
 	- [`Enum.Loading`](#enumloading)
 - Utilities
 	- [`Enum.Root`](#enumroot)
@@ -324,6 +338,27 @@ void getOutput; //-
 //backtotop
 
 /*!
+## `Enum.unwrap`
+
+```
+(func) Enum.unwrap(result, path) => inferred | undefined
+```
+
+- Extract a value's variant's property using a `"{VariantName}.{PropertyName}"`
+path, otherwise returns `undefined`.
+!*/
+
+//>>> Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.
+//>
+const result = Enum.Result(() => JSON.stringify("..."));
+const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? "null";
+void valueOrFallback; //-
+//<
+//<<<
+
+//backtotop
+
+/*!
 ## `Enum.on`
 
 ```
@@ -443,34 +478,6 @@ Enum.switch(fetchResult, {
 		console.error(error);
 	},
 });
-//<
-//<<<
-
-//backtotop
-
-/*!
-## `Enum.unwrapValue`
-
-```
-(func) Enum.unwrapValue(result) => value | undefined
-```
-
-- Helper to extract `value` of the `Ok` variant, otherwise returning
-`undefined` (e.g. in the case of an `Error`).
-- Equivalent to `Enum.match(result, "Ok") ? result.value : undefined`.
-
-> [!NOTE]
-> Prefer using `Enum.match(result, "Error"))` with the "Early Return" pattern
-to handle errors by
-[type-narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
-instead of using `Enum.unwrapValue(result)` to check for `undefined`.
-!*/
-
-//>>> Safely wrap throwable function call, then unwrap the value or use a fallback.
-//>
-const result = Enum.Result(() => JSON.stringify("..."));
-const valueOrFallback = Enum.unwrapValue(result) ?? "null";
-void valueOrFallback; //-
 //<
 //<<<
 

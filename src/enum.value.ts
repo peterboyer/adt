@@ -10,13 +10,14 @@ export function Value<TDiscriminant extends Enum.Discriminant.Any>(
 		? {
 				[Key in keyof Root]: Root[Key] extends true
 					? [name: Key]
-					: [name: Key, data: Root[Key]];
+					: Partial<Record<string, undefined>> extends Root[Key]
+						? [name: Key, data?: Root[Key]]
+						: [name: Key, data: Root[Key]];
 			}[keyof Root]
 		: never;
 
 	return function <
 		T = never,
-		X = never,
 		TName extends string = string,
 		TData extends
 			| Enum.Variants.UnitValueAny
@@ -27,11 +28,7 @@ export function Value<TDiscriminant extends Enum.Discriminant.Any>(
 			: T extends Enum.Any<TDiscriminant>
 				? ToArgs<T>
 				: never
-	): [T] extends [never]
-		? Enum<{ [Key in TName]: TData }>
-		: [T] extends [{ _type: "Ok" }]
-			? T
-			: never {
-		return { [discriminant]: args[0], ...args[1] } as any;
+	): [T] extends [never] ? Enum<{ [Key in TName]: TData }> : T {
+		return { [discriminant]: args[0], ...(args[1] as any) } as any;
 	};
 }

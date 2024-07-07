@@ -8,7 +8,7 @@ import { On } from "./enum.on.js";
 import { Ok } from "./enum.ok.js";
 import { Error } from "./enum.error.js";
 import { Result } from "./enum.result.from.js";
-import { unwrapValue } from "./enum.unwrap-value.js";
+import { Unwrap } from "./enum.unwrap.js";
 import { Loading } from "./enum.loading.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
@@ -18,12 +18,12 @@ export const Enum = {
 	match: Match(DiscriminantDefault),
 	switch: Switch(DiscriminantDefault),
 	value: Value(DiscriminantDefault),
+	unwrap: Unwrap(DiscriminantDefault),
 	on: On,
 	Ok,
 	Error,
 	Loading,
 	Result,
-	unwrapValue,
 };
 
 export type Enum<
