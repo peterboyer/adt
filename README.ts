@@ -35,14 +35,11 @@ export const Light = Enum.define(
 Light.On({ intensity: 100 });
 Light.Off();
 
-// or instantiated with Enum.value ...
 // prettier-ignore
 { //-
 const light: Light = Enum.value("On", { intensity: 100 })
 void light; //-
 } //-
-
-// or manually instantiated with type ...
 // prettier-ignore
 { //-
 const light: Light = { _type: "On", intensity: 100 };
@@ -223,18 +220,6 @@ void data; //-
 //backtotop
 
 /*!
-## `Enum.infer`
-
-```
-(type) Enum.infer<TBuilder>
-```
-
-- See [#usage](#usage) for example.
-!*/
-
-//backtotop
-
-/*!
 ## `Enum.match`
 
 ```
@@ -361,7 +346,7 @@ void valueOrFallback; //-
 ## `Enum.on`
 
 ```
-(func) Enum.on(discriminant) => { define, match, switch }
+(func) Enum.on(discriminant) => { define, match, switch, value, unwrap }
 ```
 
 - Redefines and returns all `Enum.*` runtime methods with a custom discriminant.

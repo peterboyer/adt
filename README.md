@@ -37,10 +37,7 @@ export const Light = Enum.define(
 Light.On({ intensity: 100 });
 Light.Off();
 
-// or instantiated with Enum.value ...
 const light: Light = Enum.value("On", { intensity: 100 })
-
-// or manually instantiated with type ...
 const light: Light = { _type: "On", intensity: 100 };
 ```
 
@@ -197,16 +194,6 @@ const data: Foo = { kind: "DataVariant", value: "..." };
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.infer`
-
-```
-(type) Enum.infer<TBuilder>
-```
-
-- See [#usage](#usage) for example.
-
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
 ## `Enum.match`
 
 ```
@@ -325,7 +312,7 @@ const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? "null";
 ## `Enum.on`
 
 ```
-(func) Enum.on(discriminant) => { define, match, switch }
+(func) Enum.on(discriminant) => { define, match, switch, value, unwrap }
 ```
 
 - Redefines and returns all `Enum.*` runtime methods with a custom discriminant.
