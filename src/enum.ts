@@ -7,7 +7,7 @@ import { On } from "./enum.on.js";
 import { Value } from "./enum.value.js";
 import { Error } from "./enum.error.js";
 import { Result } from "./result.from.js";
-import { unwrapValue } from "./enum.unwrapValue.js";
+import { unwrapValue } from "./enum.unwrap-value.js";
 import { Loading } from "./enum.loading.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
