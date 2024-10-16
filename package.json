@@ -21,7 +21,8 @@
 		"build": "./scripts/build.sh",
 		"build:link": "./scripts/build-link.sh",
 		"all": "concurrently \"yarn lint\" \"yarn lint:ts\" \"yarn test\" \"yarn docs:build && yarn build && yarn build:link && yarn test:e2e\"",
-		"docs": "concurrently \"markserv --address 0.0.0.0 README.md\" \"yarn docs:watch\"",
+		"docs": "concurrently \"yarn docs:serve\" \"yarn docs:watch\"",
+		"docs:serve": "markserv --address 0.0.0.0",
 		"docs:build": "./scripts/docs-build.sh",
 		"docs:watch": "SHELL=/bin/bash chokidar README.ts -c \"yarn docs:build\""
 	},
