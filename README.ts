@@ -1,3 +1,5 @@
+/* eslint-disable no-inner-declarations */ //-
+
 //+ # Install
 
 /*!
@@ -11,96 +13,129 @@ npm install unenum
 - `tsconfig.json > "compilerOptions" > { "strict": true }`
 !*/
 
-//+ # Usage
+//+ # Quickstart
+
+/*!
+`Enum` can create discriminated union types.
+!*/
 
 //>
 import { Enum } from "unenum";
-import { branch } from "./src/testing.js"; //-
+
+type Post_ = Enum<{
+	Ping: true;
+	Text: { title?: string; body: string };
+	Photo: { url: string };
+}>;
+void {} as unknown as Post_; //-
 //<
 
-//>>>+ Defining.
+/*!
+... which is identical to if you declared it manually.
+!*/
+
 //>
-export type Light = Enum.define<typeof Light>;
-export const Light = Enum.define(
+type Post__ =
+	| { _type: "Ping" }
+	| { _type: "Text"; title?: string; body: string }
+	| { _type: "Photo"; url: string };
+void {} as unknown as Post__; //-
+//<
+
+/*!
+`Enum.define` can create discriminated union types and ease-of-use constructors.
+!*/
+
+//>
+const Post = Enum.define(
 	{} as {
-		On: { intensity: number };
-		Off: true;
+		Ping: true;
+		Text: { title?: string; body: string };
+		Photo: { url: string };
 	},
 );
+
+type Post = Enum.define<typeof Post>;
 //<
-//<<<
 
-//>>>+ Instantiating.
+/*!
+Constructors can create Enum variant values:
+- All constructed Enum variant values are plain objects.
+- They match their variant types exactly.
+- They do not have any methods or hidden properties.
+!*/
+
 //>
-Light.On({ intensity: 100 });
-Light.Off();
-
-// prettier-ignore
-{ //-
-const light: Light = Enum.value("On", { intensity: 100 })
-void light; //-
-} //-
-// prettier-ignore
-{ //-
-const light: Light = { _type: "On", intensity: 100 };
-void light; //-
-} //-
+const posts: Post[] = [
+	Post.Ping(),
+	Post.Text({ body: "Hello, World!" }),
+	Post.Photo({ url: "https://example.com/image.jpg" }),
+];
+void posts; //-
 //<
-//<<<
 
-//>>>+ Typing, Matching, Switching.
+/*!
+The `Enum` provides ease-of-use utilities like `.switch` and `.match` for
+working with discriminated unions.
+!*/
+
 //>
-function getLightIntensity(light: Light): number | undefined {
-	if (Enum.match(light, "Off")) {
-		return undefined;
+(function (post: Post): string {
+	if (Enum.match(post, "Ping")) {
+		return "Ping!";
 	}
-	return light.intensity;
-}
-void getLightIntensity; //-
 
-function formatLightState(light: Light): string {
-	return Enum.switch(light, {
-		On: ({ intensity }) => `Currently on with intensity: ${intensity}.`,
-		Off: "Currently off.",
+	return Enum.switch(post, {
+		Text: ({ title }) => `Text("${title ?? "Untitled"}")`,
+		_: () => `Unhandled`,
 	});
+});
+//<
+
+/*!
+Enum variant values are simple objects, you can narrow and access properties as
+you would any other object.
+!*/
+
+//>
+function getTitleFromPost(post: Post): string | undefined {
+	return post._type === "Text" ? post.title : undefined;
 }
-void formatLightState; //-
+void getTitleFromPost; //-
 //<
-//<<<
 
-//>>> Using a mapper.
+//+ <details><summary><code>Enum</code> supports creating discriminated unions with custom discriminants. <small>(Click for details…)</small></summary>
+//+ <br />
+
 //>
-export type Location = Enum.define<typeof Location>;
-export const Location = Enum.define(
-	{} as {
-		Unknown: true;
-		Known: { lat: number; lng: number };
-	},
+type File_ = Enum<
 	{
-		Known: (lat: number, lng: number) => ({ lat, lng }),
+		"text/plain": { data: string };
+		"image/jpeg": { data: Buffer };
+		"application/json": { data: unknown };
 	},
-);
+	"mime"
+>;
+void {} as unknown as File_; //-
 //<
-//>
-Location.Unknown();
-Location.Known(-33.852, 151.21);
 
-// prettier-ignore
-{ //-
-const location: Location = Enum.value("Known", { lat: -33.852, lng: 151.21 })
-void location; //-
-} //-
-// prettier-ignore
-{ //-
-const location: Location = { _type: "Known", lat: -33.852, lng: 151.21 };
-void location; //-
-} //-
+/*!
+This creates a discriminated union identical to if you did so manually.
+!*/
+
+//>
+type File__ =
+	| { mime: "text/plain"; data: string }
+	| { mime: "image/jpeg"; data: Buffer }
+	| { mime: "application/json"; data: unknown };
+void {} as unknown as File__; //-
 //<
-//<<<
 
-//>>> Using a custom discriminant.
+/*!
+`Enum.*` methods for custom discriminants can be accessed via the `.on()` method.
+!*/
+
 //>
-type File = Enum.define<typeof File>;
 const File = Enum.on("mime").define(
 	{} as {
 		"text/plain": { data: string };
@@ -108,25 +143,118 @@ const File = Enum.on("mime").define(
 		"application/json": { data: unknown };
 	},
 );
+
+type File = Enum.define<typeof File>;
+
+const files = [
+	File["text/plain"]({ data: "..." }),
+	File["image/jpeg"]({ data: Buffer.from("...") }),
+	File["application/json"]({ data: {} }),
+];
+void files; //-
+
+(function (file: File): string {
+	if (Enum.on("mime").match(file, "text/plain")) {
+		return "Text!";
+	}
+
+	return Enum.on("mime").switch(file, {
+		"image/jpeg": ({ data }) => `Image(${data.length})`,
+		_: () => `Unhandled`,
+	});
+});
 //<
+
+//+ </details>
+
+//hr
+
+/*!
+`Result` creates a discriminated union with an `Ok` and `Error` variant.
+!*/
 
 //>
-File["text/plain"]({ data: "..." });
-File["image/jpeg"]({ data: Buffer.from([]) });
-File["application/json"]({ data: { items: [1, 2, 3] } });
+import { Result } from "unenum";
 
-// prettier-ignore
-{ //-
-const file: File = Enum.on("mime").value("text/plain", { data: "..." });
-void file; //-
-} //-
-// prettier-ignore
-{ //-
-const file: File = { mime: "text/plain", data: "..." };
-void file; //-
-} //-
+export async function getUserCountFromDatabase(): Promise<
+	Result<number, "DatabaseError">
+> {
+	const queriedCount = await Promise.resolve(1);
+	return Result.Ok(queriedCount);
+}
 //<
-//<<<
+
+/*!
+... which is identical to if you declared it manually.
+!*/
+
+//>
+export async function getUserCountFromDatabase_(): Promise<
+	{ _type: "Ok"; value: number } | { _type: "Error"; error: "DatabaseError" }
+> {
+	const queriedCount = await Promise.resolve(1);
+	return { _type: "Ok", value: queriedCount };
+}
+//<
+
+/*!
+`Result.from` calls a given callback that could `throw` and returns a `Result`
+variant value:
+- `Result.Ok` with the callback's return value,
+- `Result.Error` with the callback's thrown error as a value.
+!*/
+
+//>
+const queryDatabaseUserCount = async (): Promise<number> => 1; //-
+export async function getUserCountFromDatabase__(): Promise<
+	Result<number, "DatabaseError">
+> {
+	// Database query "throws" if database is unreachable or query fails.
+	const $queriedCount = await Result.from(() => queryDatabaseUserCount());
+
+	// Handle error, forward cause.
+	if (Enum.match($queriedCount, "Error")) {
+		return Result.Error("DatabaseError", $queriedCount);
+	}
+
+	return Result.Ok($queriedCount.value);
+}
+//<
+
+//+ <details><summary>Real-world example. <small>(Click for details…)</small></summary>
+//+ <br />
+
+//>
+export function getTokens(): Tokens | undefined {
+	// Retrieve a JSON string to be parsed.
+	const tokensSerialised = window.localStorage.getItem("tokens") ?? undefined;
+	if (!tokensSerialised) {
+		return undefined;
+	}
+
+	// JSON.parse "throws" if given an invalid JSON string.
+	const $tokensUnknown = Result.from(() => JSON.parse(tokensSerialised));
+	if (Enum.match($tokensUnknown, "Error")) {
+		return undefined;
+	}
+
+	// Tokens.parse "throws" if given a value that doesn't match the schema.
+	const $tokens = Result.from(() => Tokens.parse($tokensUnknown.value));
+	if (Enum.match($tokens, "Error")) {
+		return undefined;
+	}
+
+	return $tokens.value;
+}
+
+import { z } from "zod";
+const Tokens = z.object({ accessToken: z.string(), refreshToken: z.string() });
+type Tokens = z.infer<typeof Tokens>;
+//<
+
+//+ </details>
+
+//hr
 
 /*!
 # API
@@ -138,18 +266,16 @@ void file; //-
 	- [`Enum.value`](#enumvalue)
 	- [`Enum.unwrap`](#enumunwrap)
 	- [`Enum.on`](#enumon)
-- Primitives
-	- [`Enum.Ok`](#enumok)
-	- [`Enum.Error`](#enumerror)
-	- [`Enum.Result`](#enumresult)
-	- [`Enum.Loading`](#enumloading)
-- Utilities
 	- [`Enum.Root`](#enumroot)
 	- [`Enum.Keys`](#enumkeys)
 	- [`Enum.Pick`](#enumpick)
 	- [`Enum.Omit`](#enumomit)
 	- [`Enum.Extend`](#enumextend)
 	- [`Enum.Merge`](#enummerge)
+- [`Result`](#result)
+	- [`Result.Ok`](#resultok)
+	- [`Result.Error`](#resulterror)
+- [`Pending`](#pending)
 !*/
 
 /*!
@@ -162,46 +288,28 @@ void file; //-
 - Creates a discriminated union `type` from a key-value map of variants.
 - Use `true` for unit variants that don't have any data properties ([not
 `{}`](https://www.totaltypescript.com/the-empty-object-type-in-typescript)).
-
-> [!NOTE]
-> Consider using [`Enum.define`](#enumdefine) instead of [`Enum`](#enum)
-directly defining Enums.
 !*/
 
 //>>> Using the default discriminant.
 //>
-// prettier-ignore
-{ //-
-type Foo = Enum<{
-	UnitVariant: true;
-	DataVariant: { value: string };
+type Foo_ = Enum<{
+	Unit: true;
+	Data: { value: string };
 }>;
-
-const unit: Foo = { _type: "UnitVariant" };
-void unit; //-
-const data: Foo = { _type: "DataVariant", value: "..." };
-void data; //-
-} //-
+void {} as unknown as Foo_; //-
 //<
 //<<<
 
 //>>> Using a custom discriminant.
 //>
-// prettier-ignore
-{ //-
-type Foo = Enum<
+type Foo__ = Enum<
 	{
-		UnitVariant: true;
-		DataVariant: { value: string };
+		Unit: true;
+		Data: { value: string };
 	},
-	"kind"
+	"custom"
 >;
-
-const unit: Foo = { kind: "UnitVariant" };
-void unit; //-
-const data: Foo = { kind: "DataVariant", value: "..." };
-void data; //-
-} //-
+void {} as unknown as Foo__; //-
 //<
 //<<<
 
@@ -213,9 +321,18 @@ void data; //-
 ```
 (func) Enum.define(variants, options?: { [variant]: callback }) => builder
 ```
-
-- See [#usage](#usage) for example.
 !*/
+
+//>
+const Foo = Enum.define(
+	{} as {
+		Unit: true;
+		Data: { value: string };
+	},
+);
+
+type Foo = Enum.define<typeof Foo>;
+//<
 
 //backtotop
 
@@ -229,26 +346,22 @@ void data; //-
 
 //>>> Match with one variant.
 //>
-// prettier-ignore
-{ //-
-function getLightIntensity(light: Light): number | undefined {
-	if (Enum.match(light, "On")) {
-		return light.intensity;
-	}
-	return undefined;
-};
-void getLightIntensity; //-
+const foo = Foo.Unit() as Foo;
+const value = Enum.match(foo, "Unit");
+void value; //-
 //<
 //<<<
 
 //>>> Match with many variants.
 //>
 function getFileFormat(file: File): boolean {
-	const isText = Enum.on("mime").match(file, ["text/plain", "application/json"])
-	return isText
-};
+	const isText = Enum.on("mime").match(file, [
+		"text/plain",
+		"application/json",
+	]);
+	return isText;
+}
 void getFileFormat; //-
-} //-
 //<
 //<<<
 
@@ -267,28 +380,23 @@ void getFileFormat; //-
 
 //>>> Handle all cases.
 //>
-// prettier-ignore
-{ //-
-function formatLightState(light: Light) {
-	return Enum.switch(light, {
-		On: ({ intensity }) => `On(${intensity})`,
-		Off: "Off",
-	});
-}
-void formatLightState; //-
+const foo_: Foo = Foo.Unit() as Foo;
+const value_ = Enum.switch(foo_, {
+	Unit: "Unit()",
+	Data: ({ value }) => `Data(${value})`,
+});
+void value_; //-
 //<
 //<<<
 
 //>>> Unhandled cases with fallback.
 //>
-function onFileSelect(file: File) {
-	return Enum.on("mime").switch(file, {
-		"image/jpeg": () => prompt("Name for image:"),
-		_: () => alert("Unsupported filetype."),
-	});
-}
-void onFileSelect; //-
-} //-
+const foo__: Foo = Foo.Unit() as Foo;
+const value__ = Enum.switch(foo__, {
+	Unit: "Unit()",
+	_: "Unknown",
+});
+void value__; //-
 //<
 //<<<
 
@@ -307,13 +415,15 @@ define) a Enum builder for it.
 
 //>>> Create an Enum value instance, (if possible) inferred from return type.
 //>
-function getOutput():
-	| Enum.Loading
-	| Enum<{ None: true; Some: { value: unknown } }> {
-	if (branch()) return Enum.value("None");
-	if (branch()) return Enum.value("Some", { value: "..." });
-	if (branch()) return Enum.value("Loading");
-	return Enum.Loading();
+
+function getOutput(): Enum<{
+	None: true;
+	Some: { value: unknown };
+	All: true;
+}> {
+	if (Math.random()) return Enum.value("All");
+	if (Math.random()) return Enum.value("Some", { value: "..." });
+	return Enum.value("None");
 }
 void getOutput; //-
 //<
@@ -334,8 +444,8 @@ path, otherwise returns `undefined`.
 
 //>>> Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.
 //>
-const result = Enum.Result(() => JSON.stringify("..."));
-const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? "null";
+const result = Result.from(() => JSON.stringify("..."));
+const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? null;
 void valueOrFallback; //-
 //<
 //<<<
@@ -354,203 +464,16 @@ void valueOrFallback; //-
 
 //>>> Define and use an Enum with a custom discriminant.
 //>
-type Foo = Enum.define<typeof Foo>;
-const Foo = Enum.on("kind").define({} as { A: true; B: true });
+const Foo___ = Enum.on("kind").define({} as { A: true; B: true });
+type Foo___ = Enum.define<typeof Foo___>;
 
-const value = Foo.A() as Foo;
-Enum.on("kind").match(value, "A");
-Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
+const value___ = Foo___.A() as Foo___;
+Enum.on("kind").match(value___, "A");
+Enum.on("kind").switch(value___, { A: "A Variant", _: "Other Variant" });
 //<
 //<<<
 
 //backtotop
-
-//+ # Primitives
-
-/*!
-## `Enum.Ok`
-
-```
-(type) Enum.Ok<TOk?>
-(func) Enum.Ok(inferred) => Enum.Ok<inferred>
-```
-
-- Represents a normal/success value, `{ _type: "Ok"; value: "..." }`.
-!*/
-
-//backtotop
-
-/*!
-## `Enum.Error`
-
-```
-(type) Enum.Error<TError?>
-(func) Enum.Error(inferred, cause?) => Enum.Error<inferred>
-```
-
-- Represents an error/failure value, `{ _type: "Error"; error: "..."; cause?: ... }`.
-!*/
-
-//backtotop
-
-/*!
-## `Enum.Result`
-
-```
-(type) Enum.Result<TOk?, TError?>
-```
-
-- A helper alias for `Enum.Ok | Enum.Error`.
-
-> [!NOTE]
-> This "Errors As Values" pattern allows known error cases to handled in a
-type-safe way, as opposed to `throw`ing errors and relying on the caller to
-remember to wrap it in `try`/`catch`.
-!*/
-
-//>>> Enum.Result without any values.
-//>
-export function getResult(): Enum.Result {
-	const isValid = Math.random();
-
-	if (!isValid) {
-		return Enum.Error();
-	}
-
-	return Enum.Ok();
-}
-//<
-//<<<
-
-//>>> Enum.Result with Ok and Error values.
-//>
-const file = {} as File; //-
-const getFile = (): File | undefined => undefined; //-
-export function queryFile(): Enum.Result<File, "NotFound"> {
-	const fileOrUndefined = getFile();
-
-	if (fileOrUndefined) {
-		return Enum.Error("NotFound");
-	}
-
-	return Enum.Ok(file);
-}
-//<
-//<<<
-
-//+ <br />
-
-/*!
-```
-(func) Enum.Result(callback)
-```
-
-- Executes the callback within a `try`/`catch`:
-	- returns a `Enum.Ok` with the callback's result,
-	- otherwise a `Enum.Error` with the thrown error (if any).
-!*/
-
-//>>> Wrap a function that may throw.
-//>
-const fetchResult = await Enum.Result(() => fetch("/api/whoami"));
-
-Enum.switch(fetchResult, {
-	Ok: async ({ value: response }) => {
-		const body = (await response.json()) as unknown;
-		console.log(body);
-	},
-	Error: ({ error }) => {
-		console.error(error);
-	},
-});
-//<
-//<<<
-
-//backtotop
-
-/*!
-## `Enum.Loading`
-
-```
-(type) Enum.Loading
-(func) Enum.Loading() => Enum.Loading
-```
-
-- Represents an loading state.
-- Ideal for states' values or stateful functions (like React hooks).
-!*/
-
-//>>> React hook that returns a value, error, or loading state.
-//>
-const useQuery = {} as any; //-
-const gqlListItems = {} as any; //-
-function useFetchedListItems():
-	| Enum.Result<string[], "NetworkError">
-	| Enum.Loading {
-	const { data, error, loading } = useQuery(gqlListItems);
-
-	if (loading) {
-		return Enum.Loading();
-	}
-
-	if (error || !data) {
-		return Enum.Error("NetworkError");
-	}
-
-	return Enum.Ok(data.gqlListItems.items);
-}
-void useFetchedListItems; //-
-//<
-//<<<
-
-//>>> React state that could be a loaded value, error, or loading state.
-//>
-type Element = any; //-
-const useState = <T>(_t: T) => ({}) as [T, (t: T) => void]; //-
-const useEffect = (_cb: () => void, _deps: never[]) => undefined; //-
-function Component(): Element {
-	const [state, setState] = useState<
-		Enum.Result<{ items: string[] }, "NetworkError"> | Enum.Loading
-	>(Enum.Loading());
-
-	// fetch data and exclusively handle success or error states
-	useEffect(() => {
-		(async () => {
-			const responseResult = await Enum.Result(() =>
-				fetch("/items").then(
-					(response) => response.json() as Promise<{ items: string[] }>,
-				),
-			);
-
-			if (Enum.match(responseResult, "Error")) {
-				setState(Enum.Error("NetworkError"));
-				return;
-			}
-
-			setState(Enum.Ok({ items: responseResult.value.items }));
-			return;
-		})();
-	}, []);
-
-	// exhaustively handle all possible states
-	return Enum.switch(state, {
-		Loading: () => `<Spinner />`,
-		Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
-		Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
-	});
-}
-void Component; //-
-//<
-//<<<
-
-//backtotop
-
-//+ # Utilities
-
-//>
-// example
-type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
-//<
 
 /*!
 ## `Enum.Root`
@@ -562,8 +485,8 @@ type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 
 //>>> Infer a key/value mapping of an Enum's variants.
 //>
-export type Root = Enum.Root<Signal>;
-// -> { Red: true, Yellow: true; Green: true }
+export type Root = Enum.Root<Enum<{ Unit: true; Data: { value: string } }>>;
+// -> { Unit: true; Data: { value: string } }
 //<
 //<<<
 
@@ -578,8 +501,8 @@ export type Root = Enum.Root<Signal>;
 !*/
 //>>> Infers all keys of an Enum's variants.
 //>
-export type Keys = Enum.Keys<Signal>;
-// -> "Red" | "Yellow" | "Green"
+export type Keys = Enum.Keys<Enum<{ Unit: true; Data: { value: string } }>>;
+// -> "Unit" | "Data"
 //<
 //<<<
 
@@ -594,11 +517,11 @@ export type Keys = Enum.Keys<Signal>;
 !*/
 //>>> Pick subset of an Enum's variants by key.
 //>
-export type PickRed = Enum.Pick<Signal, "Red">;
-// -> *Red
-
-export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
-// -> *Red | *Yellow
+export type Pick = Enum.Pick<
+	Enum<{ Unit: true; Data: { value: string } }>,
+	"Unit"
+>;
+// -> { _type: "Unit" }
 //<
 //<<<
 
@@ -613,10 +536,12 @@ export type PickRedYellow = Enum.Pick<Signal, "Red" | "Yellow">;
 !*/
 //>>> Omit subset of an Enum's variants by key.
 //>
-export type OmitRed = Enum.Omit<Signal, "Red">;
-// -> *Yellow | *Green
+export type Omit = Enum.Omit<
+	Enum<{ Unit: true; Data: { value: string } }>,
+	"Unit"
+>;
+// -> *Data
 
-export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 // -> *Green
 //<
 //<<<
@@ -633,8 +558,11 @@ export type OmitRedYellow = Enum.Omit<Signal, "Red" | "Yellow">;
 
 //>>> Add new variants and merge new properties for existing variants for an Enum.
 //>
-export type Extend = Enum.Extend<Signal, { Flashing: true }>;
-// -> *Red | *Yellow | *Green | *Flashing
+export type Extend = Enum.Extend<
+	Enum<{ Unit: true; Data: { value: string } }>,
+	{ Extra: true }
+>;
+// -> *Unit | *Data | *Extra
 //<
 //<<<
 
@@ -652,6 +580,186 @@ export type Extend = Enum.Extend<Signal, { Flashing: true }>;
 //>
 export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // -> *Left | *Right
+//<
+//<<<
+
+//backtotop
+
+//hr
+
+/*!
+## `Result`
+
+```
+(type) Result<TOk?, TError?>
+```
+
+- A helper alias for `Result.Ok | Result.Error`.
+
+> [!NOTE]
+> This "Errors As Values" pattern allows known error cases to handled in a
+type-safe way, as opposed to `throw`ing errors and relying on the caller to
+remember to wrap it in `try`/`catch`.
+!*/
+
+//>>> Result without any values.
+//>
+export function getResult(): Result {
+	const isValid = Math.random();
+
+	if (!isValid) {
+		return Result.Error();
+	}
+
+	return Result.Ok();
+}
+//<
+//<<<
+
+//>>> Result with Ok and Error values.
+//>
+const file = {} as File; //-
+const getFile = (): File | undefined => undefined; //-
+export function queryFile(): Result<File, "NotFound"> {
+	const fileOrUndefined = getFile();
+
+	if (fileOrUndefined) {
+		return Result.Error("NotFound");
+	}
+
+	return Result.Ok(file);
+}
+//<
+//<<<
+
+/*!
+## `Result.Ok`
+
+```
+(type) Enum.Ok<TOk?>
+(func) Enum.Ok(inferred) => Enum.Ok<inferred>
+```
+
+- Represents a normal/success value, `{ _type: "Ok"; value: "..." }`.
+!*/
+
+//backtotop
+
+/*!
+## `Result.Error`
+
+```
+(type) Enum.Error<TError?>
+(func) Enum.Error(inferred, cause?) => Enum.Error<inferred>
+```
+
+- Represents an error/failure value, `{ _type: "Error"; error: "..."; cause?: ... }`.
+!*/
+
+//backtotop
+
+/*!
+```
+(func) Result.from(callback)
+```
+
+- Executes the callback within a `try`/`catch`:
+	- returns a `Enum.Ok` with the callback's result,
+	- otherwise a `Enum.Error` with the thrown error (if any).
+!*/
+
+//>>> Wrap a function that may throw.
+//>
+const fetchResult = await Result.from(() => fetch("/api/whoami"));
+
+Enum.switch(fetchResult, {
+	Ok: async ({ value: response }) => {
+		const body = (await response.json()) as unknown;
+		console.log(body);
+	},
+	Error: ({ error }) => {
+		console.error(error);
+	},
+});
+//<
+//<<<
+
+//backtotop
+
+//hr
+
+/*!
+## `Pending`
+
+```
+(type) Pending
+(func) Pending() => Pending
+```
+
+- Represents an pending state.
+- Ideal for states' values or stateful functions (like React hooks).
+!*/
+
+//>>> React hook that returns a value, error, or pending state.
+//>
+import { Pending } from "unenum";
+
+const useQuery = {} as any; //-
+const gqlListItems = {} as any; //-
+function useFetchedListItems(): Result<string[], "NetworkError"> | Pending {
+	const { data, error, loading } = useQuery(gqlListItems);
+
+	if (loading) {
+		return Pending();
+	}
+
+	if (error || !data) {
+		return Result.Error("NetworkError");
+	}
+
+	return Result.Ok(data.gqlListItems.items);
+}
+void useFetchedListItems; //-
+//<
+//<<<
+
+//>>> React state that could be a loaded value, error, or loading state.
+//>
+type Element = any; //-
+const useState = <T>(_t: T) => ({}) as [T, (t: T) => void]; //-
+const useEffect = (_cb: () => void, _deps: never[]) => undefined; //-
+function Component(): Element {
+	const [state, setState] = useState<
+		Result<{ items: string[] }, "NetworkError"> | Pending
+	>(Pending());
+
+	// fetch data and exclusively handle success or error states
+	useEffect(() => {
+		(async () => {
+			const responseResult = await Result.from(() =>
+				fetch("/items").then(
+					(response) => response.json() as Promise<{ items: string[] }>,
+				),
+			);
+
+			if (Enum.match(responseResult, "Error")) {
+				setState(Result.Error("NetworkError"));
+				return;
+			}
+
+			setState(Result.Ok({ items: responseResult.value.items }));
+			return;
+		})();
+	}, []);
+
+	// exhaustively handle all possible states
+	return Enum.switch(state, {
+		Loading: () => `<Spinner />`,
+		Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
+		Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
+	});
+}
+void Component; //-
 //<
 //<<<
 

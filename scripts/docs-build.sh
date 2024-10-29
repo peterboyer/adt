@@ -7,6 +7,7 @@ cat ./README.ts \
 | sed "s|//hr|---|g" \
 | sed "s|//+ ||g" \
 | sed "s|//backtotop|<div align="right"><a href="\#api">Back to top ⤴</a></div>|g" \
+| sed "s|\([a-zA-Z]\+\)_\+|\1|g" \
 | sed "s|//>>> \(.\+\)|<details><summary>(<strong>Example</strong>) \1</summary>|g" \
 | sed "s|//>>>+ \(.\+\)|<details open><summary>(<strong>Example</strong>) \1</summary>|g" \
 | sed "s|//<<<|</details>|g" \
