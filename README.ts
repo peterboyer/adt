@@ -443,7 +443,7 @@ void valueOrFallback; //-
 ## `Enum.on`
 
 ```
-(func) Enum.on(discriminant) => { define, match, switch, value, unwrap }
+(func) Enum.on(discriminant) => { define, match, value, unwrap }
 ```
 
 - Redefines and returns all `Enum.*` runtime methods with a custom discriminant.
