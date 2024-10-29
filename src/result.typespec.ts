@@ -1,86 +1,85 @@
-import { type Expect, type Equal, branch } from "./testing.js";
-import { Enum } from "./enum.js";
+import { Result } from "./result.js";
 
-void function getFoo(): Enum.Result<string, "ParseError"> {
+import { branch, type Expect, type Equal } from "./shared/testing.js";
+
+void function getFoo(): Result<string, "ParseError"> {
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Error();
+		return Result.Error();
 	}
 	if (branch()) {
 		// @ts-expect-error "1" is not assignable to "ParseError".
-		return Enum.Error("1");
+		return Result.Error("1");
 	}
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Ok();
+		return Result.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error 1 is not assignable to `string`.
-		return Enum.Ok(1);
+		return Result.Ok(1);
 	}
 	if (branch()) {
-		return Enum.Error("ParseError");
+		return Result.Error("ParseError");
 	}
-	return Enum.Ok("1");
+	return Result.Ok("1");
 };
 
-void async function getFooPromise(): Promise<
-	Enum.Result<string, "ParseError">
-> {
+void async function getFooPromise(): Promise<Result<string, "ParseError">> {
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Error();
+		return Result.Error();
 	}
 	if (branch()) {
 		// @ts-expect-error "1" is not assignable to "ParseError".
-		return Enum.Error("1");
+		return Result.Error("1");
 	}
 	if (branch()) {
 		// @ts-expect-error Expecting an arg.
-		return Enum.Ok();
+		return Result.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error 1 is not assignable to `string`.
-		return Enum.Ok(1);
+		return Result.Ok(1);
 	}
 	if (branch()) {
-		return Enum.Error("ParseError");
+		return Result.Error("ParseError");
 	}
-	return Enum.Ok("...");
+	return Result.Ok("...");
 };
 
-void function getResult(): Enum.Result {
+void function getResult(): Result {
 	if (branch()) {
-		return Enum.Error();
+		return Result.Error();
 	}
 	if (branch()) {
-		return Enum.Error(undefined);
+		return Result.Error(undefined);
 	}
 	if (branch()) {
-		return Enum.Error(undefined, {});
+		return Result.Error(undefined, {});
 	}
 	if (branch()) {
-		return Enum.Ok(undefined);
+		return Result.Ok(undefined);
 	}
-	return Enum.Ok();
+	return Result.Ok();
 };
 
 void function getAnything(): string {
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Ok();
+		return Result.Ok();
 	}
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Ok("...");
+		return Result.Ok("...");
 	}
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Error();
+		return Result.Error();
 	}
 	if (branch()) {
 		// @ts-expect-error Not assignable to return type.
-		return Enum.Error("...");
+		return Result.Error("...");
 	}
 	return "...";
 };
@@ -88,21 +87,21 @@ void function getAnything(): string {
 ({}) as [
 	Expect<
 		Equal<
-			Enum.Result,
+			Result,
 			| { _type: "Ok"; value?: undefined }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
-			Enum.Result<unknown>,
+			Result<unknown>,
 			| { _type: "Ok"; value: unknown }
 			| { _type: "Error"; error?: undefined; cause?: unknown }
 		>
 	>,
 	Expect<
 		Equal<
-			Enum.Result<unknown, unknown>,
+			Result<unknown, unknown>,
 			| { _type: "Ok"; value: unknown }
 			| { _type: "Error"; error: unknown; cause?: unknown }
 		>

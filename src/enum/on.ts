@@ -1,9 +1,9 @@
-import type { Enum } from "./enum.js";
-import { Define } from "./enum.define.js";
-import { Match } from "./enum.match.js";
-import { Switch } from "./enum.switch.js";
-import { Value } from "./enum.value.js";
-import { Unwrap } from "./enum.unwrap.js";
+import type { Enum } from "../enum.js";
+import { Define } from "./define.js";
+import { Match } from "./match.js";
+import { Switch } from "./switch.js";
+import { Value } from "./value.js";
+import { Unwrap } from "./unwrap.js";
 
 export function On<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,

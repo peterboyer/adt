@@ -1,4 +1,4 @@
-import type { Enum } from "./enum.js";
+import type { Result } from "../result.js";
 
 export function Error<T = never, X = never>(
 	...args: [T] extends [never]
@@ -9,7 +9,7 @@ export function Error<T = never, X = never>(
 				? [error?: undefined, cause?: unknown]
 				: never
 ): [T] extends [never]
-	? Enum.Error<X>
+	? Result.Error<X>
 	: [T] extends [{ _type: "Error" }]
 		? T
 		: never {

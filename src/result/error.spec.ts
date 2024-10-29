@@ -1,7 +1,7 @@
-import { Enum } from "./enum.js";
+import { Error } from "./error.js";
 
 test("Error with no arg", () => {
-	expect(Enum.Error()).toStrictEqual({
+	expect(Error()).toStrictEqual({
 		_type: "Error",
 		error: undefined,
 		cause: undefined,
@@ -9,7 +9,7 @@ test("Error with no arg", () => {
 });
 
 test("Error with an arg", () => {
-	expect(Enum.Error("...")).toStrictEqual({
+	expect(Error("...")).toStrictEqual({
 		_type: "Error",
 		error: "...",
 		cause: undefined,
@@ -17,8 +17,8 @@ test("Error with an arg", () => {
 });
 
 test("Error with an arg and cause", () => {
-	const InvalidInputError = Enum.Error("InvalidInput");
-	expect(Enum.Error("...", InvalidInputError)).toStrictEqual({
+	const InvalidInputError = Error("InvalidInput");
+	expect(Error("...", InvalidInputError)).toStrictEqual({
 		_type: "Error",
 		error: "...",
 		cause: InvalidInputError,

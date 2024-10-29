@@ -1,4 +1,4 @@
-import type { Enum } from "./enum.js";
+import type { Result } from "../result.js";
 
 export function Ok<T = never, X = never>(
 	...args: [T] extends [never]
@@ -9,7 +9,7 @@ export function Ok<T = never, X = never>(
 				? [value?: undefined]
 				: never
 ): [T] extends [never]
-	? Enum.Ok<X>
+	? Result.Ok<X>
 	: [T] extends [{ _type: "Ok" }]
 		? T
 		: never {

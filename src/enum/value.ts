@@ -1,4 +1,4 @@
-import type { Enum } from "./enum.js";
+import type { Enum } from "../enum.js";
 
 export function Value<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,

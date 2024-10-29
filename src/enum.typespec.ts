@@ -1,5 +1,7 @@
-import type { Expect, Equal } from "./testing.js";
+import type { Expect, Equal } from "./shared/testing.js";
 import type { Enum } from "./enum.js";
+import type { Result } from "./result.js";
+import type { Pending } from "./pending.js";
 
 type None = Record<never, never>;
 type Unit = { Unit: true };
@@ -93,11 +95,11 @@ type EGeneric<T> = Enum<Generic<T>>;
 ];
 
 ({}) as [
-	Expect<Equal<Enum.Loading, { _type: "Loading" }>>,
+	Expect<Equal<Pending, { _type: "Pending" }>>,
 	Expect<
 		Equal<
-			Enum.Loading | Enum.Ok<string>,
-			{ _type: "Loading" } | { _type: "Ok"; value: string }
+			Pending | Result.Ok<string>,
+			{ _type: "Pending" } | { _type: "Ok"; value: string }
 		>
 	>,
 ];

@@ -1,29 +1,21 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
-import { Define } from "./enum.define.js";
-import { Match } from "./enum.match.js";
-import { Switch } from "./enum.switch.js";
-import { Value } from "./enum.value.js";
-import { On } from "./enum.on.js";
-import { Ok } from "./enum.ok.js";
-import { Error } from "./enum.error.js";
-import { Result } from "./enum.result.from.js";
-import { Unwrap } from "./enum.unwrap.js";
-import { Loading } from "./enum.loading.js";
+import { On } from "./enum/on.js";
+import { Define } from "./enum/define.js";
+import { Match } from "./enum/match.js";
+import { Switch } from "./enum/switch.js";
+import { Value } from "./enum/value.js";
+import { Unwrap } from "./enum/unwrap.js";
 
 export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
 
 export const Enum = {
+	on: On,
 	define: Define(DiscriminantDefault),
 	match: Match(DiscriminantDefault),
 	switch: Switch(DiscriminantDefault),
 	value: Value(DiscriminantDefault),
 	unwrap: Unwrap(DiscriminantDefault),
-	on: On,
-	Ok,
-	Error,
-	Loading,
-	Result,
 };
 
 export type Enum<
@@ -144,20 +136,4 @@ export namespace Enum {
 	type TrueAsEmpty<T> = {
 		[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
 	};
-
-	export type Ok<TOk = undefined> = Enum<{
-		Ok: [TOk] extends [undefined] ? { value?: undefined } : { value: TOk };
-	}>;
-
-	export type Error<TError = undefined> = Enum<{
-		Error: ([TError] extends [undefined]
-			? { error?: undefined }
-			: { error: TError }) & { cause?: unknown };
-	}>;
-
-	export type Loading = Enum<{ Loading: true }>;
-
-	export type Result<TOk = undefined, TError = undefined> =
-		| Ok<TOk>
-		| Error<TError>;
 }
