@@ -68,8 +68,8 @@ const posts: Post[] = [
 ```
 
 
-The `Enum` provides ease-of-use utilities like `.switch` and `.match` for
-working with discriminated unions.
+The `Enum` provides ease-of-use utilities like `.match` for working with
+discriminated unions.
 
 
 ```ts
@@ -78,7 +78,7 @@ working with discriminated unions.
     return "Ping!";
   }
 
-  return Enum.switch(post, {
+  return Enum.match(post, {
     Text: ({ title }) => `Text("${title ?? "Untitled"}")`,
     _: () => `Unhandled`,
   });
@@ -149,7 +149,7 @@ const files = [
     return "Text!";
   }
 
-  return Enum.on("mime").switch(file, {
+  return Enum.on("mime").match(file, {
     "image/jpeg": ({ data }) => `Image(${data.length})`,
     _: () => `Unhandled`,
   });
@@ -254,7 +254,6 @@ type Tokens = z.infer<typeof Tokens>;
 - [`Enum`](#enum)
   - [`Enum.define`](#enumdefine)
   - [`Enum.match`](#enummatch)
-  - [`Enum.switch`](#enumswitch)
   - [`Enum.value`](#enumvalue)
   - [`Enum.unwrap`](#enumunwrap)
   - [`Enum.on`](#enumon)
@@ -331,9 +330,10 @@ type Foo = Enum.define<typeof Foo>;
 
 ```
 (func) Enum.match(value, variant | variants[]) => boolean
+(func) Enum.match(value, matcher = { [variant]: value | callback; _?: value | callback }) => inferred
 ```
 
-<details><summary>(<strong>Example</strong>) Match with one variant.</summary>
+<details><summary>(<strong>Example</strong>) Narrow with one variant.</summary>
 
 ```ts
 const foo = Foo.Unit() as Foo;
@@ -342,7 +342,7 @@ const value = Enum.match(foo, "Unit");
 
 </details>
 
-<details><summary>(<strong>Example</strong>) Match with many variants.</summary>
+<details><summary>(<strong>Example</strong>) Narrow with many variants.</summary>
 
 ```ts
 function getFileFormat(file: File): boolean {
@@ -356,22 +356,11 @@ function getFileFormat(file: File): boolean {
 
 </details>
 
-<div align=right><a href=#api>Back to top ⤴</a></div>
-
-## `Enum.switch`
-
-```
-(func) Enum.switch(
-  value,
-  matcher = { [variant]: value | callback; _?: value | callback }
-) => inferred
-```
-
 <details><summary>(<strong>Example</strong>) Handle all cases.</summary>
 
 ```ts
 const foo: Foo = Foo.Unit() as Foo;
-const value = Enum.switch(foo, {
+const value = Enum.match(foo, {
   Unit: "Unit()",
   Data: ({ value }) => `Data(${value})`,
 });
@@ -383,7 +372,7 @@ const value = Enum.switch(foo, {
 
 ```ts
 const foo: Foo = Foo.Unit() as Foo;
-const value = Enum.switch(foo, {
+const value = Enum.match(foo, {
   Unit: "Unit()",
   _: "Unknown",
 });
@@ -457,7 +446,7 @@ type Foo = Enum.define<typeof Foo>;
 
 const value = Foo.A() as Foo;
 Enum.on("kind").match(value, "A");
-Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
+Enum.on("kind").match(value, { A: "A Variant", _: "Other Variant" });
 ```
 
 </details>
@@ -656,7 +645,7 @@ export function queryFile(): Result<File, "NotFound"> {
 ```ts
 const fetchResult = await Result.from(() => fetch("/api/whoami"));
 
-Enum.switch(fetchResult, {
+Enum.match(fetchResult, {
   Ok: async ({ value: response }) => {
     const body = (await response.json()) as unknown;
     console.log(body);
@@ -733,7 +722,7 @@ function Component(): Element {
   }, []);
 
   // exhaustively handle all possible states
-  return Enum.switch(state, {
+  return Enum.match(state, {
     Loading: () => `<Spinner />`,
     Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
     Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,

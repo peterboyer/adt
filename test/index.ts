@@ -1,4 +1,4 @@
-import { Enum } from "unenum";
+import { Enum, Pending, Result } from "unenum";
 
 type WebEvent = Enum.define<typeof WebEvent>;
 const WebEvent = Enum.define(
@@ -34,23 +34,23 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return Enum.switch(event, {
+	return Enum.match(event, {
 		PageLoad: "load" as const,
 		PageUnload: "unload" as const,
 		_: undefined,
 	});
 }
 
-function useAsyncResult(): Enum.Result<string, "FooError"> | Enum.Loading {
-	if ("".toString()) return Enum.Ok("...");
-	if ("".toString()) return Enum.Error("FooError");
-	return Enum.Loading();
+function useAsyncResult(): Result<string, "FooError"> | Pending {
+	if ("".toString()) return Result.Ok("...");
+	if ("".toString()) return Result.Error("FooError");
+	return Pending();
 }
 
 function app() {
 	const result = useAsyncResult();
-	Enum.switch(result, {
-		Loading: () => console.log("..."),
+	Enum.match(result, {
+		Pending: () => console.log("..."),
 		Ok: ({ value }) => console.log(value),
 		Error: ({ error }) => console.error(error),
 	});
@@ -63,7 +63,7 @@ function app() {
 	const eventPageType = getEventPageType(event);
 	console.log(eventPageType);
 
-	const $inspect = Enum.Result(() => inspect(event));
+	const $inspect = Result.from(() => inspect(event));
 	if (Enum.match($inspect, "Error")) {
 		return console.log($inspect.error);
 	}

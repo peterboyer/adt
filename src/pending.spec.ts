@@ -1,5 +1,5 @@
 import { Pending } from "./pending.js";
 
 test("Pending", () => {
-	expect(Pending()).toStrictEqual({ _type: "Loading" });
+	expect(Pending()).toStrictEqual({ _type: "Pending" });
 });
