@@ -3,6 +3,7 @@ import type { Intersect } from "./shared/intersect.js";
 import { On } from "./enum/on.js";
 import { Define } from "./enum/define.js";
 import { Match } from "./enum/match.js";
+import { Switch } from "./enum/switch.js";
 import { Value } from "./enum/value.js";
 import { Unwrap } from "./enum/unwrap.js";
 
@@ -12,6 +13,7 @@ export const Enum = {
 	on: On,
 	define: Define(DiscriminantDefault),
 	match: Match(DiscriminantDefault),
+	switch: Switch(DiscriminantDefault),
 	value: Value(DiscriminantDefault),
 	unwrap: Unwrap(DiscriminantDefault),
 };

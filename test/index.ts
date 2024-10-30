@@ -34,7 +34,7 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return Enum.match(event, {
+	return Enum.switch(event, {
 		PageLoad: "load" as const,
 		PageUnload: "unload" as const,
 		_: undefined,
@@ -49,7 +49,7 @@ function useAsyncResult(): Result<string, "FooError"> | Pending {
 
 function app() {
 	const result = useAsyncResult();
-	Enum.match(result, {
+	Enum.switch(result, {
 		Pending: () => console.log("..."),
 		Ok: ({ value }) => console.log(value),
 		Error: ({ error }) => console.error(error),

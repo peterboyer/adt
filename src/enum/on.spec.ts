@@ -48,3 +48,26 @@ test("On.match", () => {
 	expect(On("kind").match(Foo.A() as Foo, "A")).toBe(true);
 	expect(On("kind").match(Foo.B({ data: "..." }) as Foo, "A")).toBe(false);
 });
+
+test("On.switch", () => {
+	const Foo = On("kind").define(
+		{} as {
+			A: true;
+			B: { data: string };
+			C: true;
+		},
+	);
+	type Foo = Enum.define<typeof Foo>;
+
+	function fn(value: Foo) {
+		return On("kind").switch(value, {
+			A: () => "a",
+			B: ({ data }) => data,
+			_: () => "_",
+		});
+	}
+
+	expect(fn(Foo.A())).toEqual("a");
+	expect(fn(Foo.B({ data: "..." }))).toEqual("...");
+	expect(fn(Foo.C())).toEqual("_");
+});

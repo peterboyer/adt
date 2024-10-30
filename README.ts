@@ -75,8 +75,8 @@ void posts; //-
 //<
 
 /*!
-The `Enum` provides ease-of-use utilities like `.match` for working with
-discriminated unions.
+The `Enum` provides ease-of-use utilities like `.switch` and `.match` for
+working with discriminated unions.
 !*/
 
 //>
@@ -85,7 +85,7 @@ discriminated unions.
 		return "Ping!";
 	}
 
-	return Enum.match(post, {
+	return Enum.switch(post, {
 		Text: ({ title }) => `Text("${title ?? "Untitled"}")`,
 		_: () => `Unhandled`,
 	});
@@ -158,7 +158,7 @@ void files; //-
 		return "Text!";
 	}
 
-	return Enum.on("mime").match(file, {
+	return Enum.on("mime").switch(file, {
 		"image/jpeg": ({ data }) => `Image(${data.length})`,
 		_: () => `Unhandled`,
 	});
@@ -262,6 +262,7 @@ type Tokens = z.infer<typeof Tokens>;
 - [`Enum`](#enum)
 	- [`Enum.define`](#enumdefine)
 	- [`Enum.match`](#enummatch)
+	- [`Enum.switch`](#enumswitch)
 	- [`Enum.value`](#enumvalue)
 	- [`Enum.unwrap`](#enumunwrap)
 	- [`Enum.on`](#enumon)
@@ -340,11 +341,10 @@ type Foo = Enum.define<typeof Foo>;
 
 ```
 (func) Enum.match(value, variant | variants[]) => boolean
-(func) Enum.match(value, matcher = { [variant]: value | callback; _?: value | callback }) => inferred
 ```
 !*/
 
-//>>> Narrow with one variant.
+//>>> Match with one variant.
 //>
 const foo = Foo.Unit() as Foo;
 const value = Enum.match(foo, "Unit");
@@ -352,7 +352,7 @@ void value; //-
 //<
 //<<<
 
-//>>> Narrow with many variants.
+//>>> Match with many variants.
 //>
 function getFileFormat(file: File): boolean {
 	const isText = Enum.on("mime").match(file, [
@@ -365,10 +365,23 @@ void getFileFormat; //-
 //<
 //<<<
 
+//backtotop
+
+/*!
+## `Enum.switch`
+
+```
+(func) Enum.switch(
+	value,
+	matcher = { [variant]: value | callback; _?: value | callback }
+) => inferred
+```
+!*/
+
 //>>> Handle all cases.
 //>
 const foo_: Foo = Foo.Unit() as Foo;
-const value_ = Enum.match(foo_, {
+const value_ = Enum.switch(foo_, {
 	Unit: "Unit()",
 	Data: ({ value }) => `Data(${value})`,
 });
@@ -379,7 +392,7 @@ void value_; //-
 //>>> Unhandled cases with fallback.
 //>
 const foo__: Foo = Foo.Unit() as Foo;
-const value__ = Enum.match(foo__, {
+const value__ = Enum.switch(foo__, {
 	Unit: "Unit()",
 	_: "Unknown",
 });
@@ -456,7 +469,7 @@ type Foo___ = Enum.define<typeof Foo___>;
 
 const value___ = Foo___.A() as Foo___;
 Enum.on("kind").match(value___, "A");
-Enum.on("kind").match(value___, { A: "A Variant", _: "Other Variant" });
+Enum.on("kind").switch(value___, { A: "A Variant", _: "Other Variant" });
 //<
 //<<<
 
@@ -659,7 +672,7 @@ export function queryFile(): Result<File, "NotFound"> {
 //>
 const fetchResult = await Result.from(() => fetch("/api/whoami"));
 
-Enum.match(fetchResult, {
+Enum.switch(fetchResult, {
 	Ok: async ({ value: response }) => {
 		const body = (await response.json()) as unknown;
 		console.log(body);
@@ -740,7 +753,7 @@ function Component(): Element {
 	}, []);
 
 	// exhaustively handle all possible states
-	return Enum.match(state, {
+	return Enum.switch(state, {
 		Loading: () => `<Spinner />`,
 		Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
 		Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
