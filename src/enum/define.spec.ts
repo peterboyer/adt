@@ -18,9 +18,6 @@ test("Define", () => {
 		expect(Event.Open()).toStrictEqual({ _type: "Open" });
 		expect(Event.Data({ value })).toStrictEqual({ _type: "Data", value });
 		expect(Event.Close()).toStrictEqual({ _type: "Close" });
-
-		expect(Event.Open()).toBe(Event.Open());
-		expect(Event.Data({ value: true })).not.toBe(Event.Data({ value: true }));
 	}
 });
 
@@ -41,9 +38,5 @@ test("Define with options.mapper", () => {
 		expect(Event.Open()).toStrictEqual({ _type: "Open" });
 		expect(Event.Data(value)).toStrictEqual({ _type: "Data", value });
 		expect(Event.Close()).toStrictEqual({ _type: "Close" });
-
-		expect(Event.Open()).toBe(Event.Open());
-		expect(Event.Data(undefined)).not.toBe(Event.Data(undefined));
-		expect(Event.Data({ value: true })).not.toBe(Event.Data({ value: true }));
 	}
 });

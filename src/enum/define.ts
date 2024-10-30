@@ -5,17 +5,10 @@ import type { Intersect } from "../shared/intersect.js";
 export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
-	const constants: Record<string, Enum.Any> = {};
 	const defaultProxy = new Proxy({} as any, {
 		get:
 			(_, key: string) =>
 			(...args: any[]) => {
-				if (!args.length) {
-					return (
-						constants[key] ??
-						(constants[key] = { [discriminant]: key } as Enum.Any)
-					);
-				}
 				return { [discriminant]: key, ...args[0] };
 			},
 	});
@@ -48,12 +41,6 @@ export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 				type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
 				const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
 				return (...args: any[]) => {
-					if (!args.length) {
-						return (
-							constants[key] ??
-							(constants[key] = { [discriminant]: key } as Enum.Any)
-						);
-					}
 					const data = dataFn ? dataFn(...args) : args[0];
 					return { [discriminant]: key, ...data };
 				};
