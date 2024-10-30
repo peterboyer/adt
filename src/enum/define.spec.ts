@@ -2,6 +2,8 @@ import { Define } from "./define.js";
 
 import type { Enum } from "../enum.js";
 
+const value = "...";
+
 test("Define", () => {
 	const Event = Define("_type")(
 		{} as {
@@ -13,14 +15,12 @@ test("Define", () => {
 	type Event = Enum.define<typeof Event>;
 
 	{
-		const eventOpen = Event.Open();
-		expect(eventOpen).toStrictEqual({ _type: "Open" });
-		const eventData = Event.Data({ value: "..." });
-		expect(eventData).toStrictEqual({ _type: "Data", value: "..." });
-		const eventClose = Event.Close();
-		expect(eventClose).toStrictEqual({ _type: "Close" });
+		expect(Event.Open()).toStrictEqual({ _type: "Open" });
+		expect(Event.Data({ value })).toStrictEqual({ _type: "Data", value });
+		expect(Event.Close()).toStrictEqual({ _type: "Close" });
 
-		void [eventOpen, eventData, eventClose];
+		expect(Event.Open()).toBe(Event.Open());
+		expect(Event.Data({ value: true })).not.toBe(Event.Data({ value: true }));
 	}
 });
 
@@ -38,13 +38,12 @@ test("Define with options.mapper", () => {
 	type Event = Enum.define<typeof Event>;
 
 	{
-		const eventOpen = Event.Open();
-		expect(eventOpen).toStrictEqual({ _type: "Open" });
-		const eventData = Event.Data("...");
-		expect(eventData).toStrictEqual({ _type: "Data", value: "..." });
-		const eventClose = Event.Close();
-		expect(eventClose).toStrictEqual({ _type: "Close" });
+		expect(Event.Open()).toStrictEqual({ _type: "Open" });
+		expect(Event.Data(value)).toStrictEqual({ _type: "Data", value });
+		expect(Event.Close()).toStrictEqual({ _type: "Close" });
 
-		void [eventOpen, eventData, eventClose];
+		expect(Event.Open()).toBe(Event.Open());
+		expect(Event.Data(undefined)).not.toBe(Event.Data(undefined));
+		expect(Event.Data({ value: true })).not.toBe(Event.Data({ value: true }));
 	}
 });
