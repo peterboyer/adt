@@ -1,20 +1,27 @@
 import { Unwrap } from "./unwrap.js";
 
 import type { Expect, Equal } from "../shared/testing.js";
-import { Result } from "../result.js";
+import { Enum } from "../enum.js";
 
 test("unwrap", () => {
+	const Foo = Enum.define(
+		{} as {
+			Init: true;
+			Open: { openId: string };
+			Close: { closeId: number };
+		},
+	);
+	type Foo = Enum.define<typeof Foo>;
+
+	const foo = Foo.Open({ openId: "..." }) as Foo;
 	{
-		const result = Result.Ok("foo") as Result<string, "FooError">;
-		{
-			const value = Unwrap("_type")(result, "Ok.value");
-			expect(value).toEqual("foo");
-			!0 as Expect<Equal<typeof value, string | undefined>>;
-		}
-		{
-			const value = Unwrap("_type")(result, "Error.error");
-			expect(value).toBeUndefined();
-			!0 as Expect<Equal<typeof value, "FooError" | undefined>>;
-		}
+		const value = Unwrap("_type")(foo, "Open.openId");
+		expect(value).toEqual("...");
+		!0 as Expect<Equal<typeof value, string | undefined>>;
+	}
+	{
+		const value = Unwrap("_type")(foo, "Close.closeId");
+		expect(value).toBeUndefined();
+		!0 as Expect<Equal<typeof value, number | undefined>>;
 	}
 });

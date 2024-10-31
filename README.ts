@@ -170,93 +170,6 @@ void files; //-
 //hr
 
 /*!
-`Result` creates a discriminated union with an `Ok` and `Error` variant.
-!*/
-
-//>
-import { Result } from "unenum";
-
-export async function getUserCountFromDatabase(): Promise<
-	Result<number, "DatabaseError">
-> {
-	const queriedCount = await Promise.resolve(1);
-	return Result.Ok(queriedCount);
-}
-//<
-
-/*!
-... which is identical to if you declared it manually.
-!*/
-
-//>
-export async function getUserCountFromDatabase_(): Promise<
-	{ _type: "Ok"; value: number } | { _type: "Error"; error: "DatabaseError" }
-> {
-	const queriedCount = await Promise.resolve(1);
-	return { _type: "Ok", value: queriedCount };
-}
-//<
-
-/*!
-`Result.from` calls a given callback that could `throw` and returns a `Result`
-variant value:
-- `Result.Ok` with the callback's return value,
-- `Result.Error` with the callback's thrown error as a value.
-!*/
-
-//>
-const queryDatabaseUserCount = async (): Promise<number> => 1; //-
-export async function getUserCountFromDatabase__(): Promise<
-	Result<number, "DatabaseError">
-> {
-	// Database query "throws" if database is unreachable or query fails.
-	const $queriedCount = await Result.from(() => queryDatabaseUserCount());
-
-	// Handle error, forward cause.
-	if (Enum.match($queriedCount, "Error")) {
-		return Result.Error("DatabaseError", $queriedCount);
-	}
-
-	return Result.Ok($queriedCount.value);
-}
-//<
-
-//+ <details><summary>Real-world example. <small>(Click for details…)</small></summary>
-//+ <br />
-
-//>
-export function getTokens(): Tokens | undefined {
-	// Retrieve a JSON string to be parsed.
-	const tokensSerialised = window.localStorage.getItem("tokens") ?? undefined;
-	if (!tokensSerialised) {
-		return undefined;
-	}
-
-	// JSON.parse "throws" if given an invalid JSON string.
-	const $tokensUnknown = Result.from(() => JSON.parse(tokensSerialised));
-	if (Enum.match($tokensUnknown, "Error")) {
-		return undefined;
-	}
-
-	// Tokens.parse "throws" if given a value that doesn't match the schema.
-	const $tokens = Result.from(() => Tokens.parse($tokensUnknown.value));
-	if (Enum.match($tokens, "Error")) {
-		return undefined;
-	}
-
-	return $tokens.value;
-}
-
-import { z } from "zod";
-const Tokens = z.object({ accessToken: z.string(), refreshToken: z.string() });
-type Tokens = z.infer<typeof Tokens>;
-//<
-
-//+ </details>
-
-//hr
-
-/*!
 # API
 
 - [`Enum`](#enum)
@@ -272,10 +185,6 @@ type Tokens = z.infer<typeof Tokens>;
 	- [`Enum.Omit`](#enumomit)
 	- [`Enum.Extend`](#enumextend)
 	- [`Enum.Merge`](#enummerge)
-- [`Result`](#result)
-	- [`Result.Ok`](#resultok)
-	- [`Result.Error`](#resulterror)
-- [`Pending`](#pending)
 !*/
 
 /*!
@@ -399,6 +308,52 @@ const value__ = Enum.switch(foo__, {
 void value__; //-
 //<
 //<<<
+//
+//>>> UI Framework (e.g. React) rendering all state cases.
+//>
+type Element = any; //-
+const useState = <T>(_t: T) => ({}) as [T, (t: T) => void]; //-
+const useEffect = (_cb: () => void, _deps: never[]) => undefined; //-
+const State = Enum.define(
+	{} as {
+		Pending: true;
+		Ok: { items: string[] };
+		Error: { cause: Error };
+	},
+);
+
+type State = Enum.define<typeof State>;
+
+function Component(): Element {
+	const [state, setState] = useState<State>(State.Pending());
+
+	// fetch data and exclusively handle success or error states
+	useEffect(() => {
+		(async () => {
+			const responseResult = await fetch("/items")
+				.then((response) => response.json() as Promise<{ items: string[] }>)
+				.catch((cause) =>
+					cause instanceof Error ? cause : new Error(undefined, { cause }),
+				);
+
+			setState(
+				responseResult instanceof Error
+					? State.Error({ cause: responseResult })
+					: State.Ok({ items: responseResult.items }),
+			);
+		})();
+	}, []);
+
+	// exhaustively handle all possible states
+	return Enum.switch(state, {
+		Loading: () => `<Spinner />`,
+		Ok: ({ items }) => `<ul>${items.map(() => `<li />`)}</ul>`,
+		Error: ({ cause }) => `<span>Error: "${cause.message}"</span>`,
+	});
+}
+void Component; //-
+//<
+//<<<
 
 //backtotop
 
@@ -444,8 +399,11 @@ path, otherwise returns `undefined`.
 
 //>>> Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.
 //>
-const result = Result.from(() => JSON.stringify("..."));
-const valueOrFallback = Enum.unwrap(result, "Ok.value") ?? null;
+const value____ = { _type: "A", foo: "..." } as Enum<{
+	A: { foo: string };
+	B: { bar: number };
+}>;
+const valueOrFallback = Enum.unwrap(value____, "A.foo") ?? null;
 void valueOrFallback; //-
 //<
 //<<<
@@ -586,181 +544,3 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 //backtotop
 
 //hr
-
-/*!
-## `Result`
-
-```
-(type) Result<TOk?, TError?>
-```
-
-- A helper alias for `Result.Ok | Result.Error`.
-
-> [!NOTE]
-> This "Errors As Values" pattern allows known error cases to handled in a
-type-safe way, as opposed to `throw`ing errors and relying on the caller to
-remember to wrap it in `try`/`catch`.
-!*/
-
-//>>> Result without any values.
-//>
-export function getResult(): Result {
-	const isValid = Math.random();
-
-	if (!isValid) {
-		return Result.Error();
-	}
-
-	return Result.Ok();
-}
-//<
-//<<<
-
-//>>> Result with Ok and Error values.
-//>
-const file = {} as File; //-
-const getFile = (): File | undefined => undefined; //-
-export function queryFile(): Result<File, "NotFound"> {
-	const fileOrUndefined = getFile();
-
-	if (fileOrUndefined) {
-		return Result.Error("NotFound");
-	}
-
-	return Result.Ok(file);
-}
-//<
-//<<<
-
-/*!
-## `Result.Ok`
-
-```
-(type) Enum.Ok<TOk?>
-(func) Enum.Ok(inferred) => Enum.Ok<inferred>
-```
-
-- Represents a normal/success value, `{ _type: "Ok"; value: "..." }`.
-!*/
-
-//backtotop
-
-/*!
-## `Result.Error`
-
-```
-(type) Enum.Error<TError?>
-(func) Enum.Error(inferred, cause?) => Enum.Error<inferred>
-```
-
-- Represents an error/failure value, `{ _type: "Error"; error: "..."; cause?: ... }`.
-!*/
-
-//backtotop
-
-/*!
-```
-(func) Result.from(callback)
-```
-
-- Executes the callback within a `try`/`catch`:
-	- returns a `Enum.Ok` with the callback's result,
-	- otherwise a `Enum.Error` with the thrown error (if any).
-!*/
-
-//>>> Wrap a function that may throw.
-//>
-const fetchResult = await Result.from(() => fetch("/api/whoami"));
-
-Enum.switch(fetchResult, {
-	Ok: async ({ value: response }) => {
-		const body = (await response.json()) as unknown;
-		console.log(body);
-	},
-	Error: ({ error }) => {
-		console.error(error);
-	},
-});
-//<
-//<<<
-
-//backtotop
-
-//hr
-
-/*!
-## `Pending`
-
-```
-(type) Pending
-(func) Pending() => Pending
-```
-
-- Represents an pending state.
-- Ideal for states' values or stateful functions (like React hooks).
-!*/
-
-//>>> React hook that returns a value, error, or pending state.
-//>
-import { Pending } from "unenum";
-
-const useQuery = {} as any; //-
-const gqlListItems = {} as any; //-
-function useFetchedListItems(): Result<string[], "NetworkError"> | Pending {
-	const { data, error, loading } = useQuery(gqlListItems);
-
-	if (loading) {
-		return Pending();
-	}
-
-	if (error || !data) {
-		return Result.Error("NetworkError");
-	}
-
-	return Result.Ok(data.gqlListItems.items);
-}
-void useFetchedListItems; //-
-//<
-//<<<
-
-//>>> React state that could be a loaded value, error, or loading state.
-//>
-type Element = any; //-
-const useState = <T>(_t: T) => ({}) as [T, (t: T) => void]; //-
-const useEffect = (_cb: () => void, _deps: never[]) => undefined; //-
-function Component(): Element {
-	const [state, setState] = useState<
-		Result<{ items: string[] }, "NetworkError"> | Pending
-	>(Pending());
-
-	// fetch data and exclusively handle success or error states
-	useEffect(() => {
-		(async () => {
-			const responseResult = await Result.from(() =>
-				fetch("/items").then(
-					(response) => response.json() as Promise<{ items: string[] }>,
-				),
-			);
-
-			if (Enum.match(responseResult, "Error")) {
-				setState(Result.Error("NetworkError"));
-				return;
-			}
-
-			setState(Result.Ok({ items: responseResult.value.items }));
-			return;
-		})();
-	}, []);
-
-	// exhaustively handle all possible states
-	return Enum.switch(state, {
-		Loading: () => `<Spinner />`,
-		Ok: ({ value: { items } }) => `<ul>${items.map(() => `<li />`)}</ul>`,
-		Error: ({ error }) => `<span>A ${error} error has occurred.</span>`,
-	});
-}
-void Component; //-
-//<
-//<<<
-
-//backtotop
