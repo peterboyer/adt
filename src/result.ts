@@ -9,7 +9,7 @@ export const Result = {
 	from: From,
 };
 
-export type Result<TOk = undefined, TError = undefined> =
+export type Result<TOk = undefined, TError = unknown> =
 	| Result.Ok<TOk>
 	| Result.Error<TError>;
 
@@ -18,7 +18,7 @@ export namespace Result {
 		Ok: [TOk] extends [undefined] ? { value?: undefined } : { value: TOk };
 	}>;
 
-	export type Error<TError = undefined> = Enum<{
+	export type Error<TError = unknown> = Enum<{
 		Error: ([TError] extends [undefined]
 			? { error?: undefined }
 			: { error: TError }) & { cause?: unknown };
