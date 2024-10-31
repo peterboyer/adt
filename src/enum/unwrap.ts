@@ -12,11 +12,14 @@ export function Unwrap<TDiscriminant extends Enum.Discriminant.Any>(
 			Intersect<
 				Enum.Root<TEnum, TDiscriminant> extends infer Root
 					? {
-							[Key in keyof Root]: {
-								[Prop in keyof Root[Key]]-?: {
-									[Path in `${Key & string}.${Prop & string}`]: Root[Key][Prop];
-								};
-							}[keyof Root[Key]];
+							[Key in keyof Root]: Root[Key] extends true
+								? never
+								: {
+										[Prop in keyof Root[Key]]-?: {
+											[Path in `${Key & string}.${Prop &
+												string}`]: Root[Key][Prop];
+										};
+									}[keyof Root[Key]];
 						}[keyof Root]
 					: never
 			>
