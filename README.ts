@@ -4,7 +4,7 @@
 
 /*!
 ```shell
-npm install unenum
+npm install pb.adt
 ```
 
 ## Requirements
@@ -20,7 +20,7 @@ npm install unenum
 !*/
 
 //>
-import { Enum } from "unenum";
+import { Enum } from "pb.adt";
 
 type Post_ = Enum<{
 	Ping: true;

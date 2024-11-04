@@ -1,11 +1,4 @@
 {
-	"extends": ["./tsconfig.json"],
-	"exclude": ["src/**/*.*spec.ts", "src/testing.ts", "README.ts"],
-	"compilerOptions": {
-		"outDir": "dist",
-		"noEmit": false,
-		"noEmitOnError": true,
-		"declaration": true,
-		"paths": {}
-	}
+	"extends": ["./tsconfig.json", "./pkgts/tsconfig.build.json"],
+	"include": ["./src/index.ts"]
 }

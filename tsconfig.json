@@ -1,17 +1,7 @@
 {
-	"extends": [
-		"@tsconfig/strictest/tsconfig.json",
-		"@tsconfig/esm/tsconfig.json"
-	],
+	"extends": ["./pkgts/tsconfig.json"],
 	"include": ["./src", "./README.ts"],
 	"compilerOptions": {
-		"noEmit": true,
-		"skipLibCheck": false,
-		"target": "esnext",
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
-		"paths": {
-			"unenum": ["./src/index.ts"]
-		}
+		"paths": { "pb.adt": ["./src/index.ts"] }
 	}
 }

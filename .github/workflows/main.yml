@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      publish:
+        type: string
+        required: false
+        description: "Publish? (y/sha/N)"
+
+jobs:
+  pkgts:
+    uses: peterboyer/pkgts/.github/workflows/main.yml@main
+    secrets: inherit
+    with:
+      publish: ${{ inputs.publish }}
