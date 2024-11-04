@@ -1,0 +1,3 @@
+[submodule "pkgts"]
+	path = pkgts
+	url = git@github.com:peterboyer/pkgts.git
