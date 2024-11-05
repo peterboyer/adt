@@ -111,7 +111,7 @@ void getTitleFromPost; //-
 type File_ = Enum<
 	{
 		"text/plain": { data: string };
-		"image/jpeg": { data: Buffer };
+		"image/jpeg": { data: ImageBitmap };
 		"application/json": { data: unknown };
 	},
 	"mime"
@@ -126,7 +126,7 @@ This creates a discriminated union identical to if you did so manually.
 //>
 type File__ =
 	| { mime: "text/plain"; data: string }
-	| { mime: "image/jpeg"; data: Buffer }
+	| { mime: "image/jpeg"; data: ImageBitmap }
 	| { mime: "application/json"; data: unknown };
 void {} as unknown as File__; //-
 //<
@@ -139,7 +139,7 @@ void {} as unknown as File__; //-
 const File = Enum.on("mime").define(
 	{} as {
 		"text/plain": { data: string };
-		"image/jpeg": { data: Buffer };
+		"image/jpeg": { data: ImageBitmap };
 		"application/json": { data: unknown };
 	},
 );
@@ -148,7 +148,7 @@ type File = Enum.define<typeof File>;
 
 const files = [
 	File["text/plain"]({ data: "..." }),
-	File["image/jpeg"]({ data: Buffer.from("...") }),
+	File["image/jpeg"]({ data: new ImageBitmap() }),
 	File["application/json"]({ data: {} }),
 ];
 void files; //-
@@ -159,7 +159,7 @@ void files; //-
 	}
 
 	return Enum.on("mime").switch(file, {
-		"image/jpeg": ({ data }) => `Image(${data.length})`,
+		"image/jpeg": ({ data }) => `Image(${data})`,
 		_: () => `Unhandled`,
 	});
 });

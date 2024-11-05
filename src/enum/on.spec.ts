@@ -1,6 +1,6 @@
 import { On } from "./on.js";
 
-import type { Expect, Equal } from "../shared/testing.js";
+import type { Expect, Equal } from "pb.expectequal";
 import type { Enum } from "../enum.js";
 
 test("On.define", () => {

@@ -1,6 +1,6 @@
 import { Unwrap } from "./unwrap.js";
 
-import type { Expect, Equal } from "../shared/testing.js";
+import type { Expect, Equal } from "pb.expectequal";
 import { Enum } from "../enum.js";
 
 test("unwrap", () => {

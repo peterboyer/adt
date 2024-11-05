@@ -1,5 +1,6 @@
-import type { Expect, Equal } from "./shared/testing.js";
 import type { Enum } from "./enum.js";
+
+import type { Expect, Equal } from "pb.expectequal";
 
 type None = Record<never, never>;
 type Unit = { Unit: true };

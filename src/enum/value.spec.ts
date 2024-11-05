@@ -1,6 +1,6 @@
 import { Value } from "./value.js";
 
-import type { Equal, Expect } from "../shared/testing.js";
+import type { Expect, Equal } from "pb.expectequal";
 
 test("Value", () => {
 	{
