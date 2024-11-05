@@ -1,11 +1,11 @@
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 import { Define } from "./define.js";
 import { Match } from "./match.js";
 import { Switch } from "./switch.js";
 import { Value } from "./value.js";
 import { Unwrap } from "./unwrap.js";
 
-export function On<TDiscriminant extends Enum.Discriminant.Any>(
+export function On<TDiscriminant extends ADT.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ): {
 	define: ReturnType<typeof Define<TDiscriminant>>;

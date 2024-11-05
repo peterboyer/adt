@@ -1,6 +1,6 @@
 import { Define } from "./define.js";
 
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 
 const value = "...";
 
@@ -12,7 +12,7 @@ test("Define", () => {
 			Close: true;
 		},
 	);
-	type Event = Enum.define<typeof Event>;
+	type Event = ADT.define<typeof Event>;
 
 	{
 		expect(Event.Open()).toStrictEqual({ _type: "Open" });
@@ -32,7 +32,7 @@ test("Define with options.mapper", () => {
 			Data: (value: unknown) => ({ value }),
 		},
 	);
-	type Event = Enum.define<typeof Event>;
+	type Event = ADT.define<typeof Event>;
 
 	{
 		expect(Event.Open()).toStrictEqual({ _type: "Open" });

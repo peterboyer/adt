@@ -1,7 +1,7 @@
 import { On } from "./on.js";
 
 import type { Expect, Equal } from "pb.expectequal";
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 
 test("On.define", () => {
 	const Foo = On("kind").define(
@@ -10,7 +10,7 @@ test("On.define", () => {
 			B: { data: string };
 		},
 	);
-	type Foo = Enum.define<typeof Foo>;
+	type Foo = ADT.define<typeof Foo>;
 
 	expect(Foo.A()).toStrictEqual({ kind: "A" });
 	expect(Foo.B({ data: "..." })).toStrictEqual({ kind: "B", data: "..." });
@@ -28,7 +28,7 @@ test("On.define with mapper", () => {
 			B: (data: string) => ({ data }),
 		},
 	);
-	type Foo = Enum.define<typeof Foo>;
+	type Foo = ADT.define<typeof Foo>;
 
 	expect(Foo.A()).toStrictEqual({ kind: "A" });
 	expect(Foo.B("...")).toStrictEqual({ kind: "B", data: "..." });
@@ -43,7 +43,7 @@ test("On.match", () => {
 			B: { data: string };
 		},
 	);
-	type Foo = Enum.define<typeof Foo>;
+	type Foo = ADT.define<typeof Foo>;
 
 	expect(On("kind").match(Foo.A() as Foo, "A")).toBe(true);
 	expect(On("kind").match(Foo.B({ data: "..." }) as Foo, "A")).toBe(false);
@@ -57,7 +57,7 @@ test("On.switch", () => {
 			C: true;
 		},
 	);
-	type Foo = Enum.define<typeof Foo>;
+	type Foo = ADT.define<typeof Foo>;
 
 	function fn(value: Foo) {
 		return On("kind").switch(value, {

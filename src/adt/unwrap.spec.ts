@@ -1,17 +1,17 @@
 import { Unwrap } from "./unwrap.js";
 
 import type { Expect, Equal } from "pb.expectequal";
-import { Enum } from "../enum.js";
+import { ADT } from "../adt.js";
 
 test("unwrap", () => {
-	const Foo = Enum.define(
+	const Foo = ADT.define(
 		{} as {
 			Init: true;
 			Open: { openId: string };
 			Close: { closeId: number };
 		},
 	);
-	type Foo = Enum.define<typeof Foo>;
+	type Foo = ADT.define<typeof Foo>;
 
 	const foo = Foo.Open({ openId: "..." }) as Foo;
 	{

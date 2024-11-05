@@ -1,15 +1,15 @@
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
-import { On } from "./enum/on.js";
-import { Define } from "./enum/define.js";
-import { Match } from "./enum/match.js";
-import { Switch } from "./enum/switch.js";
-import { Value } from "./enum/value.js";
-import { Unwrap } from "./enum/unwrap.js";
+import { On } from "./adt/on.js";
+import { Define } from "./adt/define.js";
+import { Match } from "./adt/match.js";
+import { Switch } from "./adt/switch.js";
+import { Value } from "./adt/value.js";
+import { Unwrap } from "./adt/unwrap.js";
 
-export const DiscriminantDefault: Enum.Discriminant.Default = "_type";
+export const DiscriminantDefault: ADT.Discriminant.Default = "_type";
 
-export const Enum = {
+export const ADT = {
 	on: On,
 	define: Define(DiscriminantDefault),
 	match: Match(DiscriminantDefault),
@@ -18,18 +18,18 @@ export const Enum = {
 	unwrap: Unwrap(DiscriminantDefault),
 };
 
-export type Enum<
-	TVariants extends Enum.Variants,
-	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default,
+export type ADT<
+	TVariants extends ADT.Variants,
+	TDiscriminant extends ADT.Discriminant = ADT.Discriminant.Default,
 > = {
-	[TKey in keyof TVariants]-?: TVariants[TKey] extends Enum.Variants.UnitValueAny
-		? Enum.Variants.Unit<TKey & string, TDiscriminant>
-		: TVariants[TKey] extends Enum.Variants.DataValueAny
-			? Enum.Variants.Data<TKey & string, TVariants[TKey], TDiscriminant>
+	[TKey in keyof TVariants]-?: TVariants[TKey] extends ADT.Variants.UnitValueAny
+		? ADT.Variants.Unit<TKey & string, TDiscriminant>
+		: TVariants[TKey] extends ADT.Variants.DataValueAny
+			? ADT.Variants.Data<TKey & string, TVariants[TKey], TDiscriminant>
 			: never;
 }[keyof TVariants];
 
-export namespace Enum {
+export namespace ADT {
 	export type define<
 		TBuilder extends Record<string, (...args: any[]) => unknown>,
 	> = {
@@ -113,12 +113,12 @@ export namespace Enum {
 		TEnum extends Any<TDiscriminant>,
 		TVariants extends Variants,
 		TDiscriminant extends Discriminant = Discriminant.Default,
-	> = Merge<TEnum | Enum<TVariants, TDiscriminant>, TDiscriminant>;
+	> = Merge<TEnum | ADT<TVariants, TDiscriminant>, TDiscriminant>;
 
 	export type Merge<
 		TEnums extends Any<TDiscriminant>,
 		TDiscriminant extends Discriminant = Discriminant.Default,
-	> = Enum<
+	> = ADT<
 		TrueOrObj<
 			Intersect<
 				TrueAsEmpty<

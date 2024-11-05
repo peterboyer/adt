@@ -2,7 +2,7 @@
 # Install
 
 ```shell
-npm install unenum
+npm install pb.adt
 ```
 
 ## Requirements
@@ -12,13 +12,13 @@ npm install unenum
 
 # Quickstart
 
-`Enum` can create discriminated union types.
+`ADT` can create discriminated union types.
 
 
 ```ts
-import { Enum } from "unenum";
+import { ADT } from "pb.adt";
 
-type Post = Enum<{
+type Post = ADT<{
   Ping: true;
   Text: { title?: string; body: string };
   Photo: { url: string };
@@ -37,11 +37,11 @@ type Post =
 ```
 
 
-`Enum.define` can create discriminated union types and ease-of-use constructors.
+`ADT.define` can create discriminated union types and ease-of-use constructors.
 
 
 ```ts
-const Post = Enum.define(
+const Post = ADT.define(
   {} as {
     Ping: true;
     Text: { title?: string; body: string };
@@ -49,12 +49,12 @@ const Post = Enum.define(
   },
 );
 
-type Post = Enum.define<typeof Post>;
+type Post = ADT.define<typeof Post>;
 ```
 
 
-Constructors can create Enum variant values:
-- All constructed Enum variant values are plain objects.
+Constructors can create ADT variant values:
+- All constructed ADT variant values are plain objects.
 - They match their variant types exactly.
 - They do not have any methods or hidden properties.
 
@@ -68,17 +68,17 @@ const posts: Post[] = [
 ```
 
 
-The `Enum` provides ease-of-use utilities like `.switch` and `.match` for
+The `ADT` provides ease-of-use utilities like `.switch` and `.match` for
 working with discriminated unions.
 
 
 ```ts
 (function (post: Post): string {
-  if (Enum.match(post, "Ping")) {
+  if (ADT.match(post, "Ping")) {
     return "Ping!";
   }
 
-  return Enum.switch(post, {
+  return ADT.switch(post, {
     Text: ({ title }) => `Text("${title ?? "Untitled"}")`,
     _: () => `Unhandled`,
   });
@@ -86,7 +86,7 @@ working with discriminated unions.
 ```
 
 
-Enum variant values are simple objects, you can narrow and access properties as
+`ADT` variant values are simple objects, you can narrow and access properties as
 you would any other object.
 
 
@@ -97,15 +97,15 @@ function getTitleFromPost(post: Post): string | undefined {
 ```
 
 
-<details><summary><code>Enum</code> supports creating discriminated unions with custom discriminants. <small>(Click for details…)</small></summary>
+<details><summary><code>ADT</code> supports creating discriminated unions with custom discriminants. <small>(Click for details…)</small></summary>
 <br />
 
 
 ```ts
-type File = Enum<
+type File = ADT<
   {
     "text/plain": { data: string };
-    "image/jpeg": { data: Buffer };
+    "image/jpeg": { data: ImageBitmap };
     "application/json": { data: unknown };
   },
   "mime"
@@ -119,38 +119,38 @@ This creates a discriminated union identical to if you did so manually.
 ```ts
 type File =
   | { mime: "text/plain"; data: string }
-  | { mime: "image/jpeg"; data: Buffer }
+  | { mime: "image/jpeg"; data: ImageBitmap }
   | { mime: "application/json"; data: unknown };
 ```
 
 
-`Enum.*` methods for custom discriminants can be accessed via the `.on()` method.
+`ADT.*` methods for custom discriminants can be accessed via the `.on()` method.
 
 
 ```ts
-const File = Enum.on("mime").define(
+const File = ADT.on("mime").define(
   {} as {
     "text/plain": { data: string };
-    "image/jpeg": { data: Buffer };
+    "image/jpeg": { data: ImageBitmap };
     "application/json": { data: unknown };
   },
 );
 
-type File = Enum.define<typeof File>;
+type File = ADT.define<typeof File>;
 
 const files = [
   File["text/plain"]({ data: "..." }),
-  File["image/jpeg"]({ data: Buffer.from("...") }),
+  File["image/jpeg"]({ data: new ImageBitmap() }),
   File["application/json"]({ data: {} }),
 ];
 
 (function (file: File): string {
-  if (Enum.on("mime").match(file, "text/plain")) {
+  if (ADT.on("mime").match(file, "text/plain")) {
     return "Text!";
   }
 
-  return Enum.on("mime").switch(file, {
-    "image/jpeg": ({ data }) => `Image(${data.length})`,
+  return ADT.on("mime").switch(file, {
+    "image/jpeg": ({ data }) => `Image(${data})`,
     _: () => `Unhandled`,
   });
 });
@@ -163,24 +163,24 @@ const files = [
 
 # API
 
-- [`Enum`](#enum)
-  - [`Enum.define`](#enumdefine)
-  - [`Enum.match`](#enummatch)
-  - [`Enum.switch`](#enumswitch)
-  - [`Enum.value`](#enumvalue)
-  - [`Enum.unwrap`](#enumunwrap)
-  - [`Enum.on`](#enumon)
-  - [`Enum.Root`](#enumroot)
-  - [`Enum.Keys`](#enumkeys)
-  - [`Enum.Pick`](#enumpick)
-  - [`Enum.Omit`](#enumomit)
-  - [`Enum.Extend`](#enumextend)
-  - [`Enum.Merge`](#enummerge)
+- [`ADT`](#adt)
+  - [`ADT.define`](#adtdefine)
+  - [`ADT.match`](#adtmatch)
+  - [`ADT.switch`](#adtswitch)
+  - [`ADT.value`](#adtvalue)
+  - [`ADT.unwrap`](#adtunwrap)
+  - [`ADT.on`](#adton)
+  - [`ADT.Root`](#adtroot)
+  - [`ADT.Keys`](#adtkeys)
+  - [`ADT.Pick`](#adtpick)
+  - [`ADT.Omit`](#adtomit)
+  - [`ADT.Extend`](#adtextend)
+  - [`ADT.Merge`](#adtmerge)
 
-## `Enum`
+## `ADT`
 
 ```
-(type) Enum<TVariants, TDiscriminant?>
+(type) ADT<TVariants, TDiscriminant?>
 ```
 
 - Creates a discriminated union `type` from a key-value map of variants.
@@ -190,7 +190,7 @@ const files = [
 <details><summary>(<strong>Example</strong>) Using the default discriminant.</summary>
 
 ```ts
-type Foo = Enum<{
+type Foo = ADT<{
   Unit: true;
   Data: { value: string };
 }>;
@@ -201,7 +201,7 @@ type Foo = Enum<{
 <details><summary>(<strong>Example</strong>) Using a custom discriminant.</summary>
 
 ```ts
-type Foo = Enum<
+type Foo = ADT<
   {
     Unit: true;
     Data: { value: string };
@@ -214,38 +214,38 @@ type Foo = Enum<
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.define`
+## `ADT.define`
 
 ```
-(func) Enum.define(variants, options?: { [variant]: callback }) => builder
+(func) ADT.define(variants, options?: { [variant]: callback }) => builder
 ```
 
 
 ```ts
-const Foo = Enum.define(
+const Foo = ADT.define(
   {} as {
     Unit: true;
     Data: { value: string };
   },
 );
 
-type Foo = Enum.define<typeof Foo>;
+type Foo = ADT.define<typeof Foo>;
 ```
 
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.match`
+## `ADT.match`
 
 ```
-(func) Enum.match(value, variant | variants[]) => boolean
+(func) ADT.match(value, variant | variants[]) => boolean
 ```
 
 <details><summary>(<strong>Example</strong>) Match with one variant.</summary>
 
 ```ts
 const foo = Foo.Unit() as Foo;
-const value = Enum.match(foo, "Unit");
+const value = ADT.match(foo, "Unit");
 ```
 
 </details>
@@ -254,10 +254,7 @@ const value = Enum.match(foo, "Unit");
 
 ```ts
 function getFileFormat(file: File): boolean {
-  const isText = Enum.on("mime").match(file, [
-    "text/plain",
-    "application/json",
-  ]);
+  const isText = ADT.on("mime").match(file, ["text/plain", "application/json"]);
   return isText;
 }
 ```
@@ -266,10 +263,10 @@ function getFileFormat(file: File): boolean {
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.switch`
+## `ADT.switch`
 
 ```
-(func) Enum.switch(
+(func) ADT.switch(
   value,
   matcher = { [variant]: value | callback; _?: value | callback }
 ) => inferred
@@ -279,7 +276,7 @@ function getFileFormat(file: File): boolean {
 
 ```ts
 const foo: Foo = Foo.Unit() as Foo;
-const value = Enum.switch(foo, {
+const value = ADT.switch(foo, {
   Unit: "Unit()",
   Data: ({ value }) => `Data(${value})`,
 });
@@ -291,7 +288,7 @@ const value = Enum.switch(foo, {
 
 ```ts
 const foo: Foo = Foo.Unit() as Foo;
-const value = Enum.switch(foo, {
+const value = ADT.switch(foo, {
   Unit: "Unit()",
   _: "Unknown",
 });
@@ -302,7 +299,7 @@ const value = Enum.switch(foo, {
 <details><summary>(<strong>Example</strong>) UI Framework (e.g. React) rendering all state cases.</summary>
 
 ```ts
-const State = Enum.define(
+const State = ADT.define(
   {} as {
     Pending: true;
     Ok: { items: string[] };
@@ -310,7 +307,7 @@ const State = Enum.define(
   },
 );
 
-type State = Enum.define<typeof State>;
+type State = ADT.define<typeof State>;
 
 function Component(): Element {
   const [state, setState] = useState<State>(State.Pending());
@@ -333,7 +330,7 @@ function Component(): Element {
   }, []);
 
   // exhaustively handle all possible states
-  return Enum.switch(state, {
+  return ADT.switch(state, {
     Loading: () => `<Spinner />`,
     Ok: ({ items }) => `<ul>${items.map(() => `<li />`)}</ul>`,
     Error: ({ cause }) => `<span>Error: "${cause.message}"</span>`,
@@ -345,27 +342,27 @@ function Component(): Element {
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.value`
+## `ADT.value`
 
 ```
-(func) Enum.value(variantName, variantProperties?) => inferred
+(func) ADT.value(variantName, variantProperties?) => inferred
 ```
 
-- Useful if you add an additional Enum variant but don't have (or want to
-define) a Enum builder for it.
+- Useful if you add an additional ADT variant but don't have (or want to
+define) a ADT builder for it.
 
-<details><summary>(<strong>Example</strong>) Create an Enum value instance, (if possible) inferred from return type.</summary>
+<details><summary>(<strong>Example</strong>) Create an ADT value instance, (if possible) inferred from return type.</summary>
 
 ```ts
 
-function getOutput(): Enum<{
+function getOutput(): ADT<{
   None: true;
   Some: { value: unknown };
   All: true;
 }> {
-  if (Math.random()) return Enum.value("All");
-  if (Math.random()) return Enum.value("Some", { value: "..." });
-  return Enum.value("None");
+  if (Math.random()) return ADT.value("All");
+  if (Math.random()) return ADT.value("Some", { value: "..." });
+  return ADT.value("None");
 }
 ```
 
@@ -373,10 +370,10 @@ function getOutput(): Enum<{
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.unwrap`
+## `ADT.unwrap`
 
 ```
-(func) Enum.unwrap(result, path) => inferred | undefined
+(func) ADT.unwrap(result, path) => inferred | undefined
 ```
 
 - Extract a value's variant's property using a `"{VariantName}.{PropertyName}"`
@@ -385,50 +382,50 @@ path, otherwise returns `undefined`.
 <details><summary>(<strong>Example</strong>) Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.</summary>
 
 ```ts
-const value = { _type: "A", foo: "..." } as Enum<{
+const value = { _type: "A", foo: "..." } as ADT<{
   A: { foo: string };
   B: { bar: number };
 }>;
-const valueOrFallback = Enum.unwrap(value, "A.foo") ?? null;
+const valueOrFallback = ADT.unwrap(value, "A.foo") ?? null;
 ```
 
 </details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.on`
+## `ADT.on`
 
 ```
-(func) Enum.on(discriminant) => { define, match, value, unwrap }
+(func) ADT.on(discriminant) => { define, match, value, unwrap }
 ```
 
-- Redefines and returns all `Enum.*` runtime methods with a custom discriminant.
+- Redefines and returns all `ADT.*` runtime methods with a custom discriminant.
 
-<details><summary>(<strong>Example</strong>) Define and use an Enum with a custom discriminant.</summary>
+<details><summary>(<strong>Example</strong>) Define and use an ADT with a custom discriminant.</summary>
 
 ```ts
-const Foo = Enum.on("kind").define({} as { A: true; B: true });
-type Foo = Enum.define<typeof Foo>;
+const Foo = ADT.on("kind").define({} as { A: true; B: true });
+type Foo = ADT.define<typeof Foo>;
 
 const value = Foo.A() as Foo;
-Enum.on("kind").match(value, "A");
-Enum.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
+ADT.on("kind").match(value, "A");
+ADT.on("kind").switch(value, { A: "A Variant", _: "Other Variant" });
 ```
 
 </details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Root`
+## `ADT.Root`
 
 ```
-(type) Enum.Root<TEnum, TDiscriminant?>
+(type) ADT.Root<Tadt, TDiscriminant?>
 ```
 
-<details><summary>(<strong>Example</strong>) Infer a key/value mapping of an Enum's variants.</summary>
+<details><summary>(<strong>Example</strong>) Infer a key/value mapping of an ADT's variants.</summary>
 
 ```ts
-export type Root = Enum.Root<Enum<{ Unit: true; Data: { value: string } }>>;
+export type Root = ADT.Root<ADT<{ Unit: true; Data: { value: string } }>>;
 // -> { Unit: true; Data: { value: string } }
 ```
 
@@ -436,15 +433,15 @@ export type Root = Enum.Root<Enum<{ Unit: true; Data: { value: string } }>>;
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Keys`
+## `ADT.Keys`
 
 ```
-(type) Enum.Keys<TEnum, TDiscriminant?>
+(type) ADT.Keys<Tadt, TDiscriminant?>
 ```
-<details><summary>(<strong>Example</strong>) Infers all keys of an Enum's variants.</summary>
+<details><summary>(<strong>Example</strong>) Infers all keys of an ADT's variants.</summary>
 
 ```ts
-export type Keys = Enum.Keys<Enum<{ Unit: true; Data: { value: string } }>>;
+export type Keys = ADT.Keys<ADT<{ Unit: true; Data: { value: string } }>>;
 // -> "Unit" | "Data"
 ```
 
@@ -452,16 +449,16 @@ export type Keys = Enum.Keys<Enum<{ Unit: true; Data: { value: string } }>>;
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Pick`
+## `ADT.Pick`
 
 ```
-(type) Enum.Pick<TEnum, TKeys, TDiscriminant?>
+(type) ADT.Pick<Tadt, TKeys, TDiscriminant?>
 ```
-<details><summary>(<strong>Example</strong>) Pick subset of an Enum's variants by key.</summary>
+<details><summary>(<strong>Example</strong>) Pick subset of an ADT's variants by key.</summary>
 
 ```ts
-export type Pick = Enum.Pick<
-  Enum<{ Unit: true; Data: { value: string } }>,
+export type Pick = ADT.Pick<
+  ADT<{ Unit: true; Data: { value: string } }>,
   "Unit"
 >;
 // -> { _type: "Unit" }
@@ -471,16 +468,16 @@ export type Pick = Enum.Pick<
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Omit`
+## `ADT.Omit`
 
 ```
-(type) Enum.Omit<TEnum, TKeys, TDiscriminant?>
+(type) ADT.Omit<Tadt, TKeys, TDiscriminant?>
 ```
-<details><summary>(<strong>Example</strong>) Omit subset of an Enum's variants by key.</summary>
+<details><summary>(<strong>Example</strong>) Omit subset of an ADT's variants by key.</summary>
 
 ```ts
-export type Omit = Enum.Omit<
-  Enum<{ Unit: true; Data: { value: string } }>,
+export type Omit = ADT.Omit<
+  ADT<{ Unit: true; Data: { value: string } }>,
   "Unit"
 >;
 // -> *Data
@@ -492,17 +489,17 @@ export type Omit = Enum.Omit<
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Extend`
+## `ADT.Extend`
 
 ```
-(type) Enum.Extend<TEnum, TVariants, TDiscriminant?>
+(type) ADT.Extend<Tadt, TVariants, TDiscriminant?>
 ```
 
-<details><summary>(<strong>Example</strong>) Add new variants and merge new properties for existing variants for an Enum.</summary>
+<details><summary>(<strong>Example</strong>) Add new variants and merge new properties for existing variants for an ADT.</summary>
 
 ```ts
-export type Extend = Enum.Extend<
-  Enum<{ Unit: true; Data: { value: string } }>,
+export type Extend = ADT.Extend<
+  ADT<{ Unit: true; Data: { value: string } }>,
   { Extra: true }
 >;
 // -> *Unit | *Data | *Extra
@@ -512,21 +509,19 @@ export type Extend = Enum.Extend<
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
 
-## `Enum.Merge`
+## `ADT.Merge`
 
 ```
-(type) Enum.Merge<TEnums, TDiscriminant?>
+(type) ADT.Merge<Tadts, TDiscriminant?>
 ```
 
-<details><summary>(<strong>Example</strong>) Merge all variants and properties of all given Enums.</summary>
+<details><summary>(<strong>Example</strong>) Merge all variants and properties of all given ADTs.</summary>
 
 ```ts
-export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
+export type Merge = ADT.Merge<ADT<{ Left: true }> | ADT<{ Right: true }>>;
 // -> *Left | *Right
 ```
 
 </details>
 
 <div align=right><a href=#api>Back to top ⤴</a></div>
-
----

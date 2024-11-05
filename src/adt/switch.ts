@@ -1,10 +1,10 @@
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 
-export function Switch<TDiscriminant extends Enum.Discriminant.Any>(
+export function Switch<TDiscriminant extends ADT.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
 	return function <
-		TEnum extends Enum.Any<TDiscriminant>,
+		TEnum extends ADT.Any<TDiscriminant>,
 		TEnumMatcher extends EnumMatcher<TEnum, TDiscriminant>,
 		TMatcher extends [TFallback] extends [never]
 			? TEnumMatcher
@@ -29,20 +29,20 @@ export function Switch<TDiscriminant extends Enum.Discriminant.Any>(
 }
 
 type EnumMatcher<
-	TEnum extends Enum.Any<TDiscriminant>,
+	TEnum extends ADT.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default,
+		ADT.Discriminant.Default,
 > =
 	| {
-			[Key in keyof Enum.Root<TEnum, TDiscriminant>]: Enum.Root<
+			[Key in keyof ADT.Root<TEnum, TDiscriminant>]: ADT.Root<
 				TEnum,
 				TDiscriminant
 			>[Key] extends true
 				? () => unknown
-				: (value: Enum.Root<TEnum, TDiscriminant>[Key]) => unknown;
+				: (value: ADT.Root<TEnum, TDiscriminant>[Key]) => unknown;
 	  }
 	| {
-			[Key in keyof Enum.Root<TEnum, TDiscriminant>]: unknown;
+			[Key in keyof ADT.Root<TEnum, TDiscriminant>]: unknown;
 	  };
 
 type ReturnTypeMatcher<TMatcher extends Record<string, unknown>> =

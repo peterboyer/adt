@@ -1,6 +1,6 @@
-import { Enum } from "pb.adt";
+import { ADT } from "pb.adt";
 
-const WebEvent = Enum.define(
+const WebEvent = ADT.define(
 	{} as {
 		PageLoad: true;
 		PageUnload: true;
@@ -14,34 +14,34 @@ const WebEvent = Enum.define(
 	},
 );
 
-type WebEvent = Enum.define<typeof WebEvent>;
+type WebEvent = ADT.define<typeof WebEvent>;
 
 void function inspect(event: WebEvent): string | undefined {
-	if (Enum.match(event, "PageLoad")) console.log(event);
-	else if (Enum.match(event, "PageUnload")) console.log(event);
-	else if (Enum.match(event, "KeyPress")) console.log(event, event.key);
-	else if (Enum.match(event, "Paste")) console.log(event, event.content);
-	else if (Enum.match(event, "Click")) console.log(event, event.x, event.y);
+	if (ADT.match(event, "PageLoad")) console.log(event);
+	else if (ADT.match(event, "PageUnload")) console.log(event);
+	else if (ADT.match(event, "KeyPress")) console.log(event, event.key);
+	else if (ADT.match(event, "Paste")) console.log(event, event.content);
+	else if (ADT.match(event, "Click")) console.log(event, event.x, event.y);
 	return "foo";
 };
 
-function getWebEvent(): WebEvent | Enum<{ None: true }> {
+function getWebEvent(): WebEvent | ADT<{ None: true }> {
 	if ("".toString()) return WebEvent.PageLoad();
 	if ("".toString()) return WebEvent.PageUnload();
 	if ("".toString()) return WebEvent.KeyPress("x");
 	if ("".toString()) return WebEvent.Paste("...");
 	if ("".toString()) return WebEvent.Click({ x: 10, y: 10 });
-	return Enum.value("None");
+	return ADT.value("None");
 }
 
 void function app() {
 	const event = getWebEvent();
 
-	if (Enum.match(event, "None")) {
+	if (ADT.match(event, "None")) {
 		return;
 	}
 
-	return Enum.switch(event, {
+	return ADT.switch(event, {
 		PageLoad: "load" as const,
 		PageUnload: "unload" as const,
 		_: undefined,

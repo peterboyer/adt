@@ -1,8 +1,8 @@
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 import type { Identity } from "../shared/identity.js";
 import type { Intersect } from "../shared/intersect.js";
 
-export function Define<TDiscriminant extends Enum.Discriminant.Any>(
+export function Define<TDiscriminant extends ADT.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
 	const defaultProxy = new Proxy({} as any, {
@@ -14,9 +14,9 @@ export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 	});
 
 	return function <
-		TVariants extends Enum.Variants,
+		TVariants extends ADT.Variants,
 		TMapper extends Mapper<TEnum, TDiscriminant>,
-		TEnum extends Enum<TVariants, TDiscriminant>,
+		TEnum extends ADT<TVariants, TDiscriminant>,
 	>(
 		_variants: TVariants,
 		mapper?: TMapper,
@@ -50,9 +50,9 @@ export function Define<TDiscriminant extends Enum.Discriminant.Any>(
 }
 
 type Mapper<
-	TEnum extends Enum.Any<TDiscriminant>,
+	TEnum extends ADT.Any<TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default,
+		ADT.Discriminant.Default,
 > = Partial<
 	Identity<
 		Intersect<
@@ -68,8 +68,8 @@ type Mapper<
 >;
 
 type EnumVariantConstructor<
-	TEnum extends Enum.Any<TDiscriminant>,
-	TDiscriminant extends Enum.Discriminant,
+	TEnum extends ADT.Any<TDiscriminant>,
+	TDiscriminant extends ADT.Discriminant,
 > = TEnum extends unknown
 	? [Exclude<keyof TEnum, TDiscriminant>] extends [never]
 		? () => TEnum

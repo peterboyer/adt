@@ -6,7 +6,7 @@
 	"description": "Universal ADT utilities.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/peterboyer/unenum.git"
+		"url": "git+https://github.com/peterboyer/adt.git"
 	},
 	"type": "module",
 	"exports": "./index.js",

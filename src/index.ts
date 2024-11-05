@@ -1,1 +1,1 @@
-export { Enum } from "./enum.js";
+export { ADT } from "./adt.js";

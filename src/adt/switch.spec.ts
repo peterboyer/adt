@@ -1,11 +1,11 @@
 import { Switch } from "./switch.js";
 
 import type { Expect, Equal } from "pb.expectequal";
-import type { Enum } from "../enum.js";
+import type { ADT } from "../adt.js";
 
 describe("default discriminant", () => {
 	test("value with one variant", () => {
-		type Value = Enum<{ One: true }>;
+		type Value = ADT<{ One: true }>;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
 		void (() => Switch("_type")({} as Value, {}));
@@ -39,7 +39,7 @@ describe("default discriminant", () => {
 	});
 
 	test("value with many variants", () => {
-		type Value = Enum<{ One: true; Two: { value: string } }>;
+		type Value = ADT<{ One: true; Two: { value: string } }>;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
 		void (() => Switch("_type")({} as Value, {}));
@@ -127,7 +127,7 @@ describe("default discriminant", () => {
 	});
 
 	test("runtime", () => {
-		type Value = Enum<{ One: true; Two: { value: string } }>;
+		type Value = ADT<{ One: true; Two: { value: string } }>;
 
 		// all cases
 		{
@@ -170,10 +170,10 @@ describe("default discriminant", () => {
 
 describe("custom discriminant", () => {
 	test("value with one variant", () => {
-		type Value = Enum<{ One: true }, "custom">;
+		type Value = ADT<{ One: true }, "custom">;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
-		void (() => Enum.on("custom").switch({} as Value, {}));
+		void (() => ADT.on("custom").switch({} as Value, {}));
 
 		// all cases
 		{
@@ -205,12 +205,12 @@ describe("custom discriminant", () => {
 	});
 
 	test("value with many variants", () => {
-		type Value = Enum<{ One: true; Two: { value: string } }, "custom">;
+		type Value = ADT<{ One: true; Two: { value: string } }, "custom">;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
-		void (() => Enum.on("custom").switch({} as Value, {}));
+		void (() => ADT.on("custom").switch({} as Value, {}));
 		// @ts-expect-error Is missing the `Two` matcher case.
-		void (() => Enum.on("custom").switch({} as Value, { One: () => true }));
+		void (() => ADT.on("custom").switch({} as Value, { One: () => true }));
 
 		// all cases
 		{
@@ -265,7 +265,7 @@ describe("custom discriminant", () => {
 	});
 
 	test("runtime", () => {
-		type Value = Enum<{ One: true; Two: { value: string } }, "custom">;
+		type Value = ADT<{ One: true; Two: { value: string } }, "custom">;
 
 		// all cases
 		{
