@@ -15,12 +15,12 @@ test("unwrap", () => {
 
 	const foo = Foo.Open({ openId: "..." }) as Foo;
 	{
-		const value = Unwrap("_type")(foo, "Open.openId");
+		const value = Unwrap("$type")(foo, "Open.openId");
 		expect(value).toEqual("...");
 		!0 as Expect<Equal<typeof value, string | undefined>>;
 	}
 	{
-		const value = Unwrap("_type")(foo, "Close.closeId");
+		const value = Unwrap("$type")(foo, "Close.closeId");
 		expect(value).toBeUndefined();
 		!0 as Expect<Equal<typeof value, number | undefined>>;
 	}

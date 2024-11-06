@@ -6,7 +6,7 @@ import type { ADT } from "../adt.js";
 const value = "...";
 
 test("Define", () => {
-	const Event = Define("_type")(
+	const Event = Define("$type")(
 		{} as {
 			Open: true;
 			Data: { value: unknown };
@@ -16,14 +16,14 @@ test("Define", () => {
 	type Event = ADT.define<typeof Event>;
 
 	{
-		expect(Event.Open()).toStrictEqual({ _type: "Open" });
-		expect(Event.Data({ value })).toStrictEqual({ _type: "Data", value });
-		expect(Event.Close()).toStrictEqual({ _type: "Close" });
+		expect(Event.Open()).toStrictEqual({ $type: "Open" });
+		expect(Event.Data({ value })).toStrictEqual({ $type: "Data", value });
+		expect(Event.Close()).toStrictEqual({ $type: "Close" });
 	}
 });
 
 test("Define with options.mapper", () => {
-	const Event = Define("_type")(
+	const Event = Define("$type")(
 		{} as {
 			Open: true;
 			Data: { value: unknown };
@@ -36,48 +36,48 @@ test("Define with options.mapper", () => {
 	type Event = ADT.define<typeof Event>;
 
 	{
-		expect(Event.Open()).toStrictEqual({ _type: "Open" });
-		expect(Event.Data(value)).toStrictEqual({ _type: "Data", value });
-		expect(Event.Close()).toStrictEqual({ _type: "Close" });
+		expect(Event.Open()).toStrictEqual({ $type: "Open" });
+		expect(Event.Data(value)).toStrictEqual({ $type: "Data", value });
+		expect(Event.Close()).toStrictEqual({ $type: "Close" });
 	}
 });
 
 test("Extended with extra properties", () => {
 	const EventSchema = z.union([
 		z.object({
-			_type: z.literal("Open"),
+			$type: z.literal("Open"),
 		}),
 		z.object({
-			_type: z.literal("Data"),
+			$type: z.literal("Data"),
 			value: z.unknown(),
 		}),
 		z.object({
-			_type: z.literal("Close"),
+			$type: z.literal("Close"),
 		}),
 	]);
 
 	type Event = z.infer<typeof EventSchema>;
 
 	{
-		const Event = Object.assign(Define("_type")({} as ADT.Root<Event>), {
+		const Event = Object.assign(Define("$type")({} as ADT.Root<Event>), {
 			$schema: EventSchema,
 		});
 
 		expect(Event.$schema).toBe(EventSchema);
-		expect(Event.Open()).toEqual({ _type: "Open" });
-		expect(Event.Data({ value: 1 })).toEqual({ _type: "Data", value: 1 });
+		expect(Event.Open()).toEqual({ $type: "Open" });
+		expect(Event.Data({ value: 1 })).toEqual({ $type: "Data", value: 1 });
 	}
 
 	{
 		const Event = Object.assign(
-			Define("_type")({} as ADT.Root<Event>, {
+			Define("$type")({} as ADT.Root<Event>, {
 				Data: (value: unknown) => ({ value }),
 			}),
 			{ $schema: EventSchema },
 		);
 
 		expect(Event.$schema).toBe(EventSchema);
-		expect(Event.Open()).toEqual({ _type: "Open" });
-		expect(Event.Data(1)).toEqual({ _type: "Data", value: 1 });
+		expect(Event.Open()).toEqual({ $type: "Open" });
+		expect(Event.Data(1)).toEqual({ $type: "Data", value: 1 });
 	}
 });

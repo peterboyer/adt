@@ -31,9 +31,9 @@ type Post = ADT<{
 
 ```ts
 type Post =
-  | { _type: "Ping" }
-  | { _type: "Text"; title?: string; body: string }
-  | { _type: "Photo"; url: string };
+  | { $type: "Ping" }
+  | { $type: "Text"; title?: string; body: string }
+  | { $type: "Photo"; url: string };
 ```
 
 
@@ -92,7 +92,7 @@ you would any other object.
 
 ```ts
 function getTitleFromPost(post: Post): string | undefined {
-  return post._type === "Text" ? post.title : undefined;
+  return post.$type === "Text" ? post.title : undefined;
 }
 ```
 
@@ -382,7 +382,7 @@ path, otherwise returns `undefined`.
 <details><summary>(<strong>Example</strong>) Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.</summary>
 
 ```ts
-const value = { _type: "A", foo: "..." } as ADT<{
+const value = { $type: "A", foo: "..." } as ADT<{
   A: { foo: string };
   B: { bar: number };
 }>;
@@ -461,7 +461,7 @@ export type Pick = ADT.Pick<
   ADT<{ Unit: true; Data: { value: string } }>,
   "Unit"
 >;
-// -> { _type: "Unit" }
+// -> { $type: "Unit" }
 ```
 
 </details>

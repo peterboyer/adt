@@ -8,12 +8,12 @@ describe("default discriminant", () => {
 		type Value = ADT<{ One: true }>;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
-		void (() => Switch("_type")({} as Value, {}));
+		void (() => Switch("$type")({} as Value, {}));
 
 		// all cases
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: "One" as const,
 				});
 			!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -22,7 +22,7 @@ describe("default discriminant", () => {
 		// all cases as fns
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 				});
 			!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -31,7 +31,7 @@ describe("default discriminant", () => {
 		// only fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					_: () => "Fallback" as const,
 				});
 			!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -42,14 +42,14 @@ describe("default discriminant", () => {
 		type Value = ADT<{ One: true; Two: { value: string } }>;
 
 		// @ts-expect-error Is missing the `One` or `_` matcher case.
-		void (() => Switch("_type")({} as Value, {}));
+		void (() => Switch("$type")({} as Value, {}));
 		// @ts-expect-error Is missing the `Two` matcher case.
-		void (() => Switch("_type")({} as Value, { One: () => true }));
+		void (() => Switch("$type")({} as Value, { One: () => true }));
 
 		// all cases
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: "One" as const,
 					Two: "Two" as const,
 				});
@@ -59,7 +59,7 @@ describe("default discriminant", () => {
 		// all cases as fns
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 					Two: () => "Two" as const,
 				});
@@ -69,7 +69,7 @@ describe("default discriminant", () => {
 		// only fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					_: "Fallback" as const,
 				});
 			!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -78,7 +78,7 @@ describe("default discriminant", () => {
 		// only fn fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					_: () => "Fallback" as const,
 				});
 			!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -87,7 +87,7 @@ describe("default discriminant", () => {
 		// one case and fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 					_: "Fallback" as const,
 				});
@@ -97,7 +97,7 @@ describe("default discriminant", () => {
 		// all cases and fn fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 					_: () => "Fallback" as const,
 				});
@@ -107,7 +107,7 @@ describe("default discriminant", () => {
 		// all cases and undefined as fallback
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 					_: undefined,
 				});
@@ -117,7 +117,7 @@ describe("default discriminant", () => {
 		// all cases, some using value properties
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => 0,
 					Two: ({ value }) => value,
 					_: () => "Unknown",
@@ -132,37 +132,37 @@ describe("default discriminant", () => {
 		// all cases
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => "One" as const,
 					Two: () => "Two" as const,
 					_: undefined,
 				});
-			expect(fn({ _type: "One" })).toEqual("One");
-			expect(fn({ _type: "Two", value: "..." })).toEqual("Two");
+			expect(fn({ $type: "One" })).toEqual("One");
+			expect(fn({ $type: "Two", value: "..." })).toEqual("Two");
 			expect(() => fn({} as Value)).toThrow();
 		}
 
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					_: () => "Unknown",
 				});
 
-			expect(fn({ _type: "One" })).toEqual("Unknown");
-			expect(fn({ _type: "Two", value: "Two" })).toEqual("Unknown");
+			expect(fn({ $type: "One" })).toEqual("Unknown");
+			expect(fn({ $type: "Two", value: "Two" })).toEqual("Unknown");
 			expect(fn({} as Value)).toEqual("Unknown");
 		}
 
 		{
 			const fn = (value: Value) =>
-				Switch("_type")(value, {
+				Switch("$type")(value, {
 					One: () => 0,
 					Two: ({ value }) => value,
 					_: () => "Unknown",
 				});
 
-			expect(fn({ _type: "One" })).toEqual(0);
-			expect(fn({ _type: "Two", value: "..." })).toEqual("...");
+			expect(fn({ $type: "One" })).toEqual(0);
+			expect(fn({ $type: "Two", value: "..." })).toEqual("...");
 			expect(fn({} as Value)).toEqual("Unknown");
 		}
 	});

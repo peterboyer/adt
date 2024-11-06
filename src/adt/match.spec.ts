@@ -16,9 +16,9 @@ test("Match", () => {
 	const event = {} as Event;
 
 	{
-		if (Match("_type")(event, "Open")) {
+		if (Match("$type")(event, "Open")) {
 			({}) as [Expect<Equal<typeof event, ADT.Pick<Event, "Open">>>];
-		} else if (Match("_type")(event, "Data")) {
+		} else if (Match("$type")(event, "Data")) {
 			({}) as [Expect<Equal<typeof event, ADT.Pick<Event, "Data">>>];
 		} else {
 			({}) as [Expect<Equal<typeof event, ADT.Pick<Event, "Close">>>];
@@ -26,7 +26,7 @@ test("Match", () => {
 	}
 
 	{
-		if (Match("_type")(event, ["Open", "Close"])) {
+		if (Match("$type")(event, ["Open", "Close"])) {
 			({}) as [Expect<Equal<typeof event, ADT.Pick<Event, "Open" | "Close">>>];
 		} else {
 			({}) as [Expect<Equal<typeof event, ADT.Pick<Event, "Data">>>];
@@ -35,9 +35,9 @@ test("Match", () => {
 
 	{
 		const event = Event.Open() as Event;
-		expect(Match("_type")(event, "Open")).toEqual(true);
-		expect(Match("_type")(event, "Data")).toEqual(false);
-		expect(Match("_type")(event, ["Open", "Close"])).toEqual(true);
-		expect(Match("_type")(event, ["Data", "Close"])).toEqual(false);
+		expect(Match("$type")(event, "Open")).toEqual(true);
+		expect(Match("$type")(event, "Data")).toEqual(false);
+		expect(Match("$type")(event, ["Open", "Close"])).toEqual(true);
+		expect(Match("$type")(event, ["Data", "Close"])).toEqual(false);
 	}
 });

@@ -17,15 +17,15 @@ type EGeneric<T> = ADT<Generic<T>>;
 // prettier-ignore
 ({}) as [
 	Expect<Equal<ENone, never>>,
-	Expect<Equal<ENone["_type"], never>>,
-	Expect<Equal<EUnit, { _type: "Unit" }>>,
-	Expect<Equal<EUnit["_type"], "Unit">>,
-	Expect<Equal<EData, { _type: "Data"; value: unknown }>>,
-	Expect<Equal<EData["_type"], "Data">>,
-	Expect<Equal<EBoth, { _type: "Unit" } | { _type: "Data"; value: unknown }>>,
-	Expect<Equal<EBoth["_type"], "Unit" | "Data">>,
-	Expect<Equal<EGeneric<number>, { _type: "Generic"; value: number }>>,
-	Expect<Equal<EGeneric<number>["_type"], "Generic">>,
+	Expect<Equal<ENone["$type"], never>>,
+	Expect<Equal<EUnit, { $type: "Unit" }>>,
+	Expect<Equal<EUnit["$type"], "Unit">>,
+	Expect<Equal<EData, { $type: "Data"; value: unknown }>>,
+	Expect<Equal<EData["$type"], "Data">>,
+	Expect<Equal<EBoth, { $type: "Unit" } | { $type: "Data"; value: unknown }>>,
+	Expect<Equal<EBoth["$type"], "Unit" | "Data">>,
+	Expect<Equal<EGeneric<number>, { $type: "Generic"; value: number }>>,
+	Expect<Equal<EGeneric<number>["$type"], "Generic">>,
 
 	Expect<Equal<ADT.Root<ENone>, never>>,
 	Expect<Equal<ADT.Root<EUnit>, { Unit: true }>>,
@@ -100,24 +100,24 @@ type EGeneric<T> = ADT<Generic<T>>;
 	>;
 
 	const getState = (): State => {
-		if ("".toString()) return { _type: "Left", value: "" };
-		if ("".toString()) return { _type: "Right", value: "" };
-		return { _type: "None" };
+		if ("".toString()) return { $type: "Left", value: "" };
+		if ("".toString()) return { $type: "Right", value: "" };
+		return { $type: "None" };
 	};
 
 	() => {
 		const $state = getState();
 
-		if ($state._type === "Left") {
-			({}) as [Expect<Equal<typeof $state, { _type: "Left"; value: string }>>];
+		if ($state.$type === "Left") {
+			({}) as [Expect<Equal<typeof $state, { $type: "Left"; value: string }>>];
 			return;
 		}
-		if ($state._type === "Right") {
-			({}) as [Expect<Equal<typeof $state, { _type: "Right"; value: string }>>];
+		if ($state.$type === "Right") {
+			({}) as [Expect<Equal<typeof $state, { $type: "Right"; value: string }>>];
 			return;
 		}
-		if ($state._type === "None") {
-			({}) as [Expect<Equal<typeof $state, { _type: "None" }>>];
+		if ($state.$type === "None") {
+			({}) as [Expect<Equal<typeof $state, { $type: "None" }>>];
 			return;
 		}
 

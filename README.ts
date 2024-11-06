@@ -36,9 +36,9 @@ void {} as unknown as Post_; //-
 
 //>
 type Post__ =
-	| { _type: "Ping" }
-	| { _type: "Text"; title?: string; body: string }
-	| { _type: "Photo"; url: string };
+	| { $type: "Ping" }
+	| { $type: "Text"; title?: string; body: string }
+	| { $type: "Photo"; url: string };
 void {} as unknown as Post__; //-
 //<
 
@@ -99,7 +99,7 @@ you would any other object.
 
 //>
 function getTitleFromPost(post: Post): string | undefined {
-	return post._type === "Text" ? post.title : undefined;
+	return post.$type === "Text" ? post.title : undefined;
 }
 void getTitleFromPost; //-
 //<
@@ -396,7 +396,7 @@ path, otherwise returns `undefined`.
 
 //>>> Safely wrap throwable function call, then unwrap the Ok variant's value or use a fallback.
 //>
-const value____ = { _type: "A", foo: "..." } as ADT<{
+const value____ = { $type: "A", foo: "..." } as ADT<{
 	A: { foo: string };
 	B: { bar: number };
 }>;
@@ -476,7 +476,7 @@ export type Pick = ADT.Pick<
 	ADT<{ Unit: true; Data: { value: string } }>,
 	"Unit"
 >;
-// -> { _type: "Unit" }
+// -> { $type: "Unit" }
 //<
 //<<<
 

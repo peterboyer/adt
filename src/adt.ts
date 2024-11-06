@@ -7,7 +7,7 @@ import { Switch } from "./adt/switch.js";
 import { Value } from "./adt/value.js";
 import { Unwrap } from "./adt/unwrap.js";
 
-export const DiscriminantDefault: ADT.Discriminant.Default = "_type";
+export const DiscriminantDefault: ADT.Discriminant.Default = "$type";
 
 export const ADT = {
 	on: On,
@@ -44,7 +44,7 @@ export namespace ADT {
 	export namespace Discriminant {
 		export type Any = string;
 
-		export type Default = "_type";
+		export type Default = "$type";
 	}
 
 	export type Variants = Record<
