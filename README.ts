@@ -305,7 +305,7 @@ const value__ = ADT.switch(foo__, {
 void value__; //-
 //<
 //<<<
-//
+
 //>>> UI Framework (e.g. React) rendering all state cases.
 //>
 type Element = any; //-

@@ -295,7 +295,7 @@ const value = ADT.switch(foo, {
 ```
 
 </details>
-//
+
 <details><summary>(<strong>Example</strong>) UI Framework (e.g. React) rendering all state cases.</summary>
 
 ```ts
