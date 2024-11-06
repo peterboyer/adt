@@ -6,11 +6,14 @@ export function Define<TDiscriminant extends ADT.Discriminant.Any>(
 	discriminant: TDiscriminant,
 ) {
 	const defaultProxy = new Proxy({} as any, {
-		get:
-			(_, key: string) =>
-			(...args: any[]) => {
+		get: (self, key: string) => {
+			if (key in self) {
+				return self[key];
+			}
+			return (...args: any[]) => {
 				return { [discriminant]: key, ...args[0] };
-			},
+			};
+		},
 	});
 
 	return function <
@@ -37,7 +40,10 @@ export function Define<TDiscriminant extends ADT.Discriminant.Any>(
 			return defaultProxy;
 		}
 		return new Proxy({} as any, {
-			get: (_, key: string) => {
+			get: (self, key: string) => {
+				if (key in self) {
+					return self[key];
+				}
 				type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
 				const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
 				return (...args: any[]) => {
