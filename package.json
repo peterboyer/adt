@@ -21,10 +21,7 @@
 	"keywords": [
 		"adt",
 		"enum",
-		"sum",
-		"union",
 		"variant",
-		"ts",
 		"typescript"
 	]
 }
