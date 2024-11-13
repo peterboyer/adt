@@ -1,6 +1,7 @@
 import type { ADT } from "../adt.js";
 import type { Identity } from "../shared/identity.js";
 import type { Intersect } from "../shared/intersect.js";
+import type { RequiredKeys } from "./define/required-keys.js";
 
 export function Define<TDiscriminant extends ADT.Discriminant.Any>(
 	discriminant: TDiscriminant,
@@ -23,19 +24,21 @@ export function Define<TDiscriminant extends ADT.Discriminant.Any>(
 	>(
 		_variants: TVariants,
 		mapper?: TMapper,
-	): Identity<
-		Intersect<
-			TEnum extends unknown
-				? {
-						[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
-							? TMapper[Key] extends (...args: any[]) => any
-								? (...args: Parameters<TMapper[Key]>) => TEnum
-								: EnumVariantConstructor<TEnum, TDiscriminant>
-							: EnumVariantConstructor<TEnum, TDiscriminant>;
-					}
-				: never
-		>
-	> {
+	): ADT.Root<TEnum, TDiscriminant> extends infer Root
+		? {
+				[Key in keyof Root]: ADT.Pick<
+					TEnum,
+					Extract<ADT.Keys<TEnum, TDiscriminant>, Key>,
+					TDiscriminant
+				> extends infer Result
+					? Key extends keyof TMapper
+						? TMapper[Key] extends (...args: any[]) => any
+							? (...args: Parameters<TMapper[Key]>) => Result
+							: EnumVariantConstructor<Root[Key], Result>
+						: EnumVariantConstructor<Root[Key], Result>
+					: never;
+			}
+		: never {
 		if (!mapper) {
 			return defaultProxy;
 		}
@@ -73,17 +76,10 @@ type Mapper<
 	>
 >;
 
-type EnumVariantConstructor<
-	TEnum extends ADT.Any<TDiscriminant>,
-	TDiscriminant extends ADT.Discriminant,
-> = TEnum extends unknown
-	? [Exclude<keyof TEnum, TDiscriminant>] extends [never]
-		? () => TEnum
-		: [keyof PickRequired<Omit<TEnum, TDiscriminant>>] extends [never]
-			? (data?: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
-			: (data: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
-	: never;
-
-type PickRequired<T> = {
-	[K in keyof T as T[K] extends Required<T>[K] ? K : never]: T[K];
-};
+type EnumVariantConstructor<TVariant, TResult> = (
+	...args: TVariant extends true
+		? []
+		: [RequiredKeys<TVariant>] extends [never]
+			? [data?: TVariant]
+			: [data: TVariant]
+) => TResult;
